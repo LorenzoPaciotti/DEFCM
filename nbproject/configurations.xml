@@ -13,7 +13,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>defc.c</itemPath>
-      <itemPath>gen_gauss.c</itemPath>
     </logicalFolder>
     <logicalFolder name="TestFiles"
                    displayName="Test Files"
@@ -45,8 +44,6 @@
       </compileType>
       <item path="defc.c" ex="false" tool="0" flavor2="0">
       </item>
-      <item path="gen_gauss.c" ex="false" tool="0" flavor2="0">
-      </item>
     </conf>
     <conf name="Release" type="1">
       <toolsSet>
@@ -69,8 +66,6 @@
         </asmTool>
       </compileType>
       <item path="defc.c" ex="false" tool="0" flavor2="0">
-      </item>
-      <item path="gen_gauss.c" ex="false" tool="0" flavor2="0">
       </item>
     </conf>
   </confs>

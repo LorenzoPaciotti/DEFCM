@@ -9,19 +9,27 @@
 #define n 200 //numero di punti totale in input
 double m = 2.0; //fuzzification
 #define d 2 //dimensioni spaziali
-#define moltiplicatore_popolazione = 20;
-
-double CR = 0.8; //crossover rate [0,1]
-double XB = DBL_MAX; //XB index
-
-int numero_generazioni = 200;
+double CR = 0.6; //crossover rate [0,1]
+int numero_generazioni = 100;
 int conteggio_crossover = 0;
-
 double X[n][d]; //dati input
-double U[c][n]; //partition matrix
-double V[c][d]; //matr centroidi
 
-double POP[c * 20][d];
+//individuo della popolazione
+typedef struct el_pop {
+    double V_p[c][d];
+    double U_p[c][n];
+    double indice_xb;
+} el_pop;
+/*
+molt_pop moltiplicato per c numero di cluster
+regola la grandezza della
+popolazione
+*/
+int molt_pop = 40;
+el_pop *POP_NEW[c * 40]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[c * 40]; //VETTORE POPOLAZIONE ATTUALE
+
+
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -58,6 +66,11 @@ double calcDistanza(double a[d], double b[d]) {
     int i;
     for (i = 0; i < d; i++)
         ris += pow(a[i] - b[i], 2);
+
+    if (ris == 0) {
+        puts("!!!CALCOLATA UNA DISTANZA NULLA!!!");
+        exit(-1);
+    }
     return sqrt(ris);
 }
 
@@ -76,44 +89,7 @@ void copiaVettore(int dim, double input[dim], double output[dim]) {
     }
 }
 
-double calcolaXB() {
-    /*
-     XB funzione del rapporto fra la variazione totale sigma e la separazione minima
-     fra i centroidi
-     */
-    
-    //CALCOLO MIN_SEP
-    double min_sep = DBL_MAX;
-    int i, j;
-    double dist_tmp = 0;
-    j = 0;
-    for (i = 0; i < c; i++) {
-        if (j == i)
-            j++;
-        while (j < c) {
-            if (j == i)
-                j++;
-            if (j < c) {
-                dist_tmp = pow(calcDistanza(V[i], V[j]),2.0);
-                if (dist_tmp < min_sep)
-                    min_sep = dist_tmp;
-                j++;
-            }
-        }
-        j = 0;
-    }
-    
-    //CALCOLO SIGMA
-    double sigma = 0.0;
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < c; j++) {
-            sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
-        }
-    }
-
-
-    return sigma / (n * min_sep);
-}
+///////////////////////////////////////////////////////////////////////////////
 
 long random_at_most(long max) {
     unsigned long
@@ -145,22 +121,68 @@ double random_normal() {
     return sqrt(-2 * log(drand())) * cos(2 * M_PI * drand());
 }
 
+double calcolaXB(double V[c][d], double U[c][n], int debug) {
+    /*
+     XB funzione del rapporto fra la variazione totale sigma
+     e la separazione minima fra i centroidi
+     */
+    if(debug == 1)
+        puts("debug XB");
+    //CALCOLO MIN_SEP
+    double min_sep = DBL_MAX;
+    int i, j;
+    double dist_tmp = 0;
+    j = 0;
+    for (i = 0; i < c; i++) {
+        if (j == i)
+            j++;
+        while (j < c) {
+            if (j == i)
+                j++;
+            if (j < c) {
+                dist_tmp = pow(calcDistanza(V[i], V[j]), 2.0);
+                if(dist_tmp==0)
+                    puts("dist_tmp nullo");
+                if (dist_tmp < min_sep)
+                    min_sep = dist_tmp;
+                j++;
+            }
+        }
+        j = 0;
+    }
+    
+    if (min_sep == 0)
+        ("calcolaXB: DISTANZA NULLA MIN SEP");
+
+    //CALCOLO SIGMA
+    double sigma = 0.0;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < c; j++) {
+            sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
+        }
+    }
+    if (sigma == 0)
+        ("calcolaXB: SIGMA NULLO");
+
+    return sigma / (n * min_sep);
+}
+
 int main(int argc, char** argv) {
+    //PUNTATORI A FILE DI OUTPUT
     FILE *out_V, *out_X, *out_U;
     out_V = fopen("v.dat", "w");
     out_X = fopen("x.dat", "w");
     out_U = fopen("u.dat", "w");
 
     double coordXCentroidiAttese[c];
-
     int i, j;
-    int conteggio_selezioni = 0;
     //INIT X
     int mi_gauss = 1;
     double sigma_gauss = 1.0;
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++)
-            X[i][j] = mi_gauss + (sigma_gauss * random_normal()); //gaussiana con media mi_gauss e devstd sigma_gauss
+            //gaussiana con media mi_gauss e devstd sigma_gauss
+            X[i][j] = mi_gauss + (sigma_gauss * random_normal());
         if (i == 0)
             coordXCentroidiAttese[0] = mi_gauss;
         if (i == 50) {
@@ -176,148 +198,179 @@ int main(int argc, char** argv) {
             coordXCentroidiAttese[3] = mi_gauss;
         }
     }
-
-    puts("matrice X:");
-    stampaMatrice(n, d, X);
-    puts("");
     stampaMatriceSuFile(n, d, X, out_X);
 
-    puts("ATTESA");
-    sleep(3);
-    //INIT V
-    //V viene inizializzata con alcuni dei punti di input (spostati)
-    srand48(time(0));
-    for (i = 0; i < c; i++)
-        for (j = 0; j < d; j++)
-            V[i][j] = X[random_at_most(n)][random_at_most(d)] + 1;
-    //V[i][j] = 10 * drand48() - 5;
+    double esponente_U = 2.0 / (m - 1.0);
 
-    puts("\ninizializzazione matrice V:");
-    stampaMatrice(c, d, V);
+    //###INIT POPOLAZIONE 0
+    //init V e calcolo U
+    int pop_index;
+    for (pop_index = 0; pop_index < c * molt_pop; pop_index++) {
+        POP_NEW[pop_index] = malloc(sizeof (el_pop));
+        //init V
+        for (i = 0; i < c; i++)
+            for (j = 0; j < d; j++)
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]+1;
+        //init U
+        for (i = 0; i < c; i++) {
+            for (j = 0; j < n; j++) {
+                double denom = 0.0;
+                double dist_x_j__v_i = calcDistanza(X[j], POP_NEW[pop_index] -> V_p[i]);
 
-    //INIT POP
-    for (i = 0; i < c * 20; i++) {
-        for (j = 0; j < d; j++)
-            POP[i][j] = X[random_at_most(n)][random_at_most(d)];
+                int k;
+                for (k = 0; k < c; k++) {
+                    double dist_xj_vk = calcDistanza(X[j], POP_NEW[pop_index] -> V_p[k]);
+                    denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
+                }
+                POP_NEW[pop_index] -> U_p[i][j] = 1.0 / denom;
+            }
+        }
+        
+        //computazione XB della popolazione iniziale (POPOLAZIONE 0)
+        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p,0);
+        if(xb == 0){
+            puts("INIT POP: xb nullo");
+            exit(-1);
+        }
+        POP_NEW[pop_index]->indice_xb = xb;
     }
-    puts("\ninizializzazione matrice POP:");
-    stampaMatrice(c * 20, d, POP);
+    //###END INIT POPOLAZIONE 0
     printf("\n########## FINE INIT #############\n");
 
-    //CALCOLO PARTITION MATRIX (INIT)
-    for (i = 0; i < c; i++) {
-        for (j = 0; j < n; j++) {
-            double esponente = 2.0 / (m - 1.0);
-            double denom = 0.0;
-            double dist_x_j__v_i = calcDistanza(X[j], V[i]);
-
-            int k; //SOMMATORIA 1
-            for (k = 0; k < c; k++) {
-                double dist_xj_vk = calcDistanza(X[j], V[k]);
-                denom += pow((dist_x_j__v_i / dist_xj_vk), esponente);
-            }
-            U[i][j] = 1.0 / denom;
+    
+    do {//NUOVA GENERAZIONE
+        printf("\n\nCOUNTDOWN GENERAZIONE: %d\n", numero_generazioni);
+        //SCAMBIO VETTORI POPOLAZIONE
+        //REINIT POP_NEW
+        int i_CPop;
+        for (i_CPop = 0; i_CPop < c * molt_pop; i_CPop++) {
+            POP_NOW[i_CPop] = POP_NEW[i_CPop];
+            free(POP_NEW[i_CPop]);
+            POP_NEW[i_CPop] = malloc(sizeof (el_pop));
         }
-    }
 
-    //f è un numero fra 0 e 2
-    double f = fRand(0.0, 2.0);
-    double prob_crossover;
-
-    do {
-        printf("\n\nCOUNTDOWN GENERAZIONE: %d", numero_generazioni);
-        //DIFFERENTIAL EVOLUTION (SINGOLO PASSO)
-        double trial[d], temp[d];
-        int indiceTarget = 0;
-        //crea un nuovo mutante per ogni vettore della popolazione
-        while (indiceTarget < c) {
-            //i tre vettori devono essere scelti a caso nella popolazione
-            //diversi dal target e mutualmente
+        /////////////////DE////////////////////
+        for (i_CPop = 0; i_CPop < c * molt_pop; i_CPop++) {//PER OGNI COMPONENTE DELLA POP
+            //SCELTA CANDIDATI
+            //tre vettori devono essere scelti a caso nella popolazione
+            //diversi dal target (indice i) e mutualmente
             int indice_1, indice_2, indice_3;
             do {
-                indice_1 = random_at_most((long) c * 20);
-            } while (indice_1 == indiceTarget);
+                indice_1 = random_at_most(((long) c * molt_pop) - 1);
+            } while (indice_1 == i_CPop);
 
             do {
-                indice_2 = random_at_most((long) c * 20);
-            } while (indice_2 == indiceTarget || indice_2 == indice_1);
+                indice_2 = random_at_most(((long) c * molt_pop) - 1);
+            } while (indice_2 == i_CPop || indice_2 == indice_1);
 
             do {
-                indice_3 = random_at_most((long) c * 20);
-            } while (indice_3 == indiceTarget || indice_3 == indice_1 || indice_3 == indice_2);
+                indice_3 = random_at_most(((long) c * molt_pop) - 1);
+            } while (indice_3 == i_CPop || indice_3 == indice_1 || indice_3 == indice_2);
 
-            if (indice_1 == indiceTarget || indice_2 == indiceTarget || indice_3 == indiceTarget)
+            if (indice_1 == i_CPop || indice_2 == i_CPop || indice_3 == i_CPop)
                 puts("INDICE NON VALIDO!!!!");
 
-            //MUTAZIONE E INCROCIO
-            for (i = 0; i < d; i++) {
-                prob_crossover = fRand(0.0, 1.0);
-                if (prob_crossover < CR) {
-                    trial[i] = POP[indice_3][i] + f * (POP[indice_1][i] - POP[indice_2][i]);
-                    conteggio_crossover++;
-                } else
-                    trial[i] = V[indiceTarget][i];
+            //l'elemento mutante
+            el_pop *trial = malloc(sizeof (el_pop));
+            //MUTATION
+            //scambio di geni
+            int i1, j1;
+            for (i1 = 0; i1 < c; i1++) {
+                for (j1 = 0; j1 < d; j1++) {
+                    double f = fRand(0.0, 1.0);
+                    trial->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
+                    
+                }
             }
-
-
-            //copia vettore originale in temp
-            copiaVettore(d, V[indiceTarget], temp);
-            //inserimento temporaneo del mutato
-            copiaVettore(d, trial, V[indiceTarget]);
-
-            //SELEZIONE
-            //CALCOLO XB
-            double new_XB = calcolaXB();
-            if (new_XB < XB) {//XB è migliorato, tengo il mutante e ricalcolo tutto U
-                printf("\nNUOVO XB: %lf\n", new_XB);
-                XB = new_XB;
-                conteggio_selezioni++;
-
-                //RICALCOLO PARTITION MATRIX
-                for (i = 0; i < c; i++) {
-                    for (j = 0; j < n; j++) {
-                        double esponente = 2.0 / (m - 1.0);
-                        double denom = 0.0;
-                        double dist_x_j__v_i = calcDistanza(X[j], V[i]);
-
-                        int k;
-                        for (k = 0; k < c; k++) {
-                            double dist_xj_vk = calcDistanza(X[j], V[k]);
-                            denom += pow((dist_x_j__v_i / dist_xj_vk), esponente);
-                        }
-                        U[i][j] = 1.0 / denom;
+            
+            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
+            /*for (i1 = 0; i1 < c; i1++) {
+                for (j1 = 0; j1 < d; j1++) {
+                    double prob_crossover = fRand(0.0, 1.0);
+                    if (prob_crossover < CR) {
+                        //prendo il gene del vettore attuale
+                        trial->V_p[i1][j1] = POP_NOW[i_CPop]->V_p[i1][j1];
                     }
                 }
-            } else {// XB NON è migliorato
-                //ripristino del vettore target
-                copiaVettore(d, temp, V[indiceTarget]);
+            }*/
+            ;
+            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
+            for (i1 = 0; i1 < c; i1++) {
+                    double prob_crossover = fRand(0.0, 1.0);
+                    if (prob_crossover < CR) {
+                        //prendo il gene del vettore attuale
+                        copiaVettore(d,POP_NOW[i_CPop]->V_p[i1],trial->V_p[i1]);
+                    }
             }
-            //END CALCOLO XB
-            indiceTarget++;
-        }
-        //END DE
+            
+            ;
+            ///CALCOLO FITNESS DEL MUTANTE
+            //calcolo U mutante
+            for (i = 0; i < c; i++) {
+                for (j = 0; j < n; j++) {
+                    double denom = 0.0;
+                    double dist_x_j__v_i = calcDistanza(X[j], trial -> V_p[i]);
+                    if (dist_x_j__v_i == 0) {
+                        puts("calcolo U mutante, distanza nulla");
+                        exit(-1);
+                    }
+                    //printf("\ndist_x_j__v_i: %lf,%d,%d\n",dist_x_j__v_i,c,n);
+                    int k;
+                    for (k = 0; k < c; k++) {
+                        double dist_xj_vk = calcDistanza(X[j], trial -> V_p[k]);
+                        if (dist_xj_vk == 0) {
+                            puts("calcolo U mutante, distanza nulla");
+                            exit(-1);
+                        }
+                        denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
+                        if (denom == 0) {
+                            puts("calcolo U mutante, denom nullo");
+                            exit(-1);
+                        }
+
+                    }
+                    trial -> U_p[i][j] = 1.0 / denom;
+                }
+            }
+            ;
+            //calcolo XB mutante            
+            trial->indice_xb = calcolaXB(trial->V_p, trial->U_p,1);
+            if(trial -> indice_xb == 0){
+                puts("ERRORE: indice_xb trial nullo");
+                exit(-1);
+            }
+            //////END CALCOLO FITNESS MUTANTE
+
+            //SELECTION
+            if (trial->indice_xb < POP_NOW[i_CPop]->indice_xb) {
+                POP_NEW[i_CPop] = trial;
+            } else {
+                free(trial);
+                POP_NEW[i_CPop] = POP_NOW[i_CPop];
+            }
+        }//END DE
         numero_generazioni--;
     } while (numero_generazioni > 0);
 
+    //computazione XB della popolazione finale
+    double best_xb = DBL_MAX;
+    int indice_best = 0;
+    for (pop_index = 0; pop_index < c * molt_pop; pop_index++) {
+        POP_NEW[pop_index]->indice_xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p,0);
+        if (POP_NEW[pop_index]->indice_xb < best_xb) {
+            best_xb = POP_NEW[pop_index]->indice_xb;
+            indice_best = pop_index;
+        }
+    }
+
+
     puts("***********************************************");
-    puts("matrice X:");
-    //stampaMatrice(n, d, X);
-    puts("matrice U FINALE");
-    //stampaMatrice(c, n, U);
-    stampaMatriceSuFile(c, n, U, out_U);
-    puts("matrice V FINALE");
-    stampaMatrice(c, d, V);
-    stampaMatriceSuFile(c, d, V, out_V);
-    puts("\ninizializzazione matrice POP:");
-    stampaMatrice(c * 20, d, POP);
-    printf("\nultimo XB:%lf", XB);
-    printf("\nconteggio_crossover:%d\n", conteggio_crossover);
-    printf("\nCR: %lf\n", CR);
-    printf("\nconteggio selezioni:%d\n", conteggio_selezioni);
-    stampaVett(c, coordXCentroidiAttese);
+    printf("\nmiglior XB:%lf\n", best_xb);
+    stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_V);
+    stampaMatriceSuFile(c, n, POP_NEW[indice_best]->U_p, out_U);
     puts("***********************************************");
 
 
-    return (EXIT_SUCCESS);
+    return (0);
 }
 
