@@ -9,8 +9,8 @@
 #define n 200 //numero di punti totale in input
 double m = 2.0; //fuzzification
 #define d 2 //dimensioni spaziali
-double CR = 0.6; //crossover rate [0,1]
-int numero_generazioni = 100;
+double CR = 0.9; //crossover rate [0,1]
+int numero_generazioni = 500;
 int conteggio_crossover = 0;
 double X[n][d]; //dati input
 
@@ -126,8 +126,8 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
      XB funzione del rapporto fra la variazione totale sigma
      e la separazione minima fra i centroidi
      */
-    if(debug == 1)
-        puts("debug XB");
+    //if(debug == 1)
+        //puts("debug XB");
     //CALCOLO MIN_SEP
     double min_sep = DBL_MAX;
     int i, j;
@@ -177,8 +177,8 @@ int main(int argc, char** argv) {
     double coordXCentroidiAttese[c];
     int i, j;
     //INIT X
-    int mi_gauss = 1;
-    double sigma_gauss = 1.0;
+    int mi_gauss = 10;
+    double sigma_gauss = 2.0;
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++)
             //gaussiana con media mi_gauss e devstd sigma_gauss
@@ -186,7 +186,7 @@ int main(int argc, char** argv) {
         if (i == 0)
             coordXCentroidiAttese[0] = mi_gauss;
         if (i == 50) {
-            mi_gauss *= 8;
+            mi_gauss *= 4;
             coordXCentroidiAttese[1] = mi_gauss;
         }
         if (i == 100) {
@@ -209,8 +209,13 @@ int main(int argc, char** argv) {
         POP_NEW[pop_index] = malloc(sizeof (el_pop));
         //init V
         for (i = 0; i < c; i++)
-            for (j = 0; j < d; j++)
+            for (j = 0; j < d; j++){
                 POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]+1;
+                if(POP_NEW[pop_index] -> V_p[i][j] <= 0){
+                    printf("INIT POP:inizializzato V di un membro con negativo::%lf",POP_NEW[pop_index] -> V_p[i][j]);
+                    exit(-1);
+                }
+            }
         //init U
         for (i = 0; i < c; i++) {
             for (j = 0; j < n; j++) {
@@ -223,12 +228,16 @@ int main(int argc, char** argv) {
                     denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
                 }
                 POP_NEW[pop_index] -> U_p[i][j] = 1.0 / denom;
+                if(POP_NEW[pop_index] -> U_p[i][j] <= 0){
+                    printf("INIT POP:inizializzato U di un membro con negativo::%lf",POP_NEW[pop_index] -> U_p[i][j]);
+                    exit(-1);
+                }
             }
         }
         
         //computazione XB della popolazione iniziale (POPOLAZIONE 0)
         double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p,0);
-        if(xb == 0){
+        if(xb <= 0){
             puts("INIT POP: xb nullo");
             exit(-1);
         }
@@ -237,15 +246,15 @@ int main(int argc, char** argv) {
     //###END INIT POPOLAZIONE 0
     printf("\n########## FINE INIT #############\n");
 
-    
+    double xb_selezionato;
     do {//NUOVA GENERAZIONE
         printf("\n\nCOUNTDOWN GENERAZIONE: %d\n", numero_generazioni);
         //SCAMBIO VETTORI POPOLAZIONE
         //REINIT POP_NEW
         int i_CPop;
         for (i_CPop = 0; i_CPop < c * molt_pop; i_CPop++) {
+            POP_NOW[i_CPop] = malloc(sizeof(el_pop));
             POP_NOW[i_CPop] = POP_NEW[i_CPop];
-            free(POP_NEW[i_CPop]);
             POP_NEW[i_CPop] = malloc(sizeof (el_pop));
         }
 
@@ -284,7 +293,7 @@ int main(int argc, char** argv) {
             }
             
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
-            /*for (i1 = 0; i1 < c; i1++) {
+            for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
                     double prob_crossover = fRand(0.0, 1.0);
                     if (prob_crossover < CR) {
@@ -292,18 +301,17 @@ int main(int argc, char** argv) {
                         trial->V_p[i1][j1] = POP_NOW[i_CPop]->V_p[i1][j1];
                     }
                 }
-            }*/
-            ;
+            }
+            
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
-            for (i1 = 0; i1 < c; i1++) {
+            /*for (i1 = 0; i1 < c; i1++) {
                     double prob_crossover = fRand(0.0, 1.0);
                     if (prob_crossover < CR) {
                         //prendo il gene del vettore attuale
                         copiaVettore(d,POP_NOW[i_CPop]->V_p[i1],trial->V_p[i1]);
                     }
-            }
+            }*/
             
-            ;
             ///CALCOLO FITNESS DEL MUTANTE
             //calcolo U mutante
             for (i = 0; i < c; i++) {
@@ -332,10 +340,10 @@ int main(int argc, char** argv) {
                     trial -> U_p[i][j] = 1.0 / denom;
                 }
             }
-            ;
+            
             //calcolo XB mutante            
             trial->indice_xb = calcolaXB(trial->V_p, trial->U_p,1);
-            if(trial -> indice_xb == 0){
+            if(trial -> indice_xb <= 0){
                 puts("ERRORE: indice_xb trial nullo");
                 exit(-1);
             }
@@ -344,12 +352,19 @@ int main(int argc, char** argv) {
             //SELECTION
             if (trial->indice_xb < POP_NOW[i_CPop]->indice_xb) {
                 POP_NEW[i_CPop] = trial;
+                xb_selezionato = trial->indice_xb;
             } else {
                 free(trial);
                 POP_NEW[i_CPop] = POP_NOW[i_CPop];
+                xb_selezionato = POP_NOW[i_CPop]->indice_xb;
             }
         }//END DE
         numero_generazioni--;
+        if(xb_selezionato < 0.001){
+            puts("BREAK!");
+            break;
+        }
+            
     } while (numero_generazioni > 0);
 
     //computazione XB della popolazione finale
@@ -369,7 +384,17 @@ int main(int argc, char** argv) {
     stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_V);
     stampaMatriceSuFile(c, n, POP_NEW[indice_best]->U_p, out_U);
     puts("***********************************************");
+    
+    //GNUPLOT    
+    char * commandsForGnuplot[] = {"set title \"matrice X\"", "plot 'x.dat'","set term wxt 2","set title \"matrice V\"","plot 'v.dat'"};
+    FILE * gnuplotPipe = popen ("gnuplot -persistent", "w");
 
+    for (i=0; i <  5;i++)
+    {
+        fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);
+        fflush(gnuplotPipe);
+    }
+    
 
     return (0);
 }
