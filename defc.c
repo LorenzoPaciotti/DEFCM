@@ -252,7 +252,6 @@ int main(int argc, char** argv) {
         //SCAMBIO VETTORI POPOLAZIONE
         //REINIT POP_NEW
         int i_CPop;
-        el_pop *temp1;
         for (i_CPop = 0; i_CPop < c * molt_pop; i_CPop++) {
             if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
                 free(POP_NOW[i_CPop]);
