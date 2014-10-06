@@ -8,28 +8,28 @@
 #define c 4 //numero di centri di cluster
 #define n 200 //numero di punti totale in input
 double m = 2.0; //fuzzification
-#define d 2 //dimensioni spaziali
+#define d 3 //dimensioni spaziali
 double CR = 0.9; //crossover rate [0,1]
-int numero_generazioni = 500;
+int numero_generazioni = 2000;
 int conteggio_crossover = 0;
 double X[n][d]; //dati input
 
 //individuo della popolazione
+
 typedef struct el_pop {
     double V_p[c][d];
     double U_p[c][n];
     double indice_xb;
 } el_pop;
+
 /*
 molt_pop moltiplicato per c numero di cluster
 regola la grandezza della
 popolazione
-*/
+ */
 int molt_pop = 40;
 el_pop *POP_NEW[c * 40]; //VETTORE POPOLAZIONE NUOVA
 el_pop *POP_NOW[c * 40]; //VETTORE POPOLAZIONE ATTUALE
-
-
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -127,7 +127,7 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
      e la separazione minima fra i centroidi
      */
     //if(debug == 1)
-        //puts("debug XB");
+    //puts("debug XB");
     //CALCOLO MIN_SEP
     double min_sep = DBL_MAX;
     int i, j;
@@ -141,7 +141,7 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
                 j++;
             if (j < c) {
                 dist_tmp = pow(calcDistanza(V[i], V[j]), 2.0);
-                if(dist_tmp==0)
+                if (dist_tmp == 0)
                     puts("dist_tmp nullo");
                 if (dist_tmp < min_sep)
                     min_sep = dist_tmp;
@@ -150,7 +150,7 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
         }
         j = 0;
     }
-    
+
     if (min_sep == 0)
         ("calcolaXB: DISTANZA NULLA MIN SEP");
 
@@ -209,10 +209,10 @@ int main(int argc, char** argv) {
         POP_NEW[pop_index] = malloc(sizeof (el_pop));
         //init V
         for (i = 0; i < c; i++)
-            for (j = 0; j < d; j++){
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]+1;
-                if(POP_NEW[pop_index] -> V_p[i][j] <= 0){
-                    printf("INIT POP:inizializzato V di un membro con negativo::%lf",POP_NEW[pop_index] -> V_p[i][j]);
+            for (j = 0; j < d; j++) {
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + 1;
+                if (POP_NEW[pop_index] -> V_p[i][j] <= 0) {
+                    printf("INIT POP:inizializzato V di un membro con negativo::%lf", POP_NEW[pop_index] -> V_p[i][j]);
                     exit(-1);
                 }
             }
@@ -228,16 +228,16 @@ int main(int argc, char** argv) {
                     denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
                 }
                 POP_NEW[pop_index] -> U_p[i][j] = 1.0 / denom;
-                if(POP_NEW[pop_index] -> U_p[i][j] <= 0){
-                    printf("INIT POP:inizializzato U di un membro con negativo::%lf",POP_NEW[pop_index] -> U_p[i][j]);
+                if (POP_NEW[pop_index] -> U_p[i][j] <= 0) {
+                    printf("INIT POP:inizializzato U di un membro con negativo::%lf", POP_NEW[pop_index] -> U_p[i][j]);
                     exit(-1);
                 }
             }
         }
-        
+
         //computazione XB della popolazione iniziale (POPOLAZIONE 0)
-        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p,0);
-        if(xb <= 0){
+        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+        if (xb <= 0) {
             puts("INIT POP: xb nullo");
             exit(-1);
         }
@@ -252,10 +252,12 @@ int main(int argc, char** argv) {
         //SCAMBIO VETTORI POPOLAZIONE
         //REINIT POP_NEW
         int i_CPop;
+        el_pop *temp1;
         for (i_CPop = 0; i_CPop < c * molt_pop; i_CPop++) {
-            POP_NOW[i_CPop] = malloc(sizeof(el_pop));
-            POP_NOW[i_CPop] = POP_NEW[i_CPop];
-            POP_NEW[i_CPop] = malloc(sizeof (el_pop));
+            if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
+                free(POP_NOW[i_CPop]);
+                POP_NOW[i_CPop] = POP_NEW[i_CPop];
+            }
         }
 
         /////////////////DE////////////////////
@@ -288,10 +290,10 @@ int main(int argc, char** argv) {
                 for (j1 = 0; j1 < d; j1++) {
                     double f = fRand(0.0, 1.0);
                     trial->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
-                    
+
                 }
             }
-            
+
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
             for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
@@ -302,7 +304,7 @@ int main(int argc, char** argv) {
                     }
                 }
             }
-            
+
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
             /*for (i1 = 0; i1 < c; i1++) {
                     double prob_crossover = fRand(0.0, 1.0);
@@ -311,7 +313,7 @@ int main(int argc, char** argv) {
                         copiaVettore(d,POP_NOW[i_CPop]->V_p[i1],trial->V_p[i1]);
                     }
             }*/
-            
+
             ///CALCOLO FITNESS DEL MUTANTE
             //calcolo U mutante
             for (i = 0; i < c; i++) {
@@ -340,10 +342,10 @@ int main(int argc, char** argv) {
                     trial -> U_p[i][j] = 1.0 / denom;
                 }
             }
-            
+
             //calcolo XB mutante            
-            trial->indice_xb = calcolaXB(trial->V_p, trial->U_p,1);
-            if(trial -> indice_xb <= 0){
+            trial->indice_xb = calcolaXB(trial->V_p, trial->U_p, 1);
+            if (trial -> indice_xb <= 0) {
                 puts("ERRORE: indice_xb trial nullo");
                 exit(-1);
             }
@@ -360,18 +362,13 @@ int main(int argc, char** argv) {
             }
         }//END DE
         numero_generazioni--;
-        if(xb_selezionato < 0.001){
-            puts("BREAK!");
-            break;
-        }
-            
-    } while (numero_generazioni > 0);
+    } while (numero_generazioni > 0); // && xb_selezionato > 0.04
 
     //computazione XB della popolazione finale
     double best_xb = DBL_MAX;
     int indice_best = 0;
     for (pop_index = 0; pop_index < c * molt_pop; pop_index++) {
-        POP_NEW[pop_index]->indice_xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p,0);
+        POP_NEW[pop_index]->indice_xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
         if (POP_NEW[pop_index]->indice_xb < best_xb) {
             best_xb = POP_NEW[pop_index]->indice_xb;
             indice_best = pop_index;
@@ -381,20 +378,34 @@ int main(int argc, char** argv) {
 
     puts("***********************************************");
     printf("\nmiglior XB:%lf\n", best_xb);
+    puts("matrice V:");
+    stampaMatrice(c, d, POP_NEW[indice_best]->V_p);
+    puts("");
     stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_V);
     stampaMatriceSuFile(c, n, POP_NEW[indice_best]->U_p, out_U);
     puts("***********************************************");
-    
-    //GNUPLOT    
-    char * commandsForGnuplot[] = {"set title \"matrice X\"", "plot 'x.dat'","set term wxt 2","set title \"matrice V\"","plot 'v.dat'"};
-    FILE * gnuplotPipe = popen ("gnuplot -persistent", "w");
 
-    for (i=0; i <  5;i++)
-    {
-        fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);
-        fflush(gnuplotPipe);
+    //GNUPLOT
+    if (d == 2 || d == 3) {
+        char *commandsForGnuplot[] = {"set title \"matrice X\"", "", "set term wxt 2", "set title \"matrice V\"", ""};
+        if (d == 2) {
+            commandsForGnuplot[1] = "plot 'x.dat'";
+            commandsForGnuplot[4] = "plot 'v.dat'";
+        } else if (d == 3) {
+            commandsForGnuplot[1] = "splot 'x.dat'";
+            commandsForGnuplot[4] = "splot 'v.dat'";
+        }
+
+        FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
+
+        for (i = 0; i < 5; i++) {
+            fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);
+            fflush(gnuplotPipe);
+        }
+
     }
-    
+
+
 
     return (0);
 }
