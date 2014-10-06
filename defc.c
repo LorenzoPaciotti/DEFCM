@@ -8,14 +8,12 @@
 #define c 4 //numero di centri di cluster
 #define n 200 //numero di punti totale in input
 double m = 2.0; //fuzzification
-#define d 3 //dimensioni spaziali
+#define d 2 //dimensioni spaziali
 double CR = 0.9; //crossover rate [0,1]
-int numero_generazioni = 2000;
-int conteggio_crossover = 0;
+int numero_generazioni = 500;
 double X[n][d]; //dati input
 
 //individuo della popolazione
-
 typedef struct el_pop {
     double V_p[c][d];
     double U_p[c][n];
@@ -27,9 +25,9 @@ molt_pop moltiplicato per c numero di cluster
 regola la grandezza della
 popolazione
  */
-int molt_pop = 40;
-el_pop *POP_NEW[c * 40]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[c * 40]; //VETTORE POPOLAZIONE ATTUALE
+int molt_pop = 20;
+el_pop *POP_NEW[c * 20]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[c * 20]; //VETTORE POPOLAZIONE ATTUALE
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -178,7 +176,7 @@ int main(int argc, char** argv) {
     int i, j;
     //INIT X
     int mi_gauss = 10;
-    double sigma_gauss = 2.0;
+    double sigma_gauss = 4.0;
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++)
             //gaussiana con media mi_gauss e devstd sigma_gauss
