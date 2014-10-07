@@ -10,8 +10,18 @@
 double m = 2.0; //fuzzification
 #define d 2 //dimensioni spaziali
 double CR = 0.9; //crossover rate [0,1]
-int numero_generazioni = 500;
+int numero_generazioni = 1000;//numero massimo di generazioni (può essere arrestato del parametro xb_target)
 double X[n][d]; //dati input
+
+//parametro per l'arresto automatico
+double xb_target = 0.018;
+
+//parametri dell'inizializzazione dell'input
+int mi_gauss = 2;
+double sigma_gauss = 4.0;
+
+//attiva e disattiva GnuPlot
+int attivaGnuPlot = 1;
 
 //individuo della popolazione
 typedef struct el_pop {
@@ -25,9 +35,9 @@ molt_pop moltiplicato per c numero di cluster
 regola la grandezza della
 popolazione
  */
-int molt_pop = 20;
-el_pop *POP_NEW[c * 20]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[c * 20]; //VETTORE POPOLAZIONE ATTUALE
+int molt_pop = 50;
+el_pop *POP_NEW[c * 50]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[c * 50]; //VETTORE POPOLAZIONE ATTUALE
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -172,29 +182,23 @@ int main(int argc, char** argv) {
     out_X = fopen("x.dat", "w");
     out_U = fopen("u.dat", "w");
 
-    double coordXCentroidiAttese[c];
     int i, j;
     //INIT X
-    int mi_gauss = 10;
-    double sigma_gauss = 4.0;
+    
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++)
             //gaussiana con media mi_gauss e devstd sigma_gauss
             X[i][j] = mi_gauss + (sigma_gauss * random_normal());
-        if (i == 0)
-            coordXCentroidiAttese[0] = mi_gauss;
         if (i == 50) {
-            mi_gauss *= 4;
-            coordXCentroidiAttese[1] = mi_gauss;
+            mi_gauss *= 8;
         }
         if (i == 100) {
             mi_gauss *= 2;
-            coordXCentroidiAttese[2] = mi_gauss;
         }
         if (i == 150) {
             mi_gauss *= 2;
-            coordXCentroidiAttese[3] = mi_gauss;
         }
+        
     }
     stampaMatriceSuFile(n, d, X, out_X);
 
@@ -210,8 +214,8 @@ int main(int argc, char** argv) {
             for (j = 0; j < d; j++) {
                 POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + 1;
                 if (POP_NEW[pop_index] -> V_p[i][j] <= 0) {
-                    printf("INIT POP:inizializzato V di un membro con negativo::%lf", POP_NEW[pop_index] -> V_p[i][j]);
-                    exit(-1);
+                    printf("WARN: INIT POP:inizializzato V di un membro con negativo::%lf\n", POP_NEW[pop_index] -> V_p[i][j]);
+                    //exit(-1);
                 }
             }
         //init U
@@ -227,7 +231,7 @@ int main(int argc, char** argv) {
                 }
                 POP_NEW[pop_index] -> U_p[i][j] = 1.0 / denom;
                 if (POP_NEW[pop_index] -> U_p[i][j] <= 0) {
-                    printf("INIT POP:inizializzato U di un membro con negativo::%lf", POP_NEW[pop_index] -> U_p[i][j]);
+                    printf("ERR: INIT POP:inizializzato U di un membro con negativo::%lf", POP_NEW[pop_index] -> U_p[i][j]);
                     exit(-1);
                 }
             }
@@ -245,8 +249,9 @@ int main(int argc, char** argv) {
     printf("\n########## FINE INIT #############\n");
 
     double xb_selezionato;
+    int numero_generazioni_utente = numero_generazioni;
     do {//NUOVA GENERAZIONE
-        printf("\n\nCOUNTDOWN GENERAZIONE: %d\n", numero_generazioni);
+        //printf("\n\nCOUNTDOWN GENERAZIONE: %d\n", numero_generazioni);
         //SCAMBIO VETTORI POPOLAZIONE
         //REINIT POP_NEW
         int i_CPop;
@@ -287,7 +292,6 @@ int main(int argc, char** argv) {
                 for (j1 = 0; j1 < d; j1++) {
                     double f = fRand(0.0, 1.0);
                     trial->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
-
                 }
             }
 
@@ -359,8 +363,9 @@ int main(int argc, char** argv) {
             }
         }//END DE
         numero_generazioni--;
-    } while (numero_generazioni > 0); // && xb_selezionato > 0.04
-
+    } while (numero_generazioni > 0 && xb_selezionato > xb_target);
+    
+    
     //computazione XB della popolazione finale
     double best_xb = DBL_MAX;
     int indice_best = 0;
@@ -374,6 +379,10 @@ int main(int argc, char** argv) {
 
 
     puts("***********************************************");
+    if(xb_selezionato < xb_target)
+        puts("***SUPERATA GUARDIA XB***");
+    int numero_gen_fatte = numero_generazioni_utente - numero_generazioni;
+    printf("\nnumero generazioni fatte: %d",numero_gen_fatte);
     printf("\nmiglior XB:%lf\n", best_xb);
     puts("matrice V:");
     stampaMatrice(c, d, POP_NEW[indice_best]->V_p);
@@ -383,19 +392,19 @@ int main(int argc, char** argv) {
     puts("***********************************************");
 
     //GNUPLOT
-    if (d == 2 || d == 3) {
-        char *commandsForGnuplot[] = {"set title \"matrice X\"", "", "set term wxt 2", "set title \"matrice V\"", ""};
+    if ((d == 2 || d == 3) && attivaGnuPlot) {
+        char *commandsForGnuplot[] = {"set key off","set term wxt 1","set title \"matrice X\"", "", "set term wxt 2","set key off", "set title \"matrice V\"", ""};
         if (d == 2) {
-            commandsForGnuplot[1] = "plot 'x.dat'";
-            commandsForGnuplot[4] = "plot 'v.dat'";
+            commandsForGnuplot[3] = "plot 'x.dat'";
+            commandsForGnuplot[7] = "plot 'v.dat'";
         } else if (d == 3) {
-            commandsForGnuplot[1] = "splot 'x.dat'";
-            commandsForGnuplot[4] = "splot 'v.dat'";
+            commandsForGnuplot[3] = "splot 'x.dat'";
+            commandsForGnuplot[7] = "splot 'v.dat'";
         }
 
         FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
 
-        for (i = 0; i < 5; i++) {
+        for (i = 0; i < 8; i++) {
             fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);
             fflush(gnuplotPipe);
         }
