@@ -6,16 +6,16 @@
 #include <time.h>
 
 double m = 2.0; //fuzzification
-#define c 4 //numero di centri di cluster
+#define c 9 //numero di centri di cluster
 #define n 200 //numero di punti totale in input
 
 #define d 2 //dimensioni spaziali
 double CR = 0.9; //crossover rate [0,1]
-int numero_generazioni = 1000;//numero massimo di generazioni (può essere arrestato del parametro xb_target)
+int numero_generazioni = 1000;//numero massimo di generazioni
 double X[n][d]; //dati input
 
 //parametro per l'arresto automatico
-double guardia_xb = 0.030;
+double guardia_xb = 0.001;
 
 //parametri dell'inizializzazione dell'input
 int mi_gauss = 4;
@@ -36,9 +36,9 @@ molt_pop moltiplicato per c numero di cluster
 regola la grandezza della
 popolazione
  */
-int molt_pop = 100;
-el_pop *POP_NEW[c * 100]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[c * 100]; //VETTORE POPOLAZIONE ATTUALE
+int molt_pop = 10;
+el_pop *POP_NEW[c * 10]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[c * 10]; //VETTORE POPOLAZIONE ATTUALE
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -225,7 +225,6 @@ int main(int argc, char** argv) {
                 POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + 1;
                 if (POP_NEW[pop_index] -> V_p[i][j] <= 0) {
                     printf("WARN: INIT POP:inizializzato V di un membro con negativo::%lf\n", POP_NEW[pop_index] -> V_p[i][j]);
-                    //exit(-1);
                 }
             }
         //init U
@@ -359,7 +358,7 @@ int main(int argc, char** argv) {
             //calcolo XB mutante            
             trial->indice_xb = calcolaXB(trial->V_p, trial->U_p, 1);
             if (trial -> indice_xb <= guardia_xb) {
-                puts("*ERROR: indice_xb trial inferiore a guardia, scartato (numero di centroidi ERRATO)");
+                puts("*ERROR: indice_xb trial inferiore a guardia, scartato");
                 trial->indice_xb = DBL_MAX;
             }
             //////END CALCOLO FITNESS MUTANTE
