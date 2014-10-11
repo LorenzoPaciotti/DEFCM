@@ -359,9 +359,7 @@ int main(int argc, char** argv) {
             //calcolo XB mutante            
             trial->indice_xb = calcolaXB(trial->V_p, trial->U_p, 1);
             if (trial -> indice_xb <= guardia_xb) {
-                puts("*ERROR: indice_xb trial inferiore a guardia, numero di centroidi ERRATO.Scartato trial con xb troppo basso");
-                //exit(-1);
-                //c++;
+                puts("*ERROR: indice_xb trial inferiore a guardia, scartato (numero di centroidi ERRATO)");
                 trial->indice_xb = DBL_MAX;
             }
             //////END CALCOLO FITNESS MUTANTE
