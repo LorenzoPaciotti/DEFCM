@@ -440,7 +440,8 @@ int main(int argc, char** argv) {
     fputs("\n######\n",out_LOG_RIS);
     numero_elementi_popolazione = d * molt_pop;
     numero_generazioni = d * molt_gen;
-    
+    fprintf(out_LOG_RIS,"\nnumero dimensioni:%d\n",d);
+    fprintf(out_LOG_RIS,"\nnumero centroidi:%d\n",c);
     printf("\ndimensioni:%d\n",d);
     printf("\nnumero centroidi:%d\n",c);
     
