@@ -7,9 +7,9 @@
 
 #define c 4 //numero di centri di clusterc
 #define n 200 //numero di punti totale in input
-#define d 3 //dimensioni spaziali
+#define d 2 //dimensioni spaziali
 
-FILE *out_V, *out_X, *out_U; //puntatori a file di output
+FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di output
 
 double m = 2.0; //fuzzification
 double CR = 0.9; //crossover rate [0,1]
@@ -33,7 +33,7 @@ typedef struct el_pop {
 } el_pop;
 
 /*
-molt_pop moltiplicato per c numero di cluster
+molt_pop moltiplicato per d dimensioni
 regola la grandezza della
 popolazione
  */
@@ -66,6 +66,8 @@ void stampaMatriceSuFile(int righe, int col, double mat[righe][col], FILE *punt_
         }
         fprintf(punt_file, "\n");
     }
+    
+    fflush(punt_file);
 }
 
 double calcDistanza(double a[d], double b[d]) {
@@ -218,7 +220,8 @@ void init(){
             for (j = 0; j < d; j++) {
                 POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][j]+0.5;
                 if (POP_NEW[pop_index] -> V_p[i][j] <= 0) {
-                    fputs("WARN: INIT POP:inizializzato V di un membro con negativo", stderr);
+                    fputs("WARN: INIT POP:inizializzato V di un membro con negativo\n", out_LOG);
+                    fflush(out_LOG);
                 }
             }
         }
@@ -410,9 +413,13 @@ void lavora(){
         puts("***SUPERATA GUARDIA XB***");
     int numero_gen_fatte = numero_generazioni_utente - numero_generazioni;
     printf("\nnumero di elementi delle popolazioni:%d\n",numero_elementi_popolazione);
+    fprintf(out_LOG_RIS,"\nnumero di elementi delle popolazioni:%d\n",numero_elementi_popolazione);
     printf("\nnumero di generazioni max:%d\n",numero_generazioni_utente);
+    fprintf(out_LOG_RIS,"\nnumero di generazioni max:%d\n",numero_generazioni_utente);
     printf("\nnumero generazioni fatte:%d\n",numero_gen_fatte);
+    fprintf(out_LOG_RIS,"\nnumero generazioni fatte:%d\n",numero_gen_fatte);
     printf("\nmiglior XB:%lf\n", best_xb);
+    fprintf(out_LOG_RIS,"\nmiglior XB:%lf\n", best_xb);
 
     
     puts("matrice V:");
@@ -428,6 +435,9 @@ int main(int argc, char** argv) {
     out_V = fopen("v.dat", "w");
     out_X = fopen("x.dat", "w");
     out_U = fopen("u.dat", "w");
+    out_LOG = fopen("log","w");
+    out_LOG_RIS = fopen("log_ris","a");
+    fputs("\n######\n",out_LOG_RIS);
     numero_elementi_popolazione = d * molt_pop;
     numero_generazioni = d * molt_gen;
     
