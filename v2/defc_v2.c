@@ -5,17 +5,17 @@
 #include <float.h>
 #include <time.h>
 
-double m = 2.0; //fuzzification
 #define c 4 //numero di centri di cluster
 #define n 200 //numero di punti totale in input
-
 #define d 2 //dimensioni spaziali
-double CR = 0.9; //crossover rate [0,1]
-int numero_generazioni = 1000;//numero massimo di generazioni
-double X[n][d]; //dati input
 
-//parametro per l'arresto automatico
-double guardia_xb = 0.003;
+double m = 2.0; //fuzzification
+
+double CR = 0.9; //crossover rate [0,1]
+
+int molt_gen = 100; //moltiplicatore generazioni, questo * d
+
+double guardia_xb = 0.0031; //parametro per l'arresto automatico
 
 //parametri dell'inizializzazione dell'input
 int mi_gauss = 2;
@@ -23,6 +23,8 @@ double sigma_gauss = 2.0;
 
 //attiva e disattiva GnuPlot
 int attivaGnuPlot = 1;
+
+double X[n][d]; //matrice di input
 
 //individuo della popolazione
 typedef struct el_pop {
@@ -36,9 +38,9 @@ molt_pop moltiplicato per c numero di cluster
 regola la grandezza della
 popolazione
  */
-int molt_pop = 10;
-el_pop *POP_NEW[d * 10]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[d * 10]; //VETTORE POPOLAZIONE ATTUALE
+int molt_pop = 20;
+el_pop *POP_NEW[d * 20]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[d * 20]; //VETTORE POPOLAZIONE ATTUALE
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -191,6 +193,7 @@ int main(int argc, char** argv) {
     out_U = fopen("u.dat", "w");
     
     int numero_elementi_popolazione = d * molt_pop;
+    int numero_generazioni = d * molt_gen;
 
     int i, j;
     //INIT X
