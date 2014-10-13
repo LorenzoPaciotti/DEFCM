@@ -15,7 +15,7 @@ int numero_generazioni = 1000;//numero massimo di generazioni
 double X[n][d]; //dati input
 
 //parametro per l'arresto automatico
-double guardia_xb = 0.001;
+double guardia_xb = 0.003;
 
 //parametri dell'inizializzazione dell'input
 int mi_gauss = 2;
@@ -37,8 +37,8 @@ regola la grandezza della
 popolazione
  */
 int molt_pop = 10;
-el_pop *POP_NEW[c * 10]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[c * 10]; //VETTORE POPOLAZIONE ATTUALE
+el_pop *POP_NEW[d * 10]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[d * 10]; //VETTORE POPOLAZIONE ATTUALE
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -189,6 +189,8 @@ int main(int argc, char** argv) {
     out_V = fopen("v.dat", "w");
     out_X = fopen("x.dat", "w");
     out_U = fopen("u.dat", "w");
+    
+    int numero_elementi_popolazione = d * molt_pop;
 
     int i, j;
     //INIT X
@@ -215,7 +217,7 @@ int main(int argc, char** argv) {
     //###INIT POPOLAZIONE 0
     //init V e calcolo U
     int pop_index;
-    for (pop_index = 0; pop_index < c * molt_pop; pop_index++) {
+    for (pop_index = 0; pop_index < numero_elementi_popolazione; pop_index++) {
         POP_NEW[pop_index] = malloc(sizeof (el_pop));
         //init V
         for (i = 0; i < c; i++){
@@ -264,7 +266,7 @@ int main(int argc, char** argv) {
         //SCAMBIO VETTORI POPOLAZIONE
         //REINIT POP_NEW
         int i_CPop;
-        for (i_CPop = 0; i_CPop < c * molt_pop; i_CPop++) {
+        for (i_CPop = 0; i_CPop < numero_elementi_popolazione; i_CPop++) {
             if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
                 if(POP_NOW[i_CPop != 0])
                     free(POP_NOW[i_CPop]);
@@ -273,21 +275,21 @@ int main(int argc, char** argv) {
         }
 
         /////////////////DE////////////////////
-        for (i_CPop = 0; i_CPop < c * molt_pop; i_CPop++) {//PER OGNI COMPONENTE DELLA POP
+        for (i_CPop = 0; i_CPop < numero_elementi_popolazione; i_CPop++) {//PER OGNI COMPONENTE DELLA POP
             //SCELTA CANDIDATI
             //tre vettori devono essere scelti a caso nella popolazione
             //diversi dal target (indice i) e mutualmente
             int indice_1, indice_2, indice_3;
             do {
-                indice_1 = random_at_most(((long) c * molt_pop) - 1);
+                indice_1 = random_at_most(((long) numero_elementi_popolazione) - 1);
             } while (indice_1 == i_CPop);
 
             do {
-                indice_2 = random_at_most(((long) c * molt_pop) - 1);
+                indice_2 = random_at_most(((long) numero_elementi_popolazione) - 1);
             } while (indice_2 == i_CPop || indice_2 == indice_1);
 
             do {
-                indice_3 = random_at_most(((long) c * molt_pop) - 1);
+                indice_3 = random_at_most(((long) numero_elementi_popolazione) - 1);
             } while (indice_3 == i_CPop || indice_3 == indice_1 || indice_3 == indice_2);
 
             if (indice_1 == i_CPop || indice_2 == i_CPop || indice_3 == i_CPop)
@@ -373,13 +375,13 @@ int main(int argc, char** argv) {
             }
         }//END DE
         numero_generazioni--;
-    } while (numero_generazioni > 0 && xb_selezionato > guardia_xb);
+    } while (numero_generazioni > 0 && xb_selezionato >= guardia_xb);
     
     
     //computazione XB della popolazione finale
     double best_xb = DBL_MAX;
     int indice_best;
-    for (pop_index = 0; pop_index < c * molt_pop; pop_index++) {
+    for (pop_index = 0; pop_index < numero_elementi_popolazione; pop_index++) {
         POP_NEW[pop_index]->indice_xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
         if (POP_NEW[pop_index]->indice_xb < best_xb) {
             best_xb = POP_NEW[pop_index]->indice_xb;
