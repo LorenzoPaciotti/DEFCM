@@ -5,17 +5,16 @@
 #include <float.h>
 #include <time.h>
 
-#define c 4 //numero di centri di cluster
+#define c 4 //numero di centri di clusterc
 #define n 200 //numero di punti totale in input
-#define d 2 //dimensioni spaziali
+#define d 3 //dimensioni spaziali
+
+FILE *out_V, *out_X, *out_U; //puntatori a file di output
 
 double m = 2.0; //fuzzification
-
 double CR = 0.9; //crossover rate [0,1]
-
-int molt_gen = 100; //moltiplicatore generazioni, questo * d
-
-double guardia_xb = 0.0031; //parametro per l'arresto automatico
+int molt_gen = 300; //moltiplicatore generazioni, questo * d
+double guardia_xb = 0.01; //parametro per l'arresto automatico
 
 //parametri dell'inizializzazione dell'input
 int mi_gauss = 2;
@@ -38,9 +37,13 @@ molt_pop moltiplicato per c numero di cluster
 regola la grandezza della
 popolazione
  */
-int molt_pop = 20;
-el_pop *POP_NEW[d * 20]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[d * 20]; //VETTORE POPOLAZIONE ATTUALE
+int molt_pop = 100;
+el_pop *POP_NEW[d * 100]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[d * 100]; //VETTORE POPOLAZIONE ATTUALE
+
+//NON MODIFICARE
+int numero_elementi_popolazione, numero_generazioni, i, j, k, pop_index;
+double esponente_U;
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -185,19 +188,9 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
     return ris;
 }
 
-int main(int argc, char** argv) {
-    //PUNTATORI A FILE DI OUTPUT
-    FILE *out_V, *out_X, *out_U;
-    out_V = fopen("v.dat", "w");
-    out_X = fopen("x.dat", "w");
-    out_U = fopen("u.dat", "w");
+void init(){
     
-    int numero_elementi_popolazione = d * molt_pop;
-    int numero_generazioni = d * molt_gen;
-
-    int i, j;
     //INIT X
-    
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++)
             //gaussiana con media mi_gauss e devstd sigma_gauss
@@ -214,12 +207,10 @@ int main(int argc, char** argv) {
         
     }
     stampaMatriceSuFile(n, d, X, out_X);
-
-    double esponente_U = 2.0 / (m - 1.0);
-
+    
     //###INIT POPOLAZIONE 0
     //init V e calcolo U
-    int pop_index;
+    
     for (pop_index = 0; pop_index < numero_elementi_popolazione; pop_index++) {
         POP_NEW[pop_index] = malloc(sizeof (el_pop));
         //init V
@@ -227,10 +218,11 @@ int main(int argc, char** argv) {
             for (j = 0; j < d; j++) {
                 POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][j]+0.5;
                 if (POP_NEW[pop_index] -> V_p[i][j] <= 0) {
-                    printf("WARN: INIT POP:inizializzato V di un membro con negativo::%lf\n", POP_NEW[pop_index] -> V_p[i][j]);
+                    fputs("WARN: INIT POP:inizializzato V di un membro con negativo", stderr);
                 }
             }
         }
+        ////////////SINGOLO PASSO FCM
         //init U
         for (i = 0; i < c; i++) {
             for (j = 0; j < n; j++) {
@@ -249,6 +241,20 @@ int main(int argc, char** argv) {
                 }
             }
         }
+        //RICALCOLO POSIZIONE CENTROIDI
+        for (i = 0; i < c; i++) {
+            double denom = 0.0;
+            for(j=0; j<n;j++)//sommatoria denom (fatta una sola volta a centr.)
+                denom += pow(POP_NEW[pop_index] ->U_p[i][j], m);
+            for (k = 0; k < d; k++) {
+                double num = 0.0;
+                for (j = 0; j < n; j++) {//SOMMATORIA numeratore
+                    num += X[j][k] * pow(POP_NEW[pop_index] ->U_p[i][j], m);
+                }
+                POP_NEW[pop_index] ->V_p[i][k] = num / denom;
+            }
+        }
+        //////END FCM
 
         //computazione XB della popolazione iniziale (POPOLAZIONE 0)
         double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
@@ -261,6 +267,10 @@ int main(int argc, char** argv) {
     }
     //###END INIT POPOLAZIONE 0
     printf("\n########## FINE INIT #############\n");
+}
+
+void lavora(){
+    
 
     double xb_selezionato;
     int numero_generazioni_utente = numero_generazioni;
@@ -295,8 +305,10 @@ int main(int argc, char** argv) {
                 indice_3 = random_at_most(((long) numero_elementi_popolazione) - 1);
             } while (indice_3 == i_CPop || indice_3 == indice_1 || indice_3 == indice_2);
 
-            if (indice_1 == i_CPop || indice_2 == i_CPop || indice_3 == i_CPop)
+            if (indice_1 == i_CPop || indice_2 == i_CPop || indice_3 == i_CPop){
                 puts("INDICE NON VALIDO!!!!");
+                exit(-1);
+            }
 
             //l'elemento mutante
             el_pop *trial = malloc(sizeof (el_pop));
@@ -311,7 +323,7 @@ int main(int argc, char** argv) {
             }
 
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
-            for (i1 = 0; i1 < c; i1++) {
+            /*for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
                     double prob_crossover = fRand(0.0, 1.0);
                     if (prob_crossover < CR) {
@@ -319,16 +331,16 @@ int main(int argc, char** argv) {
                         trial->V_p[i1][j1] = POP_NOW[i_CPop]->V_p[i1][j1];
                     }
                 }
-            }
+            }*/
 
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
-            /*for (i1 = 0; i1 < c; i1++) {
+            for (i1 = 0; i1 < c; i1++) {
                     double prob_crossover = fRand(0.0, 1.0);
                     if (prob_crossover < CR) {
                         //prendo il gene del vettore attuale
                         copiaVettore(d,POP_NOW[i_CPop]->V_p[i1],trial->V_p[i1]);
                     }
-            }*/
+            }
 
             ///CALCOLO FITNESS DEL MUTANTE
             //calcolo U mutante
@@ -380,7 +392,7 @@ int main(int argc, char** argv) {
         numero_generazioni--;
     } while (numero_generazioni > 0 && xb_selezionato >= guardia_xb);
     
-    
+    puts("calcolo xb finale");
     //computazione XB della popolazione finale
     double best_xb = DBL_MAX;
     int indice_best;
@@ -392,19 +404,39 @@ int main(int argc, char** argv) {
         }
     }
 
-
+    
     puts("***********************************************");
     if(xb_selezionato < guardia_xb)
         puts("***SUPERATA GUARDIA XB***");
     int numero_gen_fatte = numero_generazioni_utente - numero_generazioni;
-    printf("\nnumero generazioni fatte: %d",numero_gen_fatte);
+    printf("\nnumero di elementi delle popolazioni:%d\n",numero_elementi_popolazione);
+    printf("\nnumero di generazioni max:%d\n",numero_generazioni_utente);
+    printf("\nnumero generazioni fatte:%d\n",numero_gen_fatte);
     printf("\nmiglior XB:%lf\n", best_xb);
+
+    
     puts("matrice V:");
     stampaMatrice(c, d, POP_NEW[indice_best]->V_p);
     puts("");
     stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_V);
     stampaMatriceSuFile(c, n, POP_NEW[indice_best]->U_p, out_U);
     puts("***********************************************");
+}
+
+int main(int argc, char** argv) {
+    esponente_U = 2.0 / (m - 1.0);
+    out_V = fopen("v.dat", "w");
+    out_X = fopen("x.dat", "w");
+    out_U = fopen("u.dat", "w");
+    numero_elementi_popolazione = d * molt_pop;
+    numero_generazioni = d * molt_gen;
+    
+    printf("\ndimensioni:%d\n",d);
+    printf("\nnumero centroidi:%d\n",c);
+    
+    init();
+    lavora();
+    
 
     //GNUPLOT
     if ((d == 2 || d == 3) && attivaGnuPlot) {
@@ -418,7 +450,7 @@ int main(int argc, char** argv) {
         }
 
         FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
-
+        int i;
         for (i = 0; i < 8; i++) {
             fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);
             fflush(gnuplotPipe);
