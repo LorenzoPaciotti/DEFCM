@@ -206,3 +206,495 @@ numero di generazioni max:300
 numero generazioni fatte:300
 
 miglior XB:0.025026
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:80
+
+numero di generazioni max:400
+
+numero generazioni fatte:400
+
+miglior XB:0.019205
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:400
+
+numero generazioni fatte:400
+
+miglior XB:0.019136
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:200
+
+numero generazioni fatte:200
+
+miglior XB:0.019136
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:40
+
+numero generazioni fatte:40
+
+miglior XB:0.035081
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:80
+
+numero generazioni fatte:80
+
+miglior XB:0.029102
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:200
+
+numero generazioni fatte:200
+
+miglior XB:0.023723
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:20
+
+numero di generazioni max:40
+
+numero generazioni fatte:40
+
+miglior XB:0.048309
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:20
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.031169
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.031060
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:40
+
+numero generazioni fatte:40
+
+miglior XB:0.039378
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:60
+
+numero generazioni fatte:60
+
+miglior XB:0.036186
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:40
+
+numero di generazioni max:80
+
+numero generazioni fatte:80
+
+miglior XB:0.031060
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:200
+
+numero di generazioni max:400
+
+numero generazioni fatte:400
+
+miglior XB:0.021374
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:200
+
+numero di generazioni max:200
+
+numero generazioni fatte:200
+
+miglior XB:0.024786
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.023823
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.031604
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:25
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.027222
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:25
+
+numero di generazioni max:50
+
+numero generazioni fatte:50
+
+miglior XB:0.029926
+
+######
+
+numero dimensioni:10
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.031604
+
+######
+
+numero dimensioni:20
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.030695
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:0.006332
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:100
+
+numero generazioni fatte:72
+
+miglior XB:0.007155
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:200
+
+numero generazioni fatte:72
+
+miglior XB:0.007155
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:300
+
+numero generazioni fatte:72
+
+miglior XB:0.007155
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:50
+
+numero generazioni fatte:50
+
+miglior XB:0.005211
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:200
+
+numero di generazioni max:50
+
+numero generazioni fatte:50
+
+miglior XB:0.005050
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:100
+
+numero generazioni fatte:65
+
+miglior XB:0.005211
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:100
+
+numero generazioni fatte:16
+
+miglior XB:0.017156
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:100
+
+numero generazioni fatte:75
+
+miglior XB:0.007972
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:500
+
+numero generazioni fatte:75
+
+miglior XB:0.007972
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:500
+
+numero generazioni fatte:500
+
+miglior XB:0.022207
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:25
+
+numero di generazioni max:1000
+
+numero generazioni fatte:1000
+
+miglior XB:0.019379
+
+######
+
+numero dimensioni:4
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:25
+
+numero di generazioni max:1000
+
+numero generazioni fatte:622
+
+miglior XB:0.018816

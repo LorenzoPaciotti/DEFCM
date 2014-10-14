@@ -7,15 +7,16 @@
 
 #define c 4 //numero di centri di clusterc
 #define n 200 //numero di punti totale in input
-#define d 3 //dimensioni spaziali
+#define d 4 //dimensioni spaziali
 
 FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di output
+double X[n][d]; //matrice di input
 
 double m = 2.0; //fuzzification
 double CR = 0.9; //crossover rate [0,1]
-int molt_gen = 100; //moltiplicatore generazioni, questo * d
+
 double guardia_xb_1 = 0.0001; //parametro per scartare un figlio con XB troppo basso
-double guardia_xb_2 = 0.01; //parametro di arresto anticipato
+double guardia_xb_2 = 0.03; //parametro di arresto anticipato
 
 //parametri dell'inizializzazione dell'input
 int mi_gauss = 2;
@@ -23,8 +24,6 @@ double sigma_gauss = 2.0;
 
 //attiva e disattiva GnuPlot
 int attivaGnuPlot = 1;
-
-double X[n][d]; //matrice di input
 
 //individuo della popolazione
 typedef struct el_pop {
@@ -38,9 +37,11 @@ molt_pop moltiplicato per d dimensioni
 regola la grandezza della
 popolazione
  */
-int molt_pop = 20;
-el_pop *POP_NEW[d * 20]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[d * 20]; //VETTORE POPOLAZIONE ATTUALE
+#define num_gen 1000
+#define num_pop 25
+
+el_pop *POP_NEW[num_pop]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[num_pop]; //VETTORE POPOLAZIONE ATTUALE
 
 //NON MODIFICARE
 int numero_elementi_popolazione, numero_generazioni, i, j, k, pop_index;
@@ -219,7 +220,7 @@ void init(){
         //init V
         for (i = 0; i < c; i++){
             for (j = 0; j < d; j++) {
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][j]+0.5;
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)]*drand();
                 if (POP_NEW[pop_index] -> V_p[i][j] <= 0) {
                     fputs("WARN: INIT POP:inizializzato V di un membro con negativo\n", out_LOG);
                     fflush(out_LOG);
@@ -450,14 +451,16 @@ void lavora(){
 
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
+    numero_elementi_popolazione = num_pop;//d * molt_pop;
+    numero_generazioni = num_gen;//d * molt_gen;
+    
+    
     out_V = fopen("v.dat", "w");
     out_X = fopen("x.dat", "w");
     out_U = fopen("u.dat", "w");
     out_LOG = fopen("log","w");
     out_LOG_RIS = fopen("log_ris","a");
     fputs("\n######\n",out_LOG_RIS);
-    numero_elementi_popolazione = d * molt_pop;
-    numero_generazioni = d * molt_gen;
     fprintf(out_LOG_RIS,"\nnumero dimensioni:%d\n",d);
     fprintf(out_LOG_RIS,"\nnumero centroidi:%d\n",c);
     printf("\ndimensioni:%d\n",d);

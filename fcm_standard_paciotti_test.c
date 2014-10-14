@@ -4,10 +4,12 @@
 #include <unistd.h>
 #include <float.h>
 #include <time.h>
+
 #define c 4 //numero di centri di cluster
 #define n 2000 //numero di punti totale in input
-double m = 2.0; //fuzzification
 #define d 2 //dimensioni spaziali
+
+double m = 2.0; //fuzzification
 double epsilon = 0.001; //minima distanza per arrestare
 double distanze[c]; //vettore con le dist fra centroidi dopo l'aggiornamento
 
@@ -98,24 +100,21 @@ int main(int argc, char** argv) {
     int i,j;
     //INIT X
     
+    //INIT X
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++)
             //gaussiana con media mi_gauss e devstd sigma_gauss
             X[i][j] = mi_gauss + (sigma_gauss * random_normal());
-        if (i == 0)
-            coordXCentroidiAttese[0] = mi_gauss;
         if (i == 50) {
-            mi_gauss *= 4;
-            coordXCentroidiAttese[1] = mi_gauss;
+            mi_gauss *= 8;
         }
         if (i == 100) {
             mi_gauss *= 2;
-            coordXCentroidiAttese[2] = mi_gauss;
         }
         if (i == 150) {
             mi_gauss *= 2;
-            coordXCentroidiAttese[3] = mi_gauss;
         }
+        
     }
     puts("matrice X:");
         stampaMatrice(n, d, X);
