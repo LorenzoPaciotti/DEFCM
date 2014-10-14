@@ -4,28 +4,26 @@
 #include <unistd.h>
 #include <float.h>
 #include <time.h>
+#include <string.h>
 
 #define c 4 //numero di centri di clusterc
 #define n 200 //numero di punti totale in input
-#define d 4 //dimensioni spaziali
+#define d 2 //dimensioni spaziali
 
 FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di output
-double X[n][d]; //matrice di input
 
+double X[n][d];
 double m = 2.0; //fuzzification
 double CR = 0.9; //crossover rate [0,1]
 
 double guardia_xb_1 = 0.0001; //parametro per scartare un figlio con XB troppo basso
-double guardia_xb_2 = 0.03; //parametro di arresto anticipato
-
-//parametri dell'inizializzazione dell'input
-int mi_gauss = 2;
-double sigma_gauss = 2.0;
+double guardia_xb_2 = 0.01; //parametro di arresto anticipato
 
 //attiva e disattiva GnuPlot
 int attivaGnuPlot = 1;
 
 //individuo della popolazione
+
 typedef struct el_pop {
     double V_p[c][d];
     double U_p[c][n];
@@ -38,7 +36,7 @@ regola la grandezza della
 popolazione
  */
 #define num_gen 1000
-#define num_pop 25
+#define num_pop 50
 
 el_pop *POP_NEW[num_pop]; //VETTORE POPOLAZIONE NUOVA
 el_pop *POP_NOW[num_pop]; //VETTORE POPOLAZIONE ATTUALE
@@ -68,7 +66,7 @@ void stampaMatriceSuFile(int righe, int col, double mat[righe][col], FILE *punt_
         }
         fprintf(punt_file, "\n");
     }
-    
+
     fflush(punt_file);
 }
 
@@ -118,20 +116,6 @@ long random_at_most(long max) {
     return x / bin_size;
 }
 
-double fRand(double fMin, double fMax) {
-    double f = (double) rand() / RAND_MAX;
-    return fMin + f * (fMax - fMin);
-}
-
-double drand() /* distribuzione uniforme, (0..1] */ {
-    return (rand() + 1.0) / (RAND_MAX + 1.0);
-}
-
-double random_normal() {
-    /* distribuzione normale, centrata su 0, std dev 1 */
-    return sqrt(-2 * log(drand())) * cos(2 * M_PI * drand());
-}
-
 double calcolaXB(double V[c][d], double U[c][n], int debug) {
     /*
      XB funzione del rapporto fra la variazione totale sigma
@@ -160,7 +144,7 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
         j = 0;
     }
 
-    
+
 
     //CALCOLO SIGMA
     double sigma = 0.0;
@@ -169,58 +153,45 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
     }
-    
-    
-    
-    if (min_sep == 0){
+
+
+
+    if (min_sep == 0) {
         puts("calcolaXB: DISTANZA NULLA MIN SEP");
         exit(-1);
     }
-    if (sigma == 0){
+    if (sigma == 0) {
         puts("calcolaXB: SIGMA NULLO");
         exit(-1);
     }
-    
-    double ris = (sigma)/(n*min_sep);
-    
-    if(ris <= 0){
+
+    double ris = (sigma) / (n * min_sep);
+
+    if (ris <= 0) {
         puts("calcolato XB nullo");
         exit(-1);
     }
-        
+
 
     return ris;
 }
 
-void init(){
-    
-    //INIT X
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < d; j++)
-            //gaussiana con media mi_gauss e devstd sigma_gauss
-            X[i][j] = mi_gauss + (sigma_gauss * random_normal());
-        if (i == 50) {
-            mi_gauss *= 8;
-        }
-        if (i == 100) {
-            mi_gauss *= 2;
-        }
-        if (i == 150) {
-            mi_gauss *= 2;
-        }
-        
-    }
-    stampaMatriceSuFile(n, d, X, out_X);
-    
+//random double in un range
+double fRand(double fMin, double fMax) {
+    double f = (double) lrand48() / RAND_MAX;
+    return fMin + f * (fMax - fMin);
+}
+
+void init() {
     //###INIT POPOLAZIONE 0
     //init V e calcolo U
-    
+
     for (pop_index = 0; pop_index < numero_elementi_popolazione; pop_index++) {
         POP_NEW[pop_index] = malloc(sizeof (el_pop));
         //init V
-        for (i = 0; i < c; i++){
+        for (i = 0; i < c; i++) {
             for (j = 0; j < d; j++) {
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)]*drand();
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] * drand48();
                 if (POP_NEW[pop_index] -> V_p[i][j] <= 0) {
                     fputs("WARN: INIT POP:inizializzato V di un membro con negativo\n", out_LOG);
                     fflush(out_LOG);
@@ -249,7 +220,7 @@ void init(){
         //RICALCOLO POSIZIONE CENTROIDI
         for (i = 0; i < c; i++) {
             double denom = 0.0;
-            for(j=0; j<n;j++)//sommatoria denom (fatta una sola volta a centr.)
+            for (j = 0; j < n; j++)//sommatoria denom (fatta una sola volta a centr.)
                 denom += pow(POP_NEW[pop_index] ->U_p[i][j], m);
             for (k = 0; k < d; k++) {
                 double num = 0.0;
@@ -265,12 +236,12 @@ void init(){
         double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
         if (xb <= guardia_xb_1) {
             puts("INIT POP: xb di un elemento inferiore a guardia_xb_1");
-            stampaMatrice(c,d,POP_NEW[pop_index]->V_p);
+            stampaMatrice(c, d, POP_NEW[pop_index]->V_p);
             exit(-1);
         }
-        if(xb <= guardia_xb_2){
+        if (xb <= guardia_xb_2) {
             puts("INIT POP: xb di un elemento inferiore a guardia_xb_2");
-            stampaMatrice(c,d,POP_NEW[pop_index]->V_p);
+            stampaMatrice(c, d, POP_NEW[pop_index]->V_p);
             exit(0);
         }
         POP_NEW[pop_index]->indice_xb = xb;
@@ -279,8 +250,8 @@ void init(){
     printf("\n########## FINE INIT #############\n");
 }
 
-void lavora(){
-    
+void lavora() {
+
 
     double xb_selezionato;
     int numero_generazioni_utente = numero_generazioni;
@@ -291,7 +262,7 @@ void lavora(){
         int i_CPop;
         for (i_CPop = 0; i_CPop < numero_elementi_popolazione; i_CPop++) {
             if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
-                if(POP_NOW[i_CPop != 0])
+                if (POP_NOW[i_CPop] != 0)
                     free(POP_NOW[i_CPop]);
                 POP_NOW[i_CPop] = POP_NEW[i_CPop];
             }
@@ -315,7 +286,7 @@ void lavora(){
                 indice_3 = random_at_most(((long) numero_elementi_popolazione) - 1);
             } while (indice_3 == i_CPop || indice_3 == indice_1 || indice_3 == indice_2);
 
-            if (indice_1 == i_CPop || indice_2 == i_CPop || indice_3 == i_CPop){
+            if (indice_1 == i_CPop || indice_2 == i_CPop || indice_3 == i_CPop) {
                 puts("INDICE NON VALIDO!!!!");
                 exit(-1);
             }
@@ -323,11 +294,11 @@ void lavora(){
             //l'elemento mutante
             el_pop *trial = malloc(sizeof (el_pop));
             //MUTATION
-            
+
             int i1, j1;
             //scambio di geni (tipo 1)
             for (i1 = 0; i1 < c; i1++) {
-                double f = fRand(0.1, 1.0);//differential weight
+                double f = fRand(0.1, 1.0); //differential weight
                 for (j1 = 0; j1 < d; j1++) {
                     trial->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
@@ -343,7 +314,7 @@ void lavora(){
                     }
                 }
             }
-            
+
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
             /*for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
@@ -413,7 +384,7 @@ void lavora(){
         }//END DE
         numero_generazioni--;
     } while (numero_generazioni > 0 && xb_selezionato >= guardia_xb_2);
-    
+
     puts("calcolo xb finale");
     //computazione XB della popolazione finale
     double best_xb = DBL_MAX;
@@ -426,21 +397,21 @@ void lavora(){
         }
     }
 
-    
+
     puts("***********************************************");
-    if(xb_selezionato < guardia_xb_2)
+    if (xb_selezionato < guardia_xb_2)
         puts("***SUPERATA GUARDIA XB_2***");
     int numero_gen_fatte = numero_generazioni_utente - numero_generazioni;
-    printf("\nnumero di elementi delle popolazioni:%d\n",numero_elementi_popolazione);
-    fprintf(out_LOG_RIS,"\nnumero di elementi delle popolazioni:%d\n",numero_elementi_popolazione);
-    printf("\nnumero di generazioni max:%d\n",numero_generazioni_utente);
-    fprintf(out_LOG_RIS,"\nnumero di generazioni max:%d\n",numero_generazioni_utente);
-    printf("\nnumero generazioni fatte:%d\n",numero_gen_fatte);
-    fprintf(out_LOG_RIS,"\nnumero generazioni fatte:%d\n",numero_gen_fatte);
+    printf("\nnumero di elementi delle popolazioni:%d\n", numero_elementi_popolazione);
+    fprintf(out_LOG_RIS, "\nnumero di elementi delle popolazioni:%d\n", numero_elementi_popolazione);
+    printf("\nnumero di generazioni max:%d\n", numero_generazioni_utente);
+    fprintf(out_LOG_RIS, "\nnumero di generazioni max:%d\n", numero_generazioni_utente);
+    printf("\nnumero generazioni fatte:%d\n", numero_gen_fatte);
+    fprintf(out_LOG_RIS, "\nnumero generazioni fatte:%d\n", numero_gen_fatte);
     printf("\nmiglior XB:%lf\n", best_xb);
-    fprintf(out_LOG_RIS,"\nmiglior XB:%lf\n", best_xb);
+    fprintf(out_LOG_RIS, "\nmiglior XB:%lf\n", best_xb);
 
-    
+
     puts("matrice V:");
     stampaMatrice(c, d, POP_NEW[indice_best]->V_p);
     puts("");
@@ -451,28 +422,39 @@ void lavora(){
 
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
-    numero_elementi_popolazione = num_pop;//d * molt_pop;
-    numero_generazioni = num_gen;//d * molt_gen;
+    numero_elementi_popolazione = num_pop; //d * molt_pop;
+    numero_generazioni = num_gen; //d * molt_gen;
     
-    
+
+    //lettura X
+    out_X = fopen("x.dat", "r");
+    i = 0; j = 0;
+    while (!feof(out_X)) {
+        fscanf(out_X, "%lf",&(X[i][j]));
+        j++;
+        /*fscanf(out_X, "%lf",&(X[i][j]));
+        i++;*/
+    }
+    stampaMatrice(n,d,X);
+
     out_V = fopen("v.dat", "w");
-    out_X = fopen("x.dat", "w");
     out_U = fopen("u.dat", "w");
-    out_LOG = fopen("log","w");
-    out_LOG_RIS = fopen("log_ris","a");
-    fputs("\n######\n",out_LOG_RIS);
-    fprintf(out_LOG_RIS,"\nnumero dimensioni:%d\n",d);
-    fprintf(out_LOG_RIS,"\nnumero centroidi:%d\n",c);
-    printf("\ndimensioni:%d\n",d);
-    printf("\nnumero centroidi:%d\n",c);
-    
+    out_LOG = fopen("log", "w");
+    out_LOG_RIS = fopen("log_ris", "a");
+
+    fputs("\n######\n", out_LOG_RIS);
+    fprintf(out_LOG_RIS, "\nnumero dimensioni:%d\n", d);
+    fprintf(out_LOG_RIS, "\nnumero centroidi:%d\n", c);
+    printf("\ndimensioni:%d\n", d);
+    printf("\nnumero centroidi:%d\n", c);
+
     init();
     lavora();
-    
+
 
     //GNUPLOT
     if ((d == 2 || d == 3) && attivaGnuPlot) {
-        char *commandsForGnuplot[] = {"set key off","set term wxt 1","set title \"matrice X\"", "", "set term wxt 2","set key off", "set title \"matrice V\"", ""};
+        char *commandsForGnuplot[] = {"set key off", "set term wxt 1", "set title \"matrice X\"", "", "set term wxt 2", "set key off", "set title \"matrice V\"", ""};
         if (d == 2) {
             commandsForGnuplot[3] = "plot 'x.dat'";
             commandsForGnuplot[7] = "plot 'v.dat'";
