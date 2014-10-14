@@ -7,14 +7,15 @@
 
 #define c 4 //numero di centri di clusterc
 #define n 200 //numero di punti totale in input
-#define d 2 //dimensioni spaziali
+#define d 3 //dimensioni spaziali
 
 FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di output
 
 double m = 2.0; //fuzzification
 double CR = 0.9; //crossover rate [0,1]
-int molt_gen = 300; //moltiplicatore generazioni, questo * d
-double guardia_xb = 0.01; //parametro per l'arresto automatico
+int molt_gen = 100; //moltiplicatore generazioni, questo * d
+double guardia_xb_1 = 0.0001; //parametro per scartare un figlio con XB troppo basso
+double guardia_xb_2 = 0.01; //parametro di arresto anticipato
 
 //parametri dell'inizializzazione dell'input
 int mi_gauss = 2;
@@ -37,9 +38,9 @@ molt_pop moltiplicato per d dimensioni
 regola la grandezza della
 popolazione
  */
-int molt_pop = 100;
-el_pop *POP_NEW[d * 100]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[d * 100]; //VETTORE POPOLAZIONE ATTUALE
+int molt_pop = 20;
+el_pop *POP_NEW[d * 20]; //VETTORE POPOLAZIONE NUOVA
+el_pop *POP_NOW[d * 20]; //VETTORE POPOLAZIONE ATTUALE
 
 //NON MODIFICARE
 int numero_elementi_popolazione, numero_generazioni, i, j, k, pop_index;
@@ -261,10 +262,15 @@ void init(){
 
         //computazione XB della popolazione iniziale (POPOLAZIONE 0)
         double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
-        if (xb <= guardia_xb) {
-            puts("INIT POP: xb di un elemento inferiore a guardia_xb");
+        if (xb <= guardia_xb_1) {
+            puts("INIT POP: xb di un elemento inferiore a guardia_xb_1");
             stampaMatrice(c,d,POP_NEW[pop_index]->V_p);
             exit(-1);
+        }
+        if(xb <= guardia_xb_2){
+            puts("INIT POP: xb di un elemento inferiore a guardia_xb_2");
+            stampaMatrice(c,d,POP_NEW[pop_index]->V_p);
+            exit(0);
         }
         POP_NEW[pop_index]->indice_xb = xb;
     }
@@ -316,16 +322,28 @@ void lavora(){
             //l'elemento mutante
             el_pop *trial = malloc(sizeof (el_pop));
             //MUTATION
-            //scambio di geni
+            
             int i1, j1;
+            //scambio di geni (tipo 1)
             for (i1 = 0; i1 < c; i1++) {
+                double f = fRand(0.1, 1.0);//differential weight
                 for (j1 = 0; j1 < d; j1++) {
-                    double f = fRand(0.0, 1.0);
                     trial->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
             }
 
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
+            for (i1 = 0; i1 < c; i1++) {
+                double prob_crossover = fRand(0.0, 1.0);
+                for (j1 = 0; j1 < d; j1++) {
+                    if (prob_crossover < CR) {
+                        //prendo il gene del vettore attuale
+                        trial->V_p[i1][j1] = POP_NOW[i_CPop]->V_p[i1][j1];
+                    }
+                }
+            }
+            
+            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
             /*for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
                     double prob_crossover = fRand(0.0, 1.0);
@@ -336,14 +354,14 @@ void lavora(){
                 }
             }*/
 
-            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
-            for (i1 = 0; i1 < c; i1++) {
+            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 3)
+            /*for (i1 = 0; i1 < c; i1++) {
                     double prob_crossover = fRand(0.0, 1.0);
                     if (prob_crossover < CR) {
                         //prendo il gene del vettore attuale
                         copiaVettore(d,POP_NOW[i_CPop]->V_p[i1],trial->V_p[i1]);
                     }
-            }
+            }*/
 
             ///CALCOLO FITNESS DEL MUTANTE
             //calcolo U mutante
@@ -376,7 +394,7 @@ void lavora(){
 
             //calcolo XB mutante            
             trial->indice_xb = calcolaXB(trial->V_p, trial->U_p, 1);
-            if (trial -> indice_xb <= guardia_xb) {
+            if (trial -> indice_xb <= guardia_xb_1) {
                 puts("*ERROR: indice_xb trial inferiore a guardia, scartato");
                 trial->indice_xb = DBL_MAX;
             }
@@ -393,7 +411,7 @@ void lavora(){
             }
         }//END DE
         numero_generazioni--;
-    } while (numero_generazioni > 0 && xb_selezionato >= guardia_xb);
+    } while (numero_generazioni > 0 && xb_selezionato >= guardia_xb_2);
     
     puts("calcolo xb finale");
     //computazione XB della popolazione finale
@@ -409,8 +427,8 @@ void lavora(){
 
     
     puts("***********************************************");
-    if(xb_selezionato < guardia_xb)
-        puts("***SUPERATA GUARDIA XB***");
+    if(xb_selezionato < guardia_xb_2)
+        puts("***SUPERATA GUARDIA XB_2***");
     int numero_gen_fatte = numero_generazioni_utente - numero_generazioni;
     printf("\nnumero di elementi delle popolazioni:%d\n",numero_elementi_popolazione);
     fprintf(out_LOG_RIS,"\nnumero di elementi delle popolazioni:%d\n",numero_elementi_popolazione);

@@ -5,9 +5,9 @@
 #include <float.h>
 #include <time.h>
 #define c 4 //numero di centri di cluster
-#define n 200 //numero di punti totale in input
+#define n 2000 //numero di punti totale in input
 double m = 2.0; //fuzzification
-#define d 6 //dimensioni spaziali
+#define d 2 //dimensioni spaziali
 double epsilon = 0.001; //minima distanza per arrestare
 double distanze[c]; //vettore con le dist fra centroidi dopo l'aggiornamento
 
