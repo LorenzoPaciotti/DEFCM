@@ -6,9 +6,10 @@
 #include <time.h>
 #include <string.h>
 
-#define c 4 //numero di centri di clusterc
+#define c 4 //numero di centri di cluster
 #define n 200 //numero di punti totale in input
-#define d 2 //dimensioni spaziali
+#define d 3 //dimensioni spaziali
+#define num_pop 50
 
 FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di output
 
@@ -16,27 +17,18 @@ double X[n][d];
 double m = 2.0; //fuzzification
 double CR = 0.9; //crossover rate [0,1]
 
-double guardia_xb_1 = 0.0001; //parametro per scartare un figlio con XB troppo basso
-double guardia_xb_2 = 0.01; //parametro di arresto anticipato
+//double guardia_xb_1 = 0.0001; //parametro per scartare un figlio con XB troppo basso
+//double guardia_xb_2 = 0.01; //parametro di arresto anticipato
 
 //attiva e disattiva GnuPlot
 int attivaGnuPlot = 1;
 
 //individuo della popolazione
-
 typedef struct el_pop {
     double V_p[c][d];
     double U_p[c][n];
     double indice_xb;
 } el_pop;
-
-/*
-molt_pop moltiplicato per d dimensioni
-regola la grandezza della
-popolazione
- */
-#define num_gen 1000
-#define num_pop 50
 
 el_pop *POP_NEW[num_pop]; //VETTORE POPOLAZIONE NUOVA
 el_pop *POP_NOW[num_pop]; //VETTORE POPOLAZIONE ATTUALE
@@ -44,6 +36,7 @@ el_pop *POP_NOW[num_pop]; //VETTORE POPOLAZIONE ATTUALE
 //NON MODIFICARE
 int numero_elementi_popolazione, numero_generazioni, i, j, k, pop_index;
 double esponente_U;
+double xb_selezionato;
 
 void stampaMatrice(int righe, int col, double mat[righe][col]) {
     int i, j;
@@ -156,24 +149,24 @@ double calcolaXB(double V[c][d], double U[c][n], int debug) {
 
 
 
-    if (min_sep == 0) {
+    /*if (min_sep == 0) {
         puts("calcolaXB: DISTANZA NULLA MIN SEP");
         exit(-1);
-    }
-    if (sigma == 0) {
+    }*/
+    if (sigma <= 0) {
         puts("calcolaXB: SIGMA NULLO");
         exit(-1);
     }
 
-    double ris = (sigma) / (n * min_sep);
+    /*double ris = (sigma) / (n * min_sep);
 
     if (ris <= 0) {
         puts("calcolato XB nullo");
         exit(-1);
-    }
+    }*/
 
 
-    return ris;
+    return (sigma) / (n * min_sep);
 }
 
 //random double in un range
@@ -234,7 +227,7 @@ void init() {
 
         //computazione XB della popolazione iniziale (POPOLAZIONE 0)
         double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
-        if (xb <= guardia_xb_1) {
+        /*if (xb <= guardia_xb_1) {
             puts("INIT POP: xb di un elemento inferiore a guardia_xb_1");
             stampaMatrice(c, d, POP_NEW[pop_index]->V_p);
             exit(-1);
@@ -243,7 +236,7 @@ void init() {
             puts("INIT POP: xb di un elemento inferiore a guardia_xb_2");
             stampaMatrice(c, d, POP_NEW[pop_index]->V_p);
             exit(0);
-        }
+        }*/
         POP_NEW[pop_index]->indice_xb = xb;
     }
     //###END INIT POPOLAZIONE 0
@@ -253,7 +246,7 @@ void init() {
 void lavora() {
 
 
-    double xb_selezionato;
+    
     int numero_generazioni_utente = numero_generazioni;
     do {//NUOVA GENERAZIONE
         //printf("\n\nCOUNTDOWN GENERAZIONE: %d\n", numero_generazioni);
@@ -366,10 +359,10 @@ void lavora() {
 
             //calcolo XB mutante            
             trial->indice_xb = calcolaXB(trial->V_p, trial->U_p, 1);
-            if (trial -> indice_xb <= guardia_xb_1) {
+            /*if (trial -> indice_xb <= guardia_xb_1) {
                 puts("*ERROR: indice_xb trial inferiore a guardia, scartato");
                 trial->indice_xb = DBL_MAX;
-            }
+            }*/
             //////END CALCOLO FITNESS MUTANTE
 
             //SELECTION
@@ -383,7 +376,7 @@ void lavora() {
             }
         }//END DE
         numero_generazioni--;
-    } while (numero_generazioni > 0 && xb_selezionato >= guardia_xb_2);
+    } while (numero_generazioni > 0); //&& xb_selezionato >= guardia_xb_2
 
     puts("calcolo xb finale");
     //computazione XB della popolazione finale
@@ -399,8 +392,8 @@ void lavora() {
 
 
     puts("***********************************************");
-    if (xb_selezionato < guardia_xb_2)
-        puts("***SUPERATA GUARDIA XB_2***");
+    /*if (xb_selezionato < guardia_xb_2)
+        puts("***SUPERATA GUARDIA XB_2***");*/
     int numero_gen_fatte = numero_generazioni_utente - numero_generazioni;
     printf("\nnumero di elementi delle popolazioni:%d\n", numero_elementi_popolazione);
     fprintf(out_LOG_RIS, "\nnumero di elementi delle popolazioni:%d\n", numero_elementi_popolazione);
@@ -423,20 +416,21 @@ void lavora() {
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     numero_elementi_popolazione = num_pop; //d * molt_pop;
-    numero_generazioni = num_gen; //d * molt_gen;
+    puts("inserire numero di generazioni:");
+    scanf("%d",&numero_generazioni);
     
 
     //lettura X
     out_X = fopen("x.dat", "r");
     i = 0; j = 0;
     while (!feof(out_X)) {
-        fscanf(out_X, "%lf",&(X[i][j]));
+        fscanf(out_X, "%lf",&(X[0][j])); //out_X, %s, var
         j++;
         /*fscanf(out_X, "%lf",&(X[i][j]));
         i++;*/
     }
-    stampaMatrice(n,d,X);
-
+    
+    
     out_V = fopen("v.dat", "w");
     out_U = fopen("u.dat", "w");
     out_LOG = fopen("log", "w");
