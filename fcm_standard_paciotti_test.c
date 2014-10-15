@@ -13,15 +13,10 @@ double m = 2.0; //fuzzification
 double epsilon = 0.001; //minima distanza per arrestare
 double distanze[c]; //vettore con le dist fra centroidi dopo l'aggiornamento
 
-int mi_gauss = 2;
-double sigma_gauss = 2.0;
-
-
 double X[n][d]; //dati input
 double U[c][n]; //partition matrix
 double V[c][d]; //matr centroidi
 double max;
-double coordXCentroidiAttese[c];
 
 void stampaMatrice(int righe, int col, double mat[][col]) {
     int i, j;
@@ -74,12 +69,14 @@ int main(int argc, char** argv) {
     //lettura X
     out_X = fopen("x.dat", "r");
     i = 0; j = 0;
-    while (!feof(out_X)) {
-        fscanf(out_X, "%lf",&(X[0][j])); //out_X, %s, var
-        j++;
-        /*fscanf(out_X, "%lf",&(X[i][j]));
-        i++;*/
+    //lettura X da file
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < d; j++) {
+            if (!fscanf(out_X, "%lf", &X[i][j]))
+                break;
+        }
     }
+    fclose(out_X);
 
     //INIT V
     srand48(3);

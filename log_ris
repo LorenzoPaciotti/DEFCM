@@ -118,3 +118,59 @@ numero di generazioni max:500
 numero generazioni fatte:500
 
 miglior XB:0.004654
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:20
+
+numero generazioni fatte:20
+
+miglior XB:0.010853
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:400
+
+numero generazioni fatte:400
+
+miglior XB:0.004657
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:100
+
+numero generazioni fatte:100
+
+miglior XB:15482.522043
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:200
+
+numero generazioni fatte:200
+
+miglior XB:15365.699606

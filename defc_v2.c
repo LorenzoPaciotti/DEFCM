@@ -111,7 +111,7 @@ double calcolaXB(double **V, double **U, int debug) {
     //if(debug == 1)
     //    puts("debug XB");
     //CALCOLO MIN_SEP
-    double min_sep = DBL_MAX;
+    /*double min_sep = DBL_MAX;
     int i, j;
     double dist_tmp = 0;
     j = 0;
@@ -129,7 +129,7 @@ double calcolaXB(double **V, double **U, int debug) {
             }
         }
         j = 0;
-    }
+    }*/
 
 
 
@@ -160,7 +160,7 @@ double calcolaXB(double **V, double **U, int debug) {
     }*/
 
 
-    return (sigma) / (n * min_sep);
+    return sigma;
 }
 
 void init(int n, int c, int d) {
@@ -236,13 +236,21 @@ void init(int n, int c, int d) {
 
 void lavora(int n, int c, int d) {
     int numero_generazioni_utente = numero_generazioni;
+    int row;
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
         int i_CPop;
         for (i_CPop = 0; i_CPop < num_pop_iniziale; i_CPop++) {
             if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
-                //if (POP_NOW[i_CPop] != 0)
-                free(POP_NOW[i_CPop]);
+                if (POP_NOW[i_CPop] != 0) {
+                    for (row = 0; row < c; row++) {
+                        free(POP_NOW[i_CPop] -> V_p[row]);
+                        free(POP_NOW[i_CPop] -> U_p[row]);
+                    }
+                    free(POP_NOW[i_CPop]->V_p);
+                    free(POP_NOW[i_CPop]->U_p);
+                    free(POP_NOW[i_CPop]);
+                }
                 POP_NOW[i_CPop] = POP_NEW[i_CPop];
             }
         }
@@ -271,7 +279,6 @@ void lavora(int n, int c, int d) {
             }
 
             //l'elemento mutante
-            int row;
             el_pop *mutant = malloc(sizeof (el_pop));
             //alloc V_p del mutante
             mutant -> V_p = malloc(c * sizeof (double*));
@@ -367,6 +374,12 @@ void lavora(int n, int c, int d) {
                 xb_selezionato = mutant->indice_xb;
                 POP_NEW[i_CPop] = mutant;
             } else {
+                for (row = 0; row < c; row++) {
+                    free(mutant -> V_p[row]);
+                    free(mutant -> U_p[row]);
+                }
+                free(mutant->V_p);
+                free(mutant->U_p);
                 free(mutant);
                 POP_NEW[i_CPop] = POP_NOW[i_CPop];
                 xb_selezionato = POP_NOW[i_CPop]->indice_xb;
@@ -454,8 +467,8 @@ int main(int argc, char** argv) {
     scanf("%d", &numero_generazioni);
 
     num_pop_iniziale = num_pop;
-    
-    
+
+
     //allocazione X
     int row;
     X = malloc(n * sizeof (double*));
