@@ -30,3 +30,91 @@ numero di generazioni max:20
 numero generazioni fatte:20
 
 miglior XB:0.041240
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:20
+
+numero generazioni fatte:20
+
+miglior XB:0.041240
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:50
+
+numero di generazioni max:50
+
+numero generazioni fatte:50
+
+miglior XB:0.007753
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:20
+
+numero generazioni fatte:20
+
+miglior XB:0.010853
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:200
+
+numero generazioni fatte:200
+
+miglior XB:0.004730
+
+######
+
+numero dimensioni:2
+
+numero centroidi:4
+
+numero di elementi delle popolazioni:100
+
+numero di generazioni max:500
+
+numero generazioni fatte:500
+
+miglior XB:0.004654

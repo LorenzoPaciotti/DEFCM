@@ -12,8 +12,7 @@ double **X;
 double m = 2.0; //fuzzification
 double CR = 0.9; //crossover rate [0,1]
 
-//attiva e disattiva GnuPlot
-int attivaGnuPlot = 1;
+#define num_pop 100
 
 typedef struct el_pop {//individuo della popolazione
     double **V_p;
@@ -21,10 +20,15 @@ typedef struct el_pop {//individuo della popolazione
     double indice_xb;
 } el_pop;
 
-//el_pop *POP_NEW[pop_num]; //VETTORE POPOLAZIONE NUOVA
-//el_pop *POP_NOW[pop_num]; //VETTORE POPOLAZIONE ATTUALE
+el_pop *POP_NEW[num_pop];
+el_pop *POP_NOW[num_pop];
 
-int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, num_pop;
+//attiva e disattiva GnuPlot
+int attivaGnuPlot = 1;
+
+
+
+int num_pop_iniziale, numero_generazioni, i, j, k, pop_index;
 double esponente_U;
 double xb_selezionato;
 int n, c, d;
@@ -159,7 +163,8 @@ double calcolaXB(double **V, double **U, int debug) {
     return (sigma) / (n * min_sep);
 }
 
-void init(int n, int c, int d, el_pop *POP_NEW[num_pop_iniziale]) {
+void init(int n, int c, int d) {
+    puts("###start init###");
     int row;
     //###INIT POPOLAZIONE 0
     //init V e calcolo U
@@ -229,17 +234,15 @@ void init(int n, int c, int d, el_pop *POP_NEW[num_pop_iniziale]) {
     printf("\n########## FINE INIT #############\n");
 }
 
-void lavora(int n, int c, int d, el_pop *POP_NOW[num_pop_iniziale], el_pop *POP_NEW[num_pop_iniziale]) {
+void lavora(int n, int c, int d) {
     int numero_generazioni_utente = numero_generazioni;
     do {//NUOVA GENERAZIONE
-        //printf("\n\nCOUNTDOWN GENERAZIONE: %d\n", numero_generazioni);
         //SCAMBIO VETTORI POPOLAZIONE
-        //REINIT POP_NEW
         int i_CPop;
         for (i_CPop = 0; i_CPop < num_pop_iniziale; i_CPop++) {
             if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
-                if (POP_NOW[i_CPop] != 0)
-                    free(POP_NOW[i_CPop]);
+                //if (POP_NOW[i_CPop] != 0)
+                free(POP_NOW[i_CPop]);
                 POP_NOW[i_CPop] = POP_NEW[i_CPop];
             }
         }
@@ -370,7 +373,7 @@ void lavora(int n, int c, int d, el_pop *POP_NOW[num_pop_iniziale], el_pop *POP_
             }
         }//END DE
         numero_generazioni--;
-    } while (numero_generazioni > 0); //&& xb_selezionato >= guardia_xb_2
+    } while (numero_generazioni > 0);
 
     puts("calcolo xb finale");
     //computazione XB della popolazione finale
@@ -445,19 +448,18 @@ int main(int argc, char** argv) {
     scanf("%d", &d);
     puts("numero di centroidi");
     scanf("%d", &c);
-    puts("numero di elementi della popolazione:");
-    scanf("%d", &num_pop);
+    //puts("numero di elementi della popolazione:");
+    //scanf("%d", &num_pop);
     puts("numero di generazioni:");
     scanf("%d", &numero_generazioni);
 
     num_pop_iniziale = num_pop;
-    el_pop *POP_NEW[num_pop];
-    el_pop *POP_NOW[num_pop];
+    
     
     //allocazione X
     int row;
-    X = malloc(n * sizeof (double*)); //righe
-    for (row = 0; row < n; row++) { //colonne
+    X = malloc(n * sizeof (double*));
+    for (row = 0; row < n; row++) {
         X[row] = malloc(d * sizeof (double));
     }
 
@@ -476,8 +478,8 @@ int main(int argc, char** argv) {
     printf("\ndimensioni:%d\n", d);
     printf("\nnumero centroidi:%d\n", c);
 
-    init(n, c, d, POP_NEW);
-    lavora(n, c, d, POP_NOW, POP_NEW);
+    init(n, c, d);
+    lavora(n, c, d);
     plot();
 
     return (0);
