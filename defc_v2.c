@@ -21,8 +21,8 @@ typedef struct el_pop {//individuo della popolazione
     double indice_xb;
 } el_pop;
 
-el_pop *POP_NEW[]; //VETTORE POPOLAZIONE NUOVA
-el_pop *POP_NOW[]; //VETTORE POPOLAZIONE ATTUALE
+//el_pop *POP_NEW[pop_num]; //VETTORE POPOLAZIONE NUOVA
+//el_pop *POP_NOW[pop_num]; //VETTORE POPOLAZIONE ATTUALE
 
 int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, num_pop;
 double esponente_U;
@@ -159,7 +159,7 @@ double calcolaXB(double **V, double **U, int debug) {
     return (sigma) / (n * min_sep);
 }
 
-void init(int n, int c, int d) {
+void init(int n, int c, int d, el_pop *POP_NEW[num_pop_iniziale]) {
     int row;
     //###INIT POPOLAZIONE 0
     //init V e calcolo U
@@ -229,7 +229,7 @@ void init(int n, int c, int d) {
     printf("\n########## FINE INIT #############\n");
 }
 
-void lavora(int n, int c, int d) {
+void lavora(int n, int c, int d, el_pop *POP_NOW[num_pop_iniziale], el_pop *POP_NEW[num_pop_iniziale]) {
     int numero_generazioni_utente = numero_generazioni;
     do {//NUOVA GENERAZIONE
         //printf("\n\nCOUNTDOWN GENERAZIONE: %d\n", numero_generazioni);
@@ -451,7 +451,9 @@ int main(int argc, char** argv) {
     scanf("%d", &numero_generazioni);
 
     num_pop_iniziale = num_pop;
-
+    el_pop *POP_NEW[num_pop];
+    el_pop *POP_NOW[num_pop];
+    
     //allocazione X
     int row;
     X = malloc(n * sizeof (double*)); //righe
@@ -474,8 +476,8 @@ int main(int argc, char** argv) {
     printf("\ndimensioni:%d\n", d);
     printf("\nnumero centroidi:%d\n", c);
 
-    init(n, c, d);
-    lavora(n, c, d);
+    init(n, c, d, POP_NEW);
+    lavora(n, c, d, POP_NOW, POP_NEW);
     plot();
 
     return (0);
