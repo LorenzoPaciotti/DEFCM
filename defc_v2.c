@@ -111,7 +111,7 @@ double calcolaXB(double **V, double **U, int debug) {
     //if(debug == 1)
     //    puts("debug XB");
     //CALCOLO MIN_SEP
-    /*double min_sep = DBL_MAX;
+    double min_sep = DBL_MAX;
     int i, j;
     double dist_tmp = 0;
     j = 0;
@@ -129,7 +129,7 @@ double calcolaXB(double **V, double **U, int debug) {
             }
         }
         j = 0;
-    }*/
+    }
 
 
 
@@ -160,7 +160,7 @@ double calcolaXB(double **V, double **U, int debug) {
     }*/
 
 
-    return sigma;
+    return sigma/(c*min_sep);
 }
 
 void init(int n, int c, int d) {
@@ -461,8 +461,6 @@ int main(int argc, char** argv) {
     scanf("%d", &d);
     puts("numero di centroidi");
     scanf("%d", &c);
-    //puts("numero di elementi della popolazione:");
-    //scanf("%d", &num_pop);
     puts("numero di generazioni:");
     scanf("%d", &numero_generazioni);
 
@@ -488,8 +486,6 @@ int main(int argc, char** argv) {
     fputs("\n######\n", out_LOG_RIS);
     fprintf(out_LOG_RIS, "\nnumero dimensioni:%d\n", d);
     fprintf(out_LOG_RIS, "\nnumero centroidi:%d\n", c);
-    printf("\ndimensioni:%d\n", d);
-    printf("\nnumero centroidi:%d\n", c);
 
     init(n, c, d);
     lavora(n, c, d);

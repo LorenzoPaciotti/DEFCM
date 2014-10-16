@@ -5,20 +5,19 @@
 #include <float.h>
 #include <time.h>
 
-#define c 4 //numero di centri di cluster
-#define n 200 //numero di punti totale in input
-#define d 4 //dimensioni spaziali
+int c,n,d;
 
 double m = 2.0; //fuzzification
 double epsilon = 0.001; //minima distanza per arrestare
-double distanze[c]; //vettore con le dist fra centroidi dopo l'aggiornamento
 
-double X[n][d]; //dati input
-double U[c][n]; //partition matrix
-double V[c][d]; //matr centroidi
+
+int i, j;
+double **X; //dati input
+double **U; //partition matrix
+double **V; //matr centroidi
 double max;
 
-void stampaMatrice(int righe, int col, double mat[][col]) {
+void stampaMatrice(int righe, int col, double **mat) {
     int i, j;
     printf("\n\n");
     for (i = 0; i < righe; i++) {
@@ -30,7 +29,7 @@ void stampaMatrice(int righe, int col, double mat[][col]) {
     }
 }
 
-void stampaMatriceSuFile(int righe, int col, double mat[righe][col], FILE *punt_file) {
+void stampaMatriceSuFile(int righe, int col, double **mat, FILE *punt_file) {
     int i, j;
     for (i = 0; i < righe; i++) {
         for (j = 0; j < col; j++) {
@@ -39,6 +38,8 @@ void stampaMatriceSuFile(int righe, int col, double mat[righe][col], FILE *punt_
         }
         fprintf(punt_file, "\n");
     }
+
+    fflush(punt_file);
 }
 
 double calcDistanza(double a[d], double b[d]) {
@@ -49,7 +50,7 @@ double calcDistanza(double a[d], double b[d]) {
     return sqrt(ris);
 }
 
-double maxDistCentroidi() {
+double maxDistCentroidi(double distanze[c]) {
     double max = 0.0;
     int i;
     for (i = 0; i < c; i++) {
@@ -64,11 +65,25 @@ int main(int argc, char** argv) {
     FILE *out_V, *out_X, *out_U;
     out_V = fopen("v_fcm.dat", "w");
     out_U = fopen("u_fcm.dat", "w");
-    int i, j;
-    
-    //lettura X
     out_X = fopen("x.dat", "r");
-    i = 0; j = 0;
+    
+    //letture da utente
+    puts("numero di punti in input");
+    scanf("%d", &n);
+    puts("numero di dimensioni");
+    scanf("%d", &d);
+    puts("numero di centroidi");
+    scanf("%d", &c);
+    
+    double distanze[c]; //vettore con le dist fra centroidi dopo l'aggiornamento
+        
+    //allocazione X
+    int row;
+    X = malloc(n * sizeof (double*));
+    for (row = 0; row < n; row++) {
+        X[row] = malloc(d * sizeof (double));
+    }
+
     //lettura X da file
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++) {
@@ -77,16 +92,27 @@ int main(int argc, char** argv) {
         }
     }
     fclose(out_X);
-
+    
+    //alloc V
+        V = malloc(c * sizeof (double*));
+        for (row = 0; row < c; row++) {
+            V[row] = malloc(d * sizeof (double));
+        }
+    
     //INIT V
     srand48(3);
     for (i = 0; i < c; i++)
         for (j = 0; j < d; j++)
             V[i][j] = 10 * drand48() - 5;
-
-    puts("\ninizializzazione matrice V:");
-    stampaMatrice(c, d, V);
-    printf("#######################\n\n");
+    
+    //alloc U
+        U = malloc(c * sizeof (double*));
+        for (row = 0; row < c; row++) {
+            U[row] = malloc(n * sizeof (double));
+        }
+    
+    
+    printf("########END INIT##########\n\n");
     max = 0.0;
     do {
         //CALCOLO PARTITION MATRIX
@@ -126,17 +152,13 @@ int main(int argc, char** argv) {
             distanze[i] = pow(calcDistanza(V[i], old), 2.0);
         }
         
-    } while (maxDistCentroidi() > epsilon);
+    } while (maxDistCentroidi(distanze) > epsilon);
 
-    //puts("matrice U:");
-    //stampaMatrice(c, n, U);
-    puts("");
     puts("matrice V:");
     stampaMatrice(c, d, V);
-    puts("");
     stampaMatriceSuFile(c, d, V, out_V);
     stampaMatriceSuFile(c, n, U, out_U);
-    printf("MAXDISTCENTROIDI: %lf", maxDistCentroidi());
+    printf("MAXDISTCENTROIDI: %lf", maxDistCentroidi(distanze));
     printf("\n\n\n\n\n");
     return (0);
 }
