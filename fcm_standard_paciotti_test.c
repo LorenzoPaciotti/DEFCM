@@ -60,6 +60,66 @@ double maxDistCentroidi(double distanze[c]) {
     return max;
 }
 
+double calcolaXB(double **V, double **U, int debug) {
+    /*
+     XB funzione del rapporto fra la variazione totale sigma
+     e la separazione minima fra i centroidi
+     */
+    //if(debug == 1)
+    //    puts("debug XB");
+    //CALCOLO MIN_SEP
+    double min_sep = DBL_MAX;
+    int i, j;
+    double dist_tmp = 0;
+    j = 0;
+    for (i = 0; i < c; i++) {
+        if (j == i)
+            j++;
+        while (j < c) {
+            if (j == i)
+                j++;
+            if (j < c) {
+                dist_tmp = pow(calcDistanza(V[i], V[j]), 2.0);
+                if (dist_tmp < min_sep)
+                    min_sep = dist_tmp;
+                j++;
+            }
+        }
+        j = 0;
+    }
+
+
+
+    //CALCOLO SIGMA
+    double sigma = 0.0;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < c; j++) {
+            sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
+        }
+    }
+
+
+
+    /*if (min_sep == 0) {
+        puts("calcolaXB: DISTANZA NULLA MIN SEP");
+        exit(-1);
+    }*/
+    if (sigma <= 0) {
+        puts("calcolaXB: SIGMA NULLO");
+        exit(-1);
+    }
+
+    /*double ris = (sigma) / (n * min_sep);
+
+    if (ris <= 0) {
+        puts("calcolato XB nullo");
+        exit(-1);
+    }*/
+
+
+    return sigma;
+}
+
 int main(int argc, char** argv) {
     //PUNTATORI A FILE DI OUTPUT
     FILE *out_V, *out_X, *out_U;
@@ -158,7 +218,9 @@ int main(int argc, char** argv) {
     stampaMatrice(c, d, V);
     stampaMatriceSuFile(c, d, V, out_V);
     stampaMatriceSuFile(c, n, U, out_U);
-    printf("MAXDISTCENTROIDI: %lf", maxDistCentroidi(distanze));
-    printf("\n\n\n\n\n");
+    printf("MAXDISTCENTROIDI: %lf\n", maxDistCentroidi(distanze));
+    puts("indice XB:");
+    double xb = calcolaXB(V,U,0);
+    printf("%lf\n",xb);
     return (0);
 }

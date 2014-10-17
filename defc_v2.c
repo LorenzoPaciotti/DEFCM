@@ -238,7 +238,6 @@ void init(int n, int c, int d) {
 }
 
 void lavora(int n, int c, int d) {
-    int numero_generazioni_utente = numero_generazioni;
     int row;
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
@@ -406,22 +405,11 @@ void lavora(int n, int c, int d) {
 
 
     puts("***********************************************");
-    /*if (xb_selezionato < guardia_xb_2)
-        puts("***SUPERATA GUARDIA XB_2***");*/
-    int numero_gen_fatte = numero_generazioni_utente - numero_generazioni;
-    printf("\nnumero di elementi delle popolazioni:%d\n", num_pop_iniziale);
-    fprintf(out_LOG_RIS, "\nnumero di elementi delle popolazioni:%d\n", num_pop_iniziale);
-    printf("\nnumero di generazioni max:%d\n", numero_generazioni_utente);
-    fprintf(out_LOG_RIS, "\nnumero di generazioni max:%d\n", numero_generazioni_utente);
-    printf("\nnumero generazioni fatte:%d\n", numero_gen_fatte);
-    fprintf(out_LOG_RIS, "\nnumero generazioni fatte:%d\n", numero_gen_fatte);
     printf("\nmiglior XB:%lf\n", best_xb);
-    fprintf(out_LOG_RIS, "\nmiglior XB:%lf\n", best_xb);
-
-
+    fprintf(out_LOG_RIS, "\nmiglior XB:%lf\n\n", best_xb);
+    stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_LOG_RIS);
     puts("matrice V:");
     stampaMatrice(c, d, POP_NEW[indice_best]->V_p);
-    puts("");
     stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_V);
     stampaMatriceSuFile(c, n, POP_NEW[indice_best]->U_p, out_U);
     puts("***********************************************");
@@ -457,7 +445,9 @@ int main(int argc, char** argv) {
     out_LOG_RIS = fopen("log_ris", "a");
 
     esponente_U = 2.0 / (m - 1.0);
-
+    num_pop_iniziale = num_pop;
+    
+    
     //letture da utente
     puts("numero di punti in input");
     scanf("%d", &n);
@@ -471,10 +461,19 @@ int main(int argc, char** argv) {
     scanf("%lf", &CR);
     puts("differential weight lowerbound (reale):");
     scanf("%lf", &dw_lowerbound);
-    puts("differential weight upperbound (reale)");
+    puts("differential weight upperbound - un ub maggiore cerca più ad ampio spettro (reale): ");
     scanf("%lf", &dw_upperbound);
-
-    num_pop_iniziale = num_pop;
+    
+    //aggiornamento log
+    fputs("\n######\n", out_LOG_RIS);//nuova log entry
+    fprintf(out_LOG_RIS,"punti in input:%d\n",n);
+    fprintf(out_LOG_RIS,"dimensioni:%d\n",d);
+    fprintf(out_LOG_RIS,"centroidi:%d\n",c);
+    fprintf(out_LOG_RIS,"numero generazioni:%d\n",numero_generazioni);
+    fprintf(out_LOG_RIS,"crossover rate:%lf\n",CR);
+    fprintf(out_LOG_RIS,"dw lowerbound:%lf\n",dw_lowerbound);
+    fprintf(out_LOG_RIS,"dw upperbound:%lf\n",dw_upperbound);
+    
 
 
     //allocazione X
@@ -492,10 +491,6 @@ int main(int argc, char** argv) {
         }
     }
     fclose(out_X);
-
-    fputs("\n######\n", out_LOG_RIS);
-    fprintf(out_LOG_RIS, "\nnumero dimensioni:%d\n", d);
-    fprintf(out_LOG_RIS, "\nnumero centroidi:%d\n", c);
 
     init(n, c, d);
     lavora(n, c, d);
