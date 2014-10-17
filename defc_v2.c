@@ -10,7 +10,10 @@ FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di outpu
 
 double **X;
 double m = 2.0; //fuzzification
-double CR = 0.9; //crossover rate [0,1]
+double CR; //crossover rate [0,1]
+//bound del differential weight
+double dw_lowerbound;
+double dw_upperbound;
 
 #define num_pop 100
 
@@ -160,7 +163,7 @@ double calcolaXB(double **V, double **U, int debug) {
     }*/
 
 
-    return sigma/(c*min_sep);
+    return sigma;
 }
 
 void init(int n, int c, int d) {
@@ -295,7 +298,8 @@ void lavora(int n, int c, int d) {
             int i1, j1;
             //scambio di geni (tipo 1)
             for (i1 = 0; i1 < c; i1++) {
-                double f = fRand(0.1, 1.0); //differential weight
+                double f = fRand(dw_lowerbound, dw_upperbound); //differential weight casuale
+                //valori raccomandati di f compresi fra 0 e 2
                 for (j1 = 0; j1 < d; j1++) {
                     mutant->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
@@ -463,6 +467,12 @@ int main(int argc, char** argv) {
     scanf("%d", &c);
     puts("numero di generazioni:");
     scanf("%d", &numero_generazioni);
+    puts("crossover rate (reale tra 0 e 1):");
+    scanf("%lf", &CR);
+    puts("differential weight lowerbound (reale):");
+    scanf("%lf", &dw_lowerbound);
+    puts("differential weight upperbound (reale)");
+    scanf("%lf", &dw_upperbound);
 
     num_pop_iniziale = num_pop;
 
