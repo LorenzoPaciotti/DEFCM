@@ -15,7 +15,7 @@ double CR; //crossover rate [0,1]
 double dw_lowerbound;
 double dw_upperbound;
 
-#define num_pop 200
+#define num_pop 100
 
 typedef struct el_pop {//individuo della popolazione
     double **V_p;
@@ -35,6 +35,7 @@ int num_pop_iniziale, numero_generazioni, i, j, k, pop_index;
 double esponente_U;
 double xb_selezionato;
 int n, c, d;
+int range_init_min, range_init_max;
 
 void stampaMatrice(int righe, int col, double **mat) {
     int i, j;
@@ -133,6 +134,11 @@ double calcolaXB(double **V, double **U, int debug) {
         }
         j = 0;
     }
+    
+    if (min_sep >= range_init_max){
+        min_sep = range_init_max;
+        puts("superata guardia range");
+    }
 
 
 
@@ -144,15 +150,8 @@ double calcolaXB(double **V, double **U, int debug) {
         }
     }
 
-    double ris = (sigma) / min_sep;
-
-    if (ris <= 0) {
-        puts("calcolato XB nullo");
-        exit(-1);
-    }
-
-
-    return sigma;
+    double ris = (sigma) / (c * min_sep);
+    return ris;
 }
 
 void init(int n, int c, int d) {
@@ -174,7 +173,9 @@ void init(int n, int c, int d) {
         //init V_p
         for (i = 0; i < c; i++) {
             for (j = 0; j < d; j++) {
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]*(drand48()*60);
+                //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]*drand48();//;
+                //POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
         }
         ////////////SINGOLO PASSO FCM
@@ -354,11 +355,6 @@ void lavora(int n, int c, int d) {
 
             //calcolo XB mutante            
             mutant->indice_xb = calcolaXB(mutant->V_p, mutant->U_p, 1);
-            /*if (trial -> indice_xb <= guardia_xb_1) {
-                puts("*ERROR: indice_xb trial inferiore a guardia, scartato");
-                trial->indice_xb = DBL_MAX;
-            }*/
-            //////END CALCOLO FITNESS MUTANTE
 
             //SELECTION
             if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
@@ -436,20 +432,23 @@ int main(int argc, char** argv) {
     
     
     //letture da utente
-    puts("numero di punti in input");
+    printf("numero di punti in input: ");
     scanf("%d", &n);
-    puts("numero di dimensioni");
+    printf("numero di dimensioni: ");
     scanf("%d", &d);
-    puts("numero di centroidi");
+    printf("numero di centroidi: ");
     scanf("%d", &c);
-    puts("numero di generazioni:");
+    printf("numero di generazioni: ");
     scanf("%d", &numero_generazioni);
-    puts("crossover rate (reale tra 0 e 1):");
+    printf("crossover rate (reale tra 0 e 1): ");
     scanf("%lf", &CR);
-    puts("differential weight lowerbound (reale):");
-    scanf("%lf", &dw_lowerbound);
-    puts("differential weight upperbound - un ub maggiore cerca più ad ampio spettro (reale): ");
+    printf("differential weight upperbound: ");
     scanf("%lf", &dw_upperbound);
+    printf("range init max: ");
+    scanf("%d", &range_init_max);
+    
+    
+    dw_lowerbound = 0;
     
     //aggiornamento log
     fputs("\n######\n", out_LOG_RIS);//nuova log entry
@@ -460,8 +459,6 @@ int main(int argc, char** argv) {
     fprintf(out_LOG_RIS,"crossover rate:%lf\n",CR);
     fprintf(out_LOG_RIS,"dw lowerbound:%lf\n",dw_lowerbound);
     fprintf(out_LOG_RIS,"dw upperbound:%lf\n",dw_upperbound);
-    
-
 
     //allocazione X
     int row;
