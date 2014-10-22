@@ -17,6 +17,8 @@ double **U; //partition matrix
 double **V; //matr centroidi
 double max;
 
+int attivaGnuPlot = 1;
+
 void stampaMatrice(int righe, int col, double **mat) {
     int i, j;
     printf("\n\n");
@@ -46,7 +48,7 @@ double calcDistanza(double a[d], double b[d]) {
     double ris = 0;
     int i;
     for (i = 0; i < d; i++)
-        ris += pow(a[i] - b[i], 2);
+        ris += pow(a[i] - b[i], 2.0);
     return sqrt(ris);
 }
 
@@ -97,27 +99,33 @@ double calcolaXB(double **V, double **U, int debug) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
     }
-
-
-
-    /*if (min_sep == 0) {
-        puts("calcolaXB: DISTANZA NULLA MIN SEP");
-        exit(-1);
-    }*/
     if (sigma <= 0) {
         puts("calcolaXB: SIGMA NULLO");
         exit(-1);
     }
 
-    /*double ris = (sigma) / (n * min_sep);
-
-    if (ris <= 0) {
-        puts("calcolato XB nullo");
-        exit(-1);
-    }*/
-
 
     return sigma;
+}
+
+void plot() {
+    if ((d == 2 || d == 3) && attivaGnuPlot) {
+        char *commandsForGnuplot[] = {"set key off", "set term wxt 1", "set title \"matrice X\"", "", "set term wxt 2", "set key off", "set title \"FCM - matrice V\"", ""};
+        if (d == 2) {
+            commandsForGnuplot[3] = "plot 'x.dat' pointtype 3";
+            commandsForGnuplot[7] = "plot 'v_fcm.dat' pointtype 3";
+        } else if (d == 3) {
+            commandsForGnuplot[3] = "splot 'x.dat' pointtype 3";
+            commandsForGnuplot[7] = "splot 'v_fcm.dat' pointtype 3";
+        }
+
+        FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
+        int i;
+        for (i = 0; i < 8; i++) {
+            fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);
+            fflush(gnuplotPipe);
+        }
+    }
 }
 
 int main(int argc, char** argv) {
@@ -160,7 +168,7 @@ int main(int argc, char** argv) {
         }
     
     //INIT V
-    srand48(3);
+    srand48(rand());
     for (i = 0; i < c; i++)
         for (j = 0; j < d; j++)
             V[i][j] = 10 * drand48() - 5;
@@ -222,5 +230,6 @@ int main(int argc, char** argv) {
     puts("indice XB:");
     double xb = calcolaXB(V,U,0);
     printf("%lf\n",xb);
+    plot();
     return (0);
 }

@@ -15,7 +15,7 @@ double CR; //crossover rate [0,1]
 double dw_lowerbound;
 double dw_upperbound;
 
-#define num_pop 100
+#define num_pop 200
 
 typedef struct el_pop {//individuo della popolazione
     double **V_p;
@@ -65,7 +65,7 @@ double calcDistanza(double a[d], double b[d]) {
     double ris = 0;
     int i;
     for (i = 0; i < d; i++)
-        ris += pow(a[i] - b[i], 2);
+        ris += pow(a[i] - b[i], 2.0);
 
     if (ris == 0) {
         puts("!!!CALCOLATA UNA DISTANZA NULLA!!!");
@@ -144,23 +144,12 @@ double calcolaXB(double **V, double **U, int debug) {
         }
     }
 
-
-
-    /*if (min_sep == 0) {
-        puts("calcolaXB: DISTANZA NULLA MIN SEP");
-        exit(-1);
-    }*/
-    if (sigma <= 0) {
-        puts("calcolaXB: SIGMA NULLO");
-        exit(-1);
-    }
-
-    /*double ris = (sigma) / (n * min_sep);
+    double ris = (sigma) / min_sep;
 
     if (ris <= 0) {
         puts("calcolato XB nullo");
         exit(-1);
-    }*/
+    }
 
 
     return sigma;
@@ -181,11 +170,11 @@ void init(int n, int c, int d) {
         for (row = 0; row < c; row++) {
             POP_NEW[pop_index] -> V_p[row] = malloc(d * sizeof (double));
         }
-
+        srand(rand());
         //init V_p
         for (i = 0; i < c; i++) {
             for (j = 0; j < d; j++) {
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] * drand48();
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]*(drand48()*60);
             }
         }
         ////////////SINGOLO PASSO FCM
@@ -303,7 +292,6 @@ void lavora(int n, int c, int d) {
                     mutant->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
             }
-
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
             for (i1 = 0; i1 < c; i1++) {
                 double prob_crossover = fRand(0.0, 1.0);
@@ -417,13 +405,13 @@ void lavora(int n, int c, int d) {
 
 void plot() {
     if ((d == 2 || d == 3) && attivaGnuPlot) {
-        char *commandsForGnuplot[] = {"set key off", "set term wxt 1", "set title \"matrice X\"", "", "set term wxt 2", "set key off", "set title \"matrice V\"", ""};
+        char *commandsForGnuplot[] = {"set key off", "set term wxt 1", "set title \"matrice X\"", "", "set term wxt 2", "set key off", "set title \"DEFC - matrice V\"", ""};
         if (d == 2) {
-            commandsForGnuplot[3] = "plot 'x.dat'";
-            commandsForGnuplot[7] = "plot 'v.dat'";
+            commandsForGnuplot[3] = "plot 'x.dat' pointtype 3";
+            commandsForGnuplot[7] = "plot 'v_defc.dat' pointtype 3";
         } else if (d == 3) {
-            commandsForGnuplot[3] = "splot 'x.dat'";
-            commandsForGnuplot[7] = "splot 'v.dat'";
+            commandsForGnuplot[3] = "splot 'x.dat' pointtype 3";
+            commandsForGnuplot[7] = "splot 'v_defc.dat' pointtype 3";
         }
 
         FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
@@ -439,9 +427,8 @@ void plot() {
 int main(int argc, char** argv) {
     //stream file
     out_X = fopen("x.dat", "r");
-    out_V = fopen("v.dat", "w");
-    out_U = fopen("u.dat", "w");
-    out_LOG = fopen("log", "w");
+    out_V = fopen("v_defc.dat", "w");
+    out_U = fopen("u_defc.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
 
     esponente_U = 2.0 / (m - 1.0);
@@ -491,6 +478,7 @@ int main(int argc, char** argv) {
         }
     }
     fclose(out_X);
+    stampaMatrice(n,d,X);
 
     init(n, c, d);
     lavora(n, c, d);
