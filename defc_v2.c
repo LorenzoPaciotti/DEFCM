@@ -15,7 +15,7 @@ double CR; //crossover rate [0,1]
 double dw_lowerbound;
 double dw_upperbound;
 
-#define num_pop 100
+#define num_pop 25
 
 typedef struct el_pop {//individuo della popolazione
     double **V_p;
@@ -137,7 +137,6 @@ double calcolaXB(double **V, double **U, int debug) {
     
     if (min_sep >= range_init_max){
         min_sep = range_init_max;
-        puts("superata guardia range");
     }
 
 
@@ -150,8 +149,8 @@ double calcolaXB(double **V, double **U, int debug) {
         }
     }
 
-    double ris = (sigma) / (c * min_sep);
-    return ris;
+    double ris = (sigma) / (n * min_sep);
+    return sigma;
 }
 
 void init(int n, int c, int d) {
@@ -198,8 +197,8 @@ void init(int n, int c, int d) {
                     denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
                 }
                 POP_NEW[pop_index] -> U_p[i][j] = 1.0 / denom;
-                if (POP_NEW[pop_index] -> U_p[i][j] <= 0) {
-                    printf("ERR: INIT POP:inizializzato U di un membro con negativo::%lf", POP_NEW[pop_index] -> U_p[i][j]);
+                if (POP_NEW[pop_index] -> U_p[i][j] < 0) {
+                    printf("ERR: INIT POP:inizializzato U di un membro con negativo::");
                     exit(-1);
                 }
             }
@@ -401,7 +400,7 @@ void lavora(int n, int c, int d) {
 
 void plot() {
     if ((d == 2 || d == 3) && attivaGnuPlot) {
-        char *commandsForGnuplot[] = {"set key off", "set term wxt 1", "set title \"matrice X\"", "", "set term wxt 2", "set key off", "set title \"DEFC - matrice V\"", ""};
+        char *commandsForGnuplot[] = {"set key off", "set term x11 1", "set title \"matrice X\"", "", "set term x11 2", "set key off", "set title \"DEFC - matrice V\"", ""};
         if (d == 2) {
             commandsForGnuplot[3] = "plot 'x.dat' pointtype 3";
             commandsForGnuplot[7] = "plot 'v_defc.dat' pointtype 3";

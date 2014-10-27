@@ -32,14 +32,15 @@ int main() {
     FILE *out_X;
     out_X = fopen("x.dat", "w");
     int n, d;
-    puts("numero di punti:");
+    double mi_gauss, sigma_gauss;
+    printf("numero di punti: ");
     scanf("%d", &n); //numero di punti totale in input
-    puts("numero di dimensioni");
+    printf("numero di dimensioni: ");
     scanf("%d", &d);
-
-    //parametri dell'inizializzazione dell'input
-    int mi_gauss = 2;
-    double sigma_gauss = 2.0;
+    printf("mi gauss: ");
+    scanf("%lf", &mi_gauss);
+    printf("sigma gauss: ");
+    scanf("%lf", &sigma_gauss);
 
     double X[n][d];
     //INIT X

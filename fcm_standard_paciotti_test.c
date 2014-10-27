@@ -110,7 +110,7 @@ double calcolaXB(double **V, double **U, int debug) {
 
 void plot() {
     if ((d == 2 || d == 3) && attivaGnuPlot) {
-        char *commandsForGnuplot[] = {"set key off", "set term wxt 1", "set title \"matrice X\"", "", "set term wxt 2", "set key off", "set title \"FCM - matrice V\"", ""};
+        char *commandsForGnuplot[] = {"set key off", "set term x11 1", "set title \"matrice X\"", "", "set term x11 2", "set key off", "set title \"FCM - matrice V\"", ""};
         if (d == 2) {
             commandsForGnuplot[3] = "plot 'x.dat' pointtype 3";
             commandsForGnuplot[7] = "plot 'v_fcm.dat' pointtype 3";
