@@ -134,12 +134,6 @@ double calcolaXB(double **V, double **U, int debug) {
         }
         j = 0;
     }
-    
-    if (min_sep >= range_init_max){
-        min_sep = range_init_max;
-    }
-
-
 
     //CALCOLO SIGMA
     double sigma = 0.0;
@@ -149,8 +143,12 @@ double calcolaXB(double **V, double **U, int debug) {
         }
     }
 
-    double ris = (sigma) / (n * min_sep);
-    return sigma;
+    /*double sigma_corretto = (sigma) / (c * min_sep);
+
+    if (min_sep < range_init_max / c)
+        return sigma_corretto;
+    else*/
+        return sigma;
 }
 
 void init(int n, int c, int d) {
@@ -356,7 +354,37 @@ void lavora(int n, int c, int d) {
             mutant->indice_xb = calcolaXB(mutant->V_p, mutant->U_p, 1);
 
             //SELECTION
+            //TIPO 1
+            int indice_sostituito;
             if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
+                indice_sostituito = i_CPop;
+                xb_selezionato = mutant->indice_xb;
+                POP_NEW[i_CPop] = mutant;
+            } else if (mutant->indice_xb < POP_NOW[indice_1]->indice_xb) {
+                indice_sostituito = indice_1;
+                xb_selezionato = mutant->indice_xb;
+                POP_NEW[indice_1] = mutant;
+            } else if (mutant->indice_xb < POP_NOW[indice_2]->indice_xb) {
+                indice_sostituito = indice_2;
+                xb_selezionato = mutant->indice_xb;
+                POP_NEW[indice_2] = mutant;
+            } else if (mutant->indice_xb < POP_NOW[indice_3]->indice_xb) {
+                indice_sostituito = indice_3;
+                xb_selezionato = mutant->indice_xb;
+                POP_NEW[indice_3] = mutant;
+            } else {
+                for (row = 0; row < c; row++) {
+                    free(mutant -> V_p[row]);
+                    free(mutant -> U_p[row]);
+                }
+                free(mutant->V_p);
+                free(mutant->U_p);
+                free(mutant);
+                POP_NEW[i_CPop] = POP_NOW[i_CPop];
+                xb_selezionato = POP_NOW[i_CPop]->indice_xb;
+            }
+            //TIPO 2
+            /*if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
                 xb_selezionato = mutant->indice_xb;
                 POP_NEW[i_CPop] = mutant;
             } else {
@@ -369,7 +397,7 @@ void lavora(int n, int c, int d) {
                 free(mutant);
                 POP_NEW[i_CPop] = POP_NOW[i_CPop];
                 xb_selezionato = POP_NOW[i_CPop]->indice_xb;
-            }
+            }*/
         }//END DE
         numero_generazioni--;
     } while (numero_generazioni > 0);
@@ -428,8 +456,8 @@ int main(int argc, char** argv) {
 
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
-    
-    
+
+
     //letture da utente
     printf("numero di punti in input: ");
     scanf("%d", &n);
@@ -445,19 +473,11 @@ int main(int argc, char** argv) {
     scanf("%lf", &dw_upperbound);
     printf("range init max: ");
     scanf("%d", &range_init_max);
-    
-    
+
+
     dw_lowerbound = 0;
-    
-    //aggiornamento log
-    fputs("\n######\n", out_LOG_RIS);//nuova log entry
-    fprintf(out_LOG_RIS,"punti in input:%d\n",n);
-    fprintf(out_LOG_RIS,"dimensioni:%d\n",d);
-    fprintf(out_LOG_RIS,"centroidi:%d\n",c);
-    fprintf(out_LOG_RIS,"numero generazioni:%d\n",numero_generazioni);
-    fprintf(out_LOG_RIS,"crossover rate:%lf\n",CR);
-    fprintf(out_LOG_RIS,"dw lowerbound:%lf\n",dw_lowerbound);
-    fprintf(out_LOG_RIS,"dw upperbound:%lf\n",dw_upperbound);
+    fputs("\n######\n", out_LOG_RIS); //nuova log entry
+
 
     //allocazione X
     int row;
@@ -474,11 +494,21 @@ int main(int argc, char** argv) {
         }
     }
     fclose(out_X);
-    stampaMatrice(n,d,X);
 
     init(n, c, d);
     lavora(n, c, d);
     plot();
+
+    //aggiornamento log
+
+    fprintf(out_LOG_RIS, "punti in input:%d\n", n);
+    fprintf(out_LOG_RIS, "dimensioni:%d\n", d);
+    fprintf(out_LOG_RIS, "centroidi:%d\n", c);
+    fprintf(out_LOG_RIS, "popolazione:%d\n", num_pop_iniziale);
+    fprintf(out_LOG_RIS, "numero generazioni:%d\n", numero_generazioni);
+    fprintf(out_LOG_RIS, "crossover rate:%lf\n", CR);
+    fprintf(out_LOG_RIS, "dw lowerbound:%lf\n", dw_lowerbound);
+    fprintf(out_LOG_RIS, "dw upperbound:%lf\n", dw_upperbound);
 
     return (0);
 }
