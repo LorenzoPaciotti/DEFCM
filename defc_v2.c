@@ -10,12 +10,13 @@ FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di outpu
 
 double **X;
 double m = 2.0; //fuzzification
-double CR; //crossover rate [0,1]
+double CR; //crossover rate
 //bound del differential weight
 double dw_lowerbound;
 double dw_upperbound;
+int dw_adattivo;
 
-#define num_pop 25
+#define num_pop 20
 
 typedef struct el_pop {//individuo della popolazione
     double **V_p;
@@ -148,7 +149,7 @@ double calcolaXB(double **V, double **U, int debug) {
     if (min_sep < range_init_max / c)
         return sigma_corretto;
     else*/
-        return sigma;
+    return sigma;
 }
 
 void init(int n, int c, int d) {
@@ -226,8 +227,10 @@ void init(int n, int c, int d) {
 
 void lavora(int n, int c, int d) {
     int row;
+    int numero_generazione_attuale = 0;
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
+        numero_generazione_attuale++;
         int i_CPop;
         for (i_CPop = 0; i_CPop < num_pop_iniziale; i_CPop++) {
             if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
@@ -242,6 +245,12 @@ void lavora(int n, int c, int d) {
                 }
                 POP_NOW[i_CPop] = POP_NEW[i_CPop];
             }
+        }
+
+        //SPERIMENTALE: cambio dinamico di dw_upperbound
+        if (dw_adattivo && numero_generazione_attuale > 0) {
+            dw_upperbound = dw_upperbound / 1.01;
+            //printf("dw_upperbound generazione %d: %lf\n", numero_generazione_attuale, dw_upperbound);
         }
 
         /////////////////DE////////////////////
@@ -279,6 +288,7 @@ void lavora(int n, int c, int d) {
             for (row = 0; row < c; row++) {
                 mutant -> U_p[row] = malloc(n * sizeof (double));
             }
+
 
             //MUTATION
             int i1, j1;
@@ -331,7 +341,6 @@ void lavora(int n, int c, int d) {
                         puts("calcolo U mutante, distanza nulla");
                         exit(-1);
                     }
-                    //printf("\ndist_x_j__v_i: %lf,%d,%d\n",dist_x_j__v_i,c,n);
                     int k;
                     for (k = 0; k < c; k++) {
                         double dist_xj_vk = calcDistanza(X[j], mutant -> V_p[k]);
@@ -344,7 +353,6 @@ void lavora(int n, int c, int d) {
                             puts("calcolo U mutante, denom nullo");
                             exit(-1);
                         }
-
                     }
                     mutant -> U_p[i][j] = 1.0 / denom;
                 }
@@ -355,7 +363,7 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //TIPO 1
-            int indice_sostituito;
+            /*int indice_sostituito;
             if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
                 indice_sostituito = i_CPop;
                 xb_selezionato = mutant->indice_xb;
@@ -382,9 +390,9 @@ void lavora(int n, int c, int d) {
                 free(mutant);
                 POP_NEW[i_CPop] = POP_NOW[i_CPop];
                 xb_selezionato = POP_NOW[i_CPop]->indice_xb;
-            }
-            //TIPO 2
-            /*if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
+            }*/
+            //TIPO 2 (STANDARD)
+            if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
                 xb_selezionato = mutant->indice_xb;
                 POP_NEW[i_CPop] = mutant;
             } else {
@@ -397,7 +405,7 @@ void lavora(int n, int c, int d) {
                 free(mutant);
                 POP_NEW[i_CPop] = POP_NOW[i_CPop];
                 xb_selezionato = POP_NOW[i_CPop]->indice_xb;
-            }*/
+            }
         }//END DE
         numero_generazioni--;
     } while (numero_generazioni > 0);
@@ -473,9 +481,11 @@ int main(int argc, char** argv) {
     scanf("%lf", &dw_upperbound);
     printf("range init max: ");
     scanf("%d", &range_init_max);
+    printf("usare dw_adattivo (0 o 1): ");
+    scanf("%d", &dw_adattivo);
 
 
-    dw_lowerbound = 0;
+    dw_lowerbound = 0.001;
     fputs("\n######\n", out_LOG_RIS); //nuova log entry
 
 
