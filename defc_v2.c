@@ -21,18 +21,18 @@ int dw_adattivo;
 typedef struct el_pop {//individuo della popolazione
     double **V_p;
     double **U_p;
-    double indice_xb;
+    double fitness;
 } el_pop;
 
 el_pop *POP_NEW[num_pop];
 el_pop *POP_NOW[num_pop];
 
 //attiva e disattiva GnuPlot
-int attivaGnuPlot = 1;
+int attivaGnuPlot = 0;
 
 
 
-int num_pop_iniziale, numero_generazioni, i, j, k, pop_index;
+int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione_attuale;
 double esponente_U;
 double xb_selezionato;
 int n, c, d;
@@ -108,6 +108,17 @@ double fRand(double fMin, double fMax) {//random double in un range
 
 ///////////////////////////////////////////////////////////////////////////////
 
+double calcolaFitness(double **V, double **U, int debug){
+    //CALCOLO SIGMA
+    double sigma = 0.0;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < c; j++) {
+            sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
+        }
+    }
+    return sigma;
+}
+
 double calcolaXB(double **V, double **U, int debug) {
     /*
      XB funzione del rapporto fra la variazione totale sigma
@@ -143,13 +154,7 @@ double calcolaXB(double **V, double **U, int debug) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
     }
-
-    /*double sigma_corretto = (sigma) / (c * min_sep);
-
-    if (min_sep < range_init_max / c)
-        return sigma_corretto;
-    else*/
-    return sigma;
+    return sigma/(n * min_sep);
 }
 
 void init(int n, int c, int d) {
@@ -218,8 +223,8 @@ void init(int n, int c, int d) {
         //////END FCM
 
         //calcolo fitness
-        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
-        POP_NEW[pop_index]->indice_xb = xb;
+        double xb = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+        POP_NEW[pop_index]->fitness = xb;
     }
     //###END INIT POPOLAZIONE 0
     printf("\n########## FINE INIT #############\n");
@@ -227,7 +232,7 @@ void init(int n, int c, int d) {
 
 void lavora(int n, int c, int d) {
     int row;
-    int numero_generazione_attuale = 0;
+    numero_generazione_attuale = 0;
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
         numero_generazione_attuale++;
@@ -248,9 +253,8 @@ void lavora(int n, int c, int d) {
         }
 
         //SPERIMENTALE: cambio dinamico di dw_upperbound
-        if (dw_adattivo && numero_generazione_attuale > 0) {
+        if (dw_adattivo && numero_generazione_attuale > 0 && dw_upperbound>dw_lowerbound) {
             dw_upperbound = dw_upperbound / 1.01;
-            //printf("dw_upperbound generazione %d: %lf\n", numero_generazione_attuale, dw_upperbound);
         }
 
         /////////////////DE////////////////////
@@ -359,7 +363,7 @@ void lavora(int n, int c, int d) {
             }
 
             //calcolo XB mutante            
-            mutant->indice_xb = calcolaXB(mutant->V_p, mutant->U_p, 1);
+            mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p, 1);
 
             //SELECTION
             //TIPO 1
@@ -392,8 +396,8 @@ void lavora(int n, int c, int d) {
                 xb_selezionato = POP_NOW[i_CPop]->indice_xb;
             }*/
             //TIPO 2 (STANDARD)
-            if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
-                xb_selezionato = mutant->indice_xb;
+            if (mutant->fitness < POP_NOW[i_CPop]->fitness) {
+                xb_selezionato = mutant->fitness;
                 POP_NEW[i_CPop] = mutant;
             } else {
                 for (row = 0; row < c; row++) {
@@ -404,24 +408,25 @@ void lavora(int n, int c, int d) {
                 free(mutant->U_p);
                 free(mutant);
                 POP_NEW[i_CPop] = POP_NOW[i_CPop];
-                xb_selezionato = POP_NOW[i_CPop]->indice_xb;
+                xb_selezionato = POP_NOW[i_CPop]->fitness;
             }
         }//END DE
         numero_generazioni--;
     } while (numero_generazioni > 0);
 
-    puts("calcolo xb finale");
+    
     //computazione XB della popolazione finale
-    double best_xb = DBL_MAX;
+    double best_fitness = DBL_MAX;
     int indice_best;
     for (pop_index = 0; pop_index < num_pop_iniziale; pop_index++) {
-        POP_NEW[pop_index]->indice_xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
-        if (POP_NEW[pop_index]->indice_xb < best_xb) {
-            best_xb = POP_NEW[pop_index]->indice_xb;
+        POP_NEW[pop_index]->fitness = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+        if (POP_NEW[pop_index]->fitness < best_fitness) {
+            best_fitness = POP_NEW[pop_index]->fitness;
             indice_best = pop_index;
         }
     }
-
+    //calcolo xb del migliore
+    double best_xb = calcolaXB(POP_NEW[indice_best]->V_p,POP_NEW[indice_best]->U_p,0);
 
     puts("***********************************************");
     printf("\nmiglior XB:%lf\n", best_xb);
@@ -515,7 +520,7 @@ int main(int argc, char** argv) {
     fprintf(out_LOG_RIS, "dimensioni:%d\n", d);
     fprintf(out_LOG_RIS, "centroidi:%d\n", c);
     fprintf(out_LOG_RIS, "popolazione:%d\n", num_pop_iniziale);
-    fprintf(out_LOG_RIS, "numero generazioni:%d\n", numero_generazioni);
+    fprintf(out_LOG_RIS, "numero generazioni:%d\n", numero_generazione_attuale);
     fprintf(out_LOG_RIS, "crossover rate:%lf\n", CR);
     fprintf(out_LOG_RIS, "dw lowerbound:%lf\n", dw_lowerbound);
     fprintf(out_LOG_RIS, "dw upperbound:%lf\n", dw_upperbound);

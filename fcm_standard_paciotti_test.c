@@ -17,7 +17,7 @@ double **U; //partition matrix
 double **V; //matr centroidi
 double max;
 
-int attivaGnuPlot = 1;
+int attivaGnuPlot = 0;
 
 void stampaMatrice(int righe, int col, double **mat) {
     int i, j;
@@ -90,8 +90,6 @@ double calcolaXB(double **V, double **U, int debug) {
         j = 0;
     }
 
-
-
     //CALCOLO SIGMA
     double sigma = 0.0;
     for (i = 0; i < n; i++) {
@@ -99,13 +97,7 @@ double calcolaXB(double **V, double **U, int debug) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
     }
-    if (sigma <= 0) {
-        puts("calcolaXB: SIGMA NULLO");
-        exit(-1);
-    }
-
-
-    return sigma;
+    return sigma/(n * min_sep);
 }
 
 void plot() {

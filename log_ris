@@ -2739,3 +2739,241 @@ numero generazioni:0
 crossover rate:0.500000
 dw lowerbound:0.001000
 dw upperbound:0.425627
+
+######
+
+miglior XB:1778.000808
+
+15.058463 15.784069 
+29.749705 30.790327 
+1.743212 2.822456 
+8.353649 8.087833 
+punti in input:200
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:20
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.573681
+
+######
+
+miglior XB:0.060868
+
+15.493352 15.877071 
+8.295396 7.911628 
+0.567562 0.979602 
+31.906567 31.996966 
+punti in input:200
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.500000
+
+######
+
+miglior XB:0.069248
+
+15.893506 15.702934 
+8.029030 8.013315 
+0.500998 1.303365 
+31.085195 33.062043 
+punti in input:200
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.304019
+
+######
+
+miglior XB:0.069248
+
+15.893506 15.702934 
+8.029030 8.013315 
+0.500998 1.303365 
+31.085195 33.062043 
+punti in input:200
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.304019
+
+######
+
+miglior XB:0.069069
+
+15.650544 16.115307 
+8.246996 8.055146 
+0.741536 0.796207 
+31.992376 31.738447 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.500000
+
+######
+
+miglior XB:0.068181
+
+16.084925 16.030788 
+32.028962 32.026787 
+0.945791 1.098685 
+8.386314 8.458324 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.190901
+
+15.508586 16.035447 
+1.103264 4.063445 
+7.103776 6.978734 
+31.713140 32.591156 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.750000
+
+######
+
+miglior XB:0.095171
+
+15.786983 15.656954 
+8.355464 8.459229 
+2.179145 1.773440 
+31.538322 32.473181 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.650000
+
+######
+
+miglior XB:0.068181
+
+16.084925 16.030788 
+32.028962 32.026787 
+0.945791 1.098685 
+8.386314 8.458324 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.109347
+
+1.678983 2.351956 2.400890 
+32.358194 32.725888 31.818872 
+15.608512 15.390007 16.322625 
+8.746480 7.534177 8.313822 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.090772
+
+0.526218 1.836616 1.576595 
+32.166774 32.346019 31.839010 
+16.030767 15.819245 16.211585 
+8.298951 7.073893 7.891738 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.090772
+
+0.526218 1.836616 1.576595 
+32.166774 32.346019 31.839010 
+16.030767 15.819245 16.211585 
+8.298951 7.073893 7.891738 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.093697
+
+0.851457 1.241993 1.499794 
+32.142529 32.174240 31.878664 
+16.347425 15.956983 16.416938 
+7.922575 7.010911 7.759393 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:200
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.092380
+
+0.849046 1.235000 1.495925 
+32.156651 32.174861 31.886824 
+16.318730 15.971138 16.435495 
+7.989089 7.028398 7.796794 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:150
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
