@@ -2977,3 +2977,1223 @@ numero generazioni:150
 crossover rate:0.500000
 dw lowerbound:0.001000
 dw upperbound:0.700000
+
+######
+
+miglior XB:2.508581
+
+32.874815 31.470810 31.796099 
+15.789250 15.344618 15.583465 
+3.631954 3.301046 3.588848 
+30.893260 32.599144 32.359810 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.090772
+
+0.526218 1.836616 1.576595 
+32.166774 32.346019 31.839010 
+16.030767 15.819245 16.211585 
+8.298951 7.073893 7.891738 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.094827
+
+7.773489 7.148039 7.842348 
+16.121393 15.737874 16.796468 
+1.230673 0.804031 1.642648 
+31.858383 32.286117 31.917639 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.094827
+
+7.773489 7.148039 7.842348 
+16.121393 15.737874 16.796468 
+1.230673 0.804031 1.642648 
+31.858383 32.286117 31.917639 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.094827
+
+7.773489 7.148039 7.842348 
+16.121393 15.737874 16.796468 
+1.230673 0.804031 1.642648 
+31.858383 32.286117 31.917639 
+punti in input:400
+dimensioni:3
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.075674
+
+8.004434 8.184425 7.659595 7.694016 
+15.542711 16.520589 16.071198 16.130645 
+31.875628 31.872854 32.145721 32.339192 
+0.747704 1.373336 0.843437 0.679010 
+punti in input:400
+dimensioni:4
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.083787
+
+15.848378 15.528832 15.847597 15.670609 15.946403 
+8.497113 8.384249 8.815337 9.517206 10.201463 
+32.103864 32.378377 32.434597 32.142512 31.346579 
+0.357568 1.381167 0.611684 1.077958 1.469889 
+punti in input:400
+dimensioni:5
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.493957
+
+7.806086 6.310518 
+15.920304 16.104810 
+0.522582 0.818542 
+8.354179 9.475701 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.455648
+
+7.721967 6.172254 
+15.964554 16.036464 
+0.569990 0.821636 
+8.407428 9.444734 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:200
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.456474
+
+7.721584 6.173492 
+15.965354 16.036075 
+0.570018 0.821688 
+8.408734 9.442520 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:400
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.006285
+
+0.013374 0.018083 0.009933 0.016394 0.000142 0.015639 
+7.864650 8.017872 8.253941 8.316239 8.227694 8.234028 
+31.765440 31.890940 32.129679 32.173756 32.049344 32.347211 
+15.766190 15.847437 15.868260 15.830491 15.934451 16.015206 
+punti in input:4000
+dimensioni:6
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.072406
+
+16.136767 16.026027 16.338555 16.088622 15.923811 16.001518 16.165658 
+0.436422 1.133066 0.679276 1.444513 1.283189 1.167228 0.374945 
+32.363838 32.037499 32.036140 31.919544 32.033252 31.760702 32.038770 
+7.881357 8.482799 8.045814 7.958414 8.177450 8.116520 7.758037 
+punti in input:400
+dimensioni:7
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.080154
+
+0.692615 1.907765 0.759831 1.014316 1.073087 1.178346 1.716214 0.471379 
+16.119760 16.337571 16.332884 16.441991 16.164365 16.199657 16.673250 16.137615 
+31.832922 31.963278 32.372132 32.165126 31.949271 32.132899 31.929191 32.037933 
+7.784094 8.111690 7.821982 8.102579 7.985400 7.767005 8.243207 7.542132 
+punti in input:400
+dimensioni:8
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.075570
+
+31.812858 32.014301 31.802510 31.980757 31.894323 31.914537 32.026415 32.250147 31.993433 31.801135 31.856156 32.055673 31.939438 32.169513 32.099339 32.180736 32.256121 31.987441 31.929253 32.103002 
+0.415035 1.399401 1.425316 1.222681 1.228715 1.054669 1.211076 0.934341 0.560356 1.668670 0.960756 1.321839 0.557624 0.957828 0.591889 0.706683 1.207152 0.392499 1.065521 0.843720 
+15.742719 15.778745 16.078836 15.898884 15.838417 16.037578 15.834641 16.054913 15.587258 16.324535 15.896881 16.408428 15.836768 15.990465 15.849383 16.362713 16.065260 15.810974 16.036737 16.219016 
+7.866432 8.293680 8.309403 7.726362 7.841569 8.107462 8.308454 8.057083 7.700497 8.059605 7.984167 8.436192 7.745903 8.236835 7.939536 8.161745 7.881564 8.103077 7.884385 8.041129 
+punti in input:400
+dimensioni:20
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.145484
+
+6.706976 2.951344 5.631660 2.003145 
+5.000953 3.398016 1.485898 0.244356 
+5.903687 2.796836 4.284875 1.433674 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.174852
+
+6.011064 2.939538 4.278838 1.411859 
+4.976499 3.338553 1.465609 0.220139 
+6.593037 2.871047 5.608851 1.985989 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:200
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.500000
+
+######
+
+miglior XB:0.166210
+
+6.810037 3.037141 5.671719 2.037760 
+5.013650 3.387722 1.485427 0.257253 
+6.068505 3.007720 4.378935 1.465437 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:400
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.170553
+
+5.947628 2.827212 4.310050 1.421176 
+5.078612 3.237430 1.869795 0.376519 
+6.660275 2.898521 5.684412 2.016340 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:200
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.174075
+
+5.001653 3.390283 1.490434 0.246528 
+6.557610 2.855215 5.605924 1.982461 
+5.900571 2.799031 4.324806 1.409579 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.600000
+
+######
+
+miglior XB:0.150071
+
+5.954574 3.001182 4.061326 1.320049 
+5.003055 3.258493 1.830701 0.419851 
+6.694239 2.887160 5.589819 1.920473 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.168935
+
+6.646677 2.868571 5.705536 2.031523 
+4.966865 3.349543 1.508217 0.259364 
+6.072591 2.998683 4.336469 1.449189 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.300000
+
+######
+
+miglior XB:0.199489
+
+4.995560 3.393673 1.469945 0.232168 
+6.630181 2.887311 5.672814 2.024179 
+6.075635 2.923178 4.446568 1.463251 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.188104
+
+6.630730 2.878085 5.618510 1.955011 
+4.996802 3.406179 1.489377 0.266056 
+6.061391 2.962645 4.328755 1.427977 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.139201
+
+5.878414 2.781884 4.371046 1.407911 
+4.966262 3.357494 1.455106 0.223051 
+6.691121 2.999414 5.700682 2.082830 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.199489
+
+4.995560 3.393673 1.469945 0.232168 
+6.630181 2.887311 5.672814 2.024179 
+6.075635 2.923178 4.446568 1.463251 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.177782
+
+6.681885 2.892251 5.641089 2.003818 
+4.970812 3.406774 1.496440 0.267914 
+6.037709 2.934185 4.365883 1.435564 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.149475
+
+6.758692 2.993197 5.671981 2.008287 
+5.953148 2.895593 4.347798 1.426617 
+4.958048 3.363341 1.467315 0.241550 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.150797
+
+5.947337 2.901611 4.274531 1.416005 
+4.950998 3.322851 1.500230 0.250416 
+6.657006 2.902888 5.660520 2.012299 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.148441
+
+5.937031 2.852266 4.394641 1.473160 
+6.782949 3.067195 5.679048 2.048717 
+4.997911 3.404426 1.487923 0.255945 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.258798
+
+######
+
+miglior XB:0.166736
+
+6.692343 2.977414 5.671389 2.040800 
+4.998578 3.397854 1.494137 0.267508 
+6.024680 2.914634 4.375447 1.443311 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.258798
+
+######
+
+miglior XB:0.154264
+
+5.922634 2.877163 4.386397 1.524815 
+6.751353 3.051673 5.681073 2.048068 
+4.962915 3.364827 1.483663 0.255804 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.258798
+
+######
+
+miglior XB:0.166736
+
+6.692343 2.977414 5.671389 2.040800 
+4.998578 3.397854 1.494137 0.267508 
+6.024680 2.914634 4.375447 1.443311 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.258798
+
+######
+
+miglior XB:0.189110
+
+5.029300 3.435932 1.504679 0.266674 
+6.610405 2.908158 5.443110 1.875507 
+6.040112 3.047025 4.121005 1.348411 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.000975
+
+######
+
+miglior XB:0.210554
+
+6.077814 2.902776 4.516444 1.530050 
+5.024745 3.360874 1.493176 0.257092 
+6.692171 2.919575 5.692543 2.031487 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.009603
+
+######
+
+miglior XB:0.196627
+
+6.803936 3.018367 5.597883 1.956386 
+6.063586 2.958436 4.412541 1.486731 
+5.027046 3.401030 1.619737 0.327402 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.009603
+
+######
+
+miglior XB:0.143731
+
+5.930323 2.811821 4.372372 1.445506 
+6.745201 3.056088 5.686243 2.055880 
+5.003655 3.418344 1.499311 0.267767 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.136125
+
+5.882506 2.792457 4.336943 1.425870 
+6.757957 3.053626 5.664764 2.038527 
+4.992496 3.411023 1.487910 0.262143 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:150
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.136312
+
+5.882080 2.792258 4.336366 1.425403 
+6.757063 3.053816 5.662990 2.037790 
+4.992816 3.411244 1.488161 0.262173 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:200
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.136211
+
+5.882143 2.792292 4.336462 1.425451 
+6.757566 3.053879 5.663544 2.038000 
+4.993003 3.411297 1.488626 0.262124 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:250
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.136211
+
+5.882143 2.792292 4.336462 1.425451 
+6.757566 3.053879 5.663544 2.038000 
+4.993003 3.411297 1.488626 0.262124 
+punti in input:150
+dimensioni:4
+centroidi:3
+popolazione:20
+numero generazioni:250
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.647766
+
+31.327795 31.071922 
+33.092073 33.063523 
+2.019947 3.090118 
+13.932273 15.024954 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:123.722107
+
+12.523113 12.738816 12.800011 12.783040 12.747539 12.976872 12.828387 12.702069 12.779553 12.735086 12.609803 12.631225 12.573800 12.612076 12.569453 12.584489 12.648039 12.777959 12.738799 12.597074 12.759013 12.733637 12.665800 12.487442 12.696752 12.652775 12.659318 12.604046 12.546567 12.712686 
+31.406708 31.871961 32.088907 32.042994 31.997082 32.455253 32.166894 31.887423 32.065750 31.933967 31.846796 31.904544 31.759937 31.862333 31.810520 31.879636 31.943655 32.251873 32.191922 31.872605 32.203451 32.193164 31.975933 31.585912 32.077646 31.995958 32.122970 31.904155 31.658126 32.168641 
+0.014688 0.030524 0.021835 0.014321 0.020208 0.041384 -0.001366 0.010491 0.008752 0.033098 0.001780 0.013231 0.045461 0.039197 0.062173 0.001208 0.048643 0.031911 0.036688 0.040752 0.023532 0.050117 0.032208 0.017530 0.013723 0.018921 0.027352 0.023583 -0.005386 0.035072 
+31.346339 31.774776 31.996796 32.034236 31.840439 32.391619 31.980904 31.802660 32.034336 31.857430 31.784148 31.871220 31.801677 31.832171 31.864376 31.890658 32.009643 32.248279 32.301631 31.972103 32.220532 32.303817 32.057342 31.654017 32.205506 32.104538 32.292924 32.024316 31.787246 32.373940 
+punti in input:400
+dimensioni:30
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.076460
+
+31.631121 31.972434 32.113273 32.060584 31.926840 32.090144 32.439707 32.015747 31.861042 31.764526 31.788759 32.251798 31.947402 32.251559 31.757861 32.017345 31.631042 32.031400 32.075271 32.059444 32.109431 32.170958 31.993966 32.251988 31.909124 32.015037 31.952928 31.902407 31.928808 32.061483 
+15.560934 15.872128 15.891590 15.976677 15.823343 16.241704 16.027687 15.851495 15.838984 15.797614 15.964278 16.228920 15.831175 15.922612 15.901483 15.859370 16.028353 16.078460 16.132994 16.021633 16.122492 16.240809 15.948901 15.846022 16.050803 15.868089 16.019370 16.017365 15.779956 16.026232 
+0.735346 0.985097 0.783674 0.810317 0.731938 1.594280 0.732103 0.817655 0.753364 0.951829 1.189205 1.121025 0.774682 0.852730 0.981333 0.977367 1.612107 1.186780 1.372969 1.151963 1.197240 1.371742 1.152315 0.567646 1.352646 0.900544 1.143639 1.187626 0.674095 1.367915 
+7.652433 8.049173 7.996431 8.161440 7.983823 8.440101 7.782310 7.991179 7.804177 7.915160 7.776413 8.253422 7.911626 7.699679 7.939365 7.858724 8.339107 8.224263 8.452387 8.138274 8.193382 8.377268 7.734464 8.027317 8.127313 7.947469 8.154542 7.785331 7.865058 8.013451 
+punti in input:400
+dimensioni:30
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.580691
+
+2.438640 2.857298 
+31.955365 30.616339 
+32.114546 33.393479 
+14.409499 14.392966 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.556692
+
+2.424609 2.844692 
+31.974147 30.545202 
+32.053075 33.384448 
+14.409968 14.393114 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:150
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.601215
+
+2.347595 2.823174 
+32.962616 32.983270 
+31.116689 30.944148 
+14.447820 14.314198 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:200
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.551802
+
+2.399555 2.830445 
+31.984007 30.538546 
+32.060832 33.390359 
+14.404835 14.373317 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:1000
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.553368
+
+2.698991 2.706677 
+32.550308 33.332740 
+31.555567 30.654418 
+14.637308 14.179428 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:1000
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.072074
+
+32.038723 32.039716 
+0.896669 1.315909 
+8.118205 8.470212 
+15.768815 15.798672 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.085722
+
+32.212569 31.816495 
+0.148331 1.005515 
+7.708343 8.420404 
+14.439575 15.124386 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.074109
+
+15.709664 15.954471 
+32.054338 32.071664 
+0.808730 1.304428 
+8.213321 8.051574 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.075320
+
+15.747964 15.883650 
+32.071486 32.089220 
+1.017333 1.032351 
+8.107032 8.006655 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.010000
+dw upperbound:0.700000
+
+######
+
+miglior XB:-nan
+
+punti in input:0
+dimensioni:0
+centroidi:0
+popolazione:20
+numero generazioni:1
+crossover rate:0.000000
+dw lowerbound:0.010000
+dw upperbound:0.000000
+
+######
+
+miglior XB:0.073821
+
+15.794723 15.747748 
+32.048034 32.058480 
+0.774413 1.321356 
+8.219707 8.048782 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.068181
+
+16.084925 16.030788 
+32.028962 32.026787 
+0.945791 1.098685 
+8.386314 8.458324 
+punti in input:400
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.012651
+
+32.027524 32.061413 
+7.968835 7.947227 
+0.016643 0.029559 
+15.729927 15.735117 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:10000
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.012651
+
+32.027524 32.061413 
+7.968835 7.947227 
+0.016643 0.029559 
+15.729927 15.735117 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:5000
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.012651
+
+32.027524 32.061413 
+7.968834 7.947225 
+0.016643 0.029559 
+15.729927 15.735117 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:2500
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.012651
+
+32.027524 32.061413 
+7.968834 7.947224 
+0.016643 0.029559 
+15.729927 15.735117 
+punti in input:2000
+dimensioni:2
+centroidi:4
+popolazione:20
+numero generazioni:1250
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.567161
+
+64.766800 65.267409 
+14.365403 14.337999 
+63.212507 62.844402 
+32.154749 32.127573 
+2.626978 2.633030 
+punti in input:2000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:1500
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.617355
+
+64.519143 65.218753 
+63.533562 62.640913 
+31.683523 32.636040 
+14.453587 14.376210 
+2.777161 2.820004 
+punti in input:2000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:5000
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.636879
+
+64.633290 65.279487 
+2.367235 2.838348 
+63.301176 62.914209 
+32.260652 31.978273 
+14.355856 14.320351 
+punti in input:2000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:10000
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.632062
+
+65.002165 64.933489 
+14.385028 14.246956 
+63.075982 62.995897 
+32.257202 31.968112 
+2.401391 2.833124 
+punti in input:2000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:500
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.079606
+
+7.524722 7.305263 
+63.824040 64.282419 
+31.904953 31.625134 
+0.073180 1.494180 
+15.678849 16.115477 
+punti in input:250
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:3.482667
+
+64.200507 65.159688 
+13.849510 14.296762 
+63.782977 63.906516 
+31.586340 31.301811 
+3.090093 2.368867 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:3.482667
+
+64.200507 65.159688 
+13.849510 14.296762 
+63.782977 63.906516 
+31.586340 31.301811 
+3.090093 2.368867 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:-nan
+
+punti in input:0
+dimensioni:0
+centroidi:0
+popolazione:20
+numero generazioni:1
+crossover rate:0.000000
+dw lowerbound:0.001000
+dw upperbound:0.000000
+
+######
+
+miglior XB:0.813621
+
+32.282143 31.938824 
+14.344979 14.351179 
+63.275513 62.983568 
+64.826407 65.155620 
+2.368734 2.839316 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:500
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:1.616306
+
+2.008570 1.389504 
+63.122680 64.085398 
+64.977972 64.600125 
+14.161471 13.686238 
+31.999771 31.258300 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:1.000000
+
+######
+
+miglior XB:0.972842
+
+65.067722 64.893988 
+32.086870 32.130448 
+63.162277 63.357334 
+14.109554 13.958842 
+2.482172 2.385874 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:25
+numero generazioni:300
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.799533
+
+64.388048 65.482863 
+2.365696 2.836897 
+63.631875 62.902366 
+32.278586 31.936715 
+14.353527 14.318030 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:25
+numero generazioni:2000
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:1.752557
+
+30.444092 30.908349 
+64.666532 65.324525 
+5.280091 7.423938 
+40.230442 41.049552 
+62.863526 63.320117 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:10
+numero generazioni:10000
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.020023
+
+15.793888 15.856873 
+64.058491 64.007006 
+31.997704 32.113448 
+7.999443 8.030413 
+0.907940 1.106682 
+punti in input:1000
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:1000
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000

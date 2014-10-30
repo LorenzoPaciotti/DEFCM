@@ -6,7 +6,7 @@
 #include <time.h>
 #include <string.h>
 
-FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS; //puntatori a file di output
+FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS, *out_csv; //puntatori a file di output
 
 double **X;
 double m = 2.0; //fuzzification
@@ -35,6 +35,7 @@ int attivaGnuPlot = 0;
 int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione_attuale;
 double esponente_U;
 double xb_selezionato;
+double best_xb;
 int n, c, d;
 int range_init_min, range_init_max;
 
@@ -101,14 +102,14 @@ long random_at_most(long max) {
     return x / bin_size;
 }
 
-double fRand(double fMin, double fMax) {//random double in un range
+double dbl_rnd_inRange(double fMin, double fMax) {//random double in un range
     double f = (double) lrand48() / RAND_MAX;
     return fMin + f * (fMax - fMin);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-double calcolaFitness(double **V, double **U, int debug){
+double calcolaFitness(double **V, double **U, int debug) {
     //CALCOLO SIGMA
     double sigma = 0.0;
     for (i = 0; i < n; i++) {
@@ -154,7 +155,7 @@ double calcolaXB(double **V, double **U, int debug) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
     }
-    return sigma/(n * min_sep);
+    return sigma / (n * min_sep);
 }
 
 void init(int n, int c, int d) {
@@ -178,6 +179,7 @@ void init(int n, int c, int d) {
             for (j = 0; j < d; j++) {
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]*drand48();//;
                 //POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
         }
@@ -236,6 +238,7 @@ void lavora(int n, int c, int d) {
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
         numero_generazione_attuale++;
+        printf(".");
         int i_CPop;
         for (i_CPop = 0; i_CPop < num_pop_iniziale; i_CPop++) {
             if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
@@ -253,9 +256,8 @@ void lavora(int n, int c, int d) {
         }
 
         //SPERIMENTALE: cambio dinamico di dw_upperbound
-        if (dw_adattivo && numero_generazione_attuale > 0 && dw_upperbound>dw_lowerbound) {
-            dw_upperbound = dw_upperbound / 1.01;
-        }
+        if (dw_adattivo && numero_generazione_attuale > 0 && dw_upperbound > dw_lowerbound)
+            dw_upperbound = dw_upperbound / 1.1;
 
         /////////////////DE////////////////////
         for (i_CPop = 0; i_CPop < num_pop_iniziale; i_CPop++) {//PER OGNI COMPONENTE DELLA POP
@@ -298,7 +300,7 @@ void lavora(int n, int c, int d) {
             int i1, j1;
             //scambio di geni (tipo 1)
             for (i1 = 0; i1 < c; i1++) {
-                double f = fRand(dw_lowerbound, dw_upperbound); //differential weight casuale
+                double f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound); //differential weight casuale
                 //valori raccomandati di f compresi fra 0 e 2
                 for (j1 = 0; j1 < d; j1++) {
                     mutant->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
@@ -306,7 +308,7 @@ void lavora(int n, int c, int d) {
             }
             //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
             for (i1 = 0; i1 < c; i1++) {
-                double prob_crossover = fRand(0.0, 1.0);
+                double prob_crossover = dbl_rnd_inRange(0.0, 1.0);
                 for (j1 = 0; j1 < d; j1++) {
                     if (prob_crossover < CR) {
                         //prendo il gene del vettore attuale
@@ -315,13 +317,12 @@ void lavora(int n, int c, int d) {
                 }
             }
 
-            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2)
+            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 2) (BAD)
             /*for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
                     double prob_crossover = fRand(0.0, 1.0);
                     if (prob_crossover < CR) {
-                        //prendo il gene del vettore attuale
-                        trial->V_p[i1][j1] = POP_NOW[i_CPop]->V_p[i1][j1];
+                        mutant->V_p[i1][j1] = POP_NOW[i_CPop]->V_p[i1][j1];
                     }
                 }
             }*/
@@ -330,8 +331,8 @@ void lavora(int n, int c, int d) {
             /*for (i1 = 0; i1 < c; i1++) {
                     double prob_crossover = fRand(0.0, 1.0);
                     if (prob_crossover < CR) {
-                        //prendo il gene del vettore attuale
-                        copiaVettore(d,POP_NOW[i_CPop]->V_p[i1],trial->V_p[i1]);
+                        //prendo tutto il vettore del compagno
+                        copiaVettore(d,POP_NOW[i_CPop]->V_p[i1],mutant->V_p[i1]);
                     }
             }*/
 
@@ -367,22 +368,22 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //TIPO 1
-            /*int indice_sostituito;
-            if (mutant->indice_xb < POP_NOW[i_CPop]->indice_xb) {
+            /*int indice_sostituito = 0;
+            if (mutant->fitness < POP_NOW[i_CPop]->fitness) {
                 indice_sostituito = i_CPop;
-                xb_selezionato = mutant->indice_xb;
+                xb_selezionato = mutant->fitness;
                 POP_NEW[i_CPop] = mutant;
-            } else if (mutant->indice_xb < POP_NOW[indice_1]->indice_xb) {
+            } else if (mutant->fitness < POP_NOW[indice_1]->fitness) {
                 indice_sostituito = indice_1;
-                xb_selezionato = mutant->indice_xb;
+                xb_selezionato = mutant->fitness;
                 POP_NEW[indice_1] = mutant;
-            } else if (mutant->indice_xb < POP_NOW[indice_2]->indice_xb) {
+            } else if (mutant->fitness < POP_NOW[indice_2]->fitness) {
                 indice_sostituito = indice_2;
-                xb_selezionato = mutant->indice_xb;
+                xb_selezionato = mutant->fitness;
                 POP_NEW[indice_2] = mutant;
-            } else if (mutant->indice_xb < POP_NOW[indice_3]->indice_xb) {
+            } else if (mutant->fitness < POP_NOW[indice_3]->fitness) {
                 indice_sostituito = indice_3;
-                xb_selezionato = mutant->indice_xb;
+                xb_selezionato = mutant->fitness;
                 POP_NEW[indice_3] = mutant;
             } else {
                 for (row = 0; row < c; row++) {
@@ -393,7 +394,7 @@ void lavora(int n, int c, int d) {
                 free(mutant->U_p);
                 free(mutant);
                 POP_NEW[i_CPop] = POP_NOW[i_CPop];
-                xb_selezionato = POP_NOW[i_CPop]->indice_xb;
+                xb_selezionato = POP_NOW[i_CPop]->fitness;
             }*/
             //TIPO 2 (STANDARD)
             if (mutant->fitness < POP_NOW[i_CPop]->fitness) {
@@ -414,7 +415,7 @@ void lavora(int n, int c, int d) {
         numero_generazioni--;
     } while (numero_generazioni > 0);
 
-    
+
     //computazione XB della popolazione finale
     double best_fitness = DBL_MAX;
     int indice_best;
@@ -426,10 +427,10 @@ void lavora(int n, int c, int d) {
         }
     }
     //calcolo xb del migliore
-    double best_xb = calcolaXB(POP_NEW[indice_best]->V_p,POP_NEW[indice_best]->U_p,0);
+    best_xb = calcolaXB(POP_NEW[indice_best]->V_p, POP_NEW[indice_best]->U_p, 0);
 
-    puts("***********************************************");
-    printf("\nmiglior XB:%lf\n", best_xb);
+    puts("\n\n***********************************************");
+    printf("miglior XB:%lf\n", best_xb);
     fprintf(out_LOG_RIS, "\nmiglior XB:%lf\n\n", best_xb);
     stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_LOG_RIS);
     puts("matrice V:");
@@ -466,6 +467,7 @@ int main(int argc, char** argv) {
     out_V = fopen("v_defc.dat", "w");
     out_U = fopen("u_defc.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
+    out_csv = fopen("output.csv", "a");
 
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
@@ -489,7 +491,7 @@ int main(int argc, char** argv) {
     printf("usare dw_adattivo (0 o 1): ");
     scanf("%d", &dw_adattivo);
 
-
+    int ngenIniziali = numero_generazioni;
     dw_lowerbound = 0.001;
     fputs("\n######\n", out_LOG_RIS); //nuova log entry
 
@@ -515,7 +517,6 @@ int main(int argc, char** argv) {
     plot();
 
     //aggiornamento log
-
     fprintf(out_LOG_RIS, "punti in input:%d\n", n);
     fprintf(out_LOG_RIS, "dimensioni:%d\n", d);
     fprintf(out_LOG_RIS, "centroidi:%d\n", c);
@@ -524,6 +525,19 @@ int main(int argc, char** argv) {
     fprintf(out_LOG_RIS, "crossover rate:%lf\n", CR);
     fprintf(out_LOG_RIS, "dw lowerbound:%lf\n", dw_lowerbound);
     fprintf(out_LOG_RIS, "dw upperbound:%lf\n", dw_upperbound);
+
+    //scrittura csv
+    fprintf(out_csv, "%d,", n);
+    fprintf(out_csv, "%d,", c);
+    fprintf(out_csv, "%d,", d);
+    fprintf(out_csv, "%lf,", CR);
+    fprintf(out_csv, "%d,", num_pop);
+    fprintf(out_csv, "%d,", ngenIniziali);
+    fprintf(out_csv, "%lf,", dw_lowerbound);
+    fprintf(out_csv, "%lf,", dw_upperbound);
+    fprintf(out_csv, "%d,", range_init_min);
+    fprintf(out_csv, "%d,", range_init_max);
+    fprintf(out_csv, "%lf\n", best_xb);
 
     return (0);
 }

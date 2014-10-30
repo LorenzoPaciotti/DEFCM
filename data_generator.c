@@ -59,6 +59,9 @@ int main() {
         if (i == 150) {
             mi_gauss *= 2;
         }
+        if(i==200){
+			mi_gauss *= 2;
+		}
 
 
     }
