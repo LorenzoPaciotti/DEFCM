@@ -15,6 +15,7 @@ double CR; //crossover rate
 double dw_lowerbound;
 double dw_upperbound;
 int dw_adattivo;
+int tipo_dw;
 
 #define num_pop 20
 
@@ -183,7 +184,6 @@ void init(int n, int c, int d) {
                 POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
         }
-        ////////////SINGOLO PASSO FCM
 
         //alloc U_p
         POP_NEW[pop_index] -> U_p = malloc(c * sizeof (double*));
@@ -210,7 +210,7 @@ void init(int n, int c, int d) {
             }
         }
         //RICALCOLO POSIZIONE CENTROIDI
-        for (i = 0; i < c; i++) {
+        /*for (i = 0; i < c; i++) {
             double denom = 0.0;
             for (j = 0; j < n; j++)//sommatoria denom (fatta una sola volta a centr.)
                 denom += pow(POP_NEW[pop_index] ->U_p[i][j], m);
@@ -221,7 +221,7 @@ void init(int n, int c, int d) {
                 }
                 POP_NEW[pop_index] ->V_p[i][k] = num / denom;
             }
-        }
+        }*/
         //////END FCM
 
         //calcolo fitness
@@ -239,19 +239,20 @@ void lavora(int n, int c, int d) {
         //SCAMBIO VETTORI POPOLAZIONE
         numero_generazione_attuale++;
         printf(".");
-        int i_CPop;
-        for (i_CPop = 0; i_CPop < num_pop_iniziale; i_CPop++) {
-            if (POP_NEW[i_CPop] != POP_NOW[i_CPop]) {
-                if (POP_NOW[i_CPop] != 0) {
+        fflush(stdout);
+        int i_target;
+        for (i_target = 0; i_target < num_pop_iniziale; i_target++) {
+            if (POP_NEW[i_target] != POP_NOW[i_target]) {
+                if (POP_NOW[i_target] != 0) {
                     for (row = 0; row < c; row++) {
-                        free(POP_NOW[i_CPop] -> V_p[row]);
-                        free(POP_NOW[i_CPop] -> U_p[row]);
+                        free(POP_NOW[i_target] -> V_p[row]);
+                        free(POP_NOW[i_target] -> U_p[row]);
                     }
-                    free(POP_NOW[i_CPop]->V_p);
-                    free(POP_NOW[i_CPop]->U_p);
-                    free(POP_NOW[i_CPop]);
+                    free(POP_NOW[i_target]->V_p);
+                    free(POP_NOW[i_target]->U_p);
+                    free(POP_NOW[i_target]);
                 }
-                POP_NOW[i_CPop] = POP_NEW[i_CPop];
+                POP_NOW[i_target] = POP_NEW[i_target];
             }
         }
 
@@ -260,24 +261,24 @@ void lavora(int n, int c, int d) {
             dw_upperbound = dw_upperbound / 1.1;
 
         /////////////////DE////////////////////
-        for (i_CPop = 0; i_CPop < num_pop_iniziale; i_CPop++) {//PER OGNI COMPONENTE DELLA POP
+        for (i_target = 0; i_target < num_pop_iniziale; i_target++) {//PER OGNI COMPONENTE DELLA POP
             //SCELTA CANDIDATI
             //tre vettori devono essere scelti a caso nella popolazione
             //diversi dal target (indice i) e mutualmente
             int indice_1, indice_2, indice_3;
             do {
                 indice_1 = random_at_most(((long) num_pop_iniziale) - 1);
-            } while (indice_1 == i_CPop);
+            } while (indice_1 == i_target);
 
             do {
                 indice_2 = random_at_most(((long) num_pop_iniziale) - 1);
-            } while (indice_2 == i_CPop || indice_2 == indice_1);
+            } while (indice_2 == i_target || indice_2 == indice_1);
 
             do {
                 indice_3 = random_at_most(((long) num_pop_iniziale) - 1);
-            } while (indice_3 == i_CPop || indice_3 == indice_1 || indice_3 == indice_2);
+            } while (indice_3 == i_target || indice_3 == indice_1 || indice_3 == indice_2);
 
-            if (indice_1 == i_CPop || indice_2 == i_CPop || indice_3 == i_CPop) {
+            if (indice_1 == i_target || indice_2 == i_target || indice_3 == i_target) {
                 puts("INDICE NON VALIDO!!!!");
                 exit(-1);
             }
@@ -298,21 +299,26 @@ void lavora(int n, int c, int d) {
 
             //MUTATION
             int i1, j1;
-            //scambio di geni (tipo 1)
             for (i1 = 0; i1 < c; i1++) {
-                double f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound); //differential weight casuale
-                //valori raccomandati di f compresi fra 0 e 2
+                double f;
+                if (tipo_dw == 2)//dithering
+                    f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound); 
+                else if (tipo_dw == 3) //dither + jitter
+                    f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound) + 0.001*(dbl_rnd_inRange(0,1)-0.5);
+                else
+                    f = dw_upperbound;
+                
                 for (j1 = 0; j1 < d; j1++) {
                     mutant->V_p[i1][j1] = POP_NOW[indice_3]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
             }
-            //CROSSOVER CON IL VETTORE ATTUALE (TIPO 1)
+            //CROSSOVER CON IL VETTORE TARGET (TIPO 1)
             for (i1 = 0; i1 < c; i1++) {
                 double prob_crossover = dbl_rnd_inRange(0.0, 1.0);
                 for (j1 = 0; j1 < d; j1++) {
                     if (prob_crossover < CR) {
                         //prendo il gene del vettore attuale
-                        mutant->V_p[i1][j1] = POP_NOW[i_CPop]->V_p[i1][j1];
+                        mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
                 }
             }
@@ -397,9 +403,9 @@ void lavora(int n, int c, int d) {
                 xb_selezionato = POP_NOW[i_CPop]->fitness;
             }*/
             //TIPO 2 (STANDARD)
-            if (mutant->fitness < POP_NOW[i_CPop]->fitness) {
+            if (mutant->fitness < POP_NOW[i_target]->fitness) {
                 xb_selezionato = mutant->fitness;
-                POP_NEW[i_CPop] = mutant;
+                POP_NEW[i_target] = mutant;
             } else {
                 for (row = 0; row < c; row++) {
                     free(mutant -> V_p[row]);
@@ -408,8 +414,8 @@ void lavora(int n, int c, int d) {
                 free(mutant->V_p);
                 free(mutant->U_p);
                 free(mutant);
-                POP_NEW[i_CPop] = POP_NOW[i_CPop];
-                xb_selezionato = POP_NOW[i_CPop]->fitness;
+                POP_NEW[i_target] = POP_NOW[i_target];
+                xb_selezionato = POP_NOW[i_target]->fitness;
             }
         }//END DE
         numero_generazioni--;
@@ -488,8 +494,8 @@ int main(int argc, char** argv) {
     scanf("%lf", &dw_upperbound);
     printf("range init max: ");
     scanf("%d", &range_init_max);
-    printf("usare dw_adattivo (0 o 1): ");
-    scanf("%d", &dw_adattivo);
+    printf("tipo diff. weight: 1-costante 2-dithered 3-dithered/jittered: ");
+    scanf("%d", &tipo_dw);
 
     int ngenIniziali = numero_generazioni;
     dw_lowerbound = 0.001;
@@ -533,6 +539,7 @@ int main(int argc, char** argv) {
     fprintf(out_csv, "%lf,", CR);
     fprintf(out_csv, "%d,", num_pop);
     fprintf(out_csv, "%d,", ngenIniziali);
+    fprintf(out_csv, "%d,", tipo_dw);
     fprintf(out_csv, "%lf,", dw_lowerbound);
     fprintf(out_csv, "%lf,", dw_upperbound);
     fprintf(out_csv, "%d,", range_init_min);
