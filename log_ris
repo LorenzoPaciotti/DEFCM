@@ -4431,3 +4431,39 @@ numero generazioni:500
 crossover rate:0.500000
 dw lowerbound:0.001000
 dw upperbound:0.700000
+
+######
+
+miglior XB:0.459725
+
+6.615879 4.546445 
+31.070172 28.810990 
+21.943485 21.775290 
+16.572510 16.818670 
+58.257542 63.110889 
+punti in input:250
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:50
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
+
+######
+
+miglior XB:0.109238
+
+2.433856 2.283719 
+31.935797 31.982978 
+16.558682 15.783017 
+8.431647 7.996771 
+64.056748 64.861617 
+punti in input:250
+dimensioni:2
+centroidi:5
+popolazione:20
+numero generazioni:100
+crossover rate:0.500000
+dw lowerbound:0.001000
+dw upperbound:0.700000
