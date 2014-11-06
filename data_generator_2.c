@@ -37,10 +37,11 @@ int main() {
     scanf("%d", &n); //numero di punti totale in input
     printf("numero di dimensioni: ");
     scanf("%d", &d);
-    printf("mi gauss: ");
+    /*printf("mi gauss: ");
     scanf("%lf", &mi_gauss);
     printf("sigma gauss: ");
-    scanf("%lf", &sigma_gauss);
+    scanf("%lf", &sigma_gauss);*/
+    sigma_gauss = 2;
 
     double X[n][d];
     //INIT X
@@ -48,25 +49,16 @@ int main() {
         for (j = 0; j < d; j++) {
             //gaussiana con media mi_gauss e devstd sigma_gauss
             srand48(rand());
-            if(i%2 == 0)
-                X[i][j] = mi_gauss + (sigma_gauss * random_normal());
-            else
-                X[i][j] = -(mi_gauss + (sigma_gauss * random_normal()));
+            if (j == 0 && i < 250)
+                X[i][j] = 0 + (sigma_gauss * random_normal()); // + (1 * random_normal());
+            else if (j == 0 && i >= 250)
+                X[i][j] = 20; //-(mi_gauss + (sigma_gauss * random_normal()));
+            
+            if(j==1 && i<250)
+                X[i][j] = 0 + (sigma_gauss * random_normal());//X[i][j] = mi_gauss + (sigma_gauss * random_normal());
+            else if(j==1 && i>=250)
+                X[i][j] = 20 + (sigma_gauss * random_normal());
         }
-        if (i == 50) {
-            mi_gauss *= 8;
-        }
-        if (i == 100) {
-            mi_gauss *= 2;
-        }
-        if (i == 150) {
-            mi_gauss *= 2;
-        }
-        if (i == 200) {
-            mi_gauss *= 2;
-        }
-
-
     }
     stampaMatriceSuFile(n, d, X, out_X);
     puts("stampata su x.dat");

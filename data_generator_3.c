@@ -51,16 +51,16 @@ int main() {
             //else
                 //X[i][j] = -mi_gauss + (sigma_gauss * random_normal());
         }
-        if (i == 100) {
+        if (i == 50) {
             mi_gauss = 8;
         }
-        if (i == 200) {
+        if (i == 100) {
             mi_gauss = -8;
         }
-        if (i == 300) {
+        if (i == 150) {
             mi_gauss = 2;
         }
-        if (i == 400) {
+        if (i == 200) {
             mi_gauss = 4;
         }
 

@@ -17,6 +17,8 @@ double dw_upperbound;
 int dw_adattivo;
 int tipo_dw;
 int tipo_dataset;
+int starting_age;
+int ultimo_conteggio_successi;
 
 #define num_pop 20
 
@@ -24,10 +26,13 @@ typedef struct el_pop {//individuo della popolazione
     double **V_p;
     double **U_p;
     double fitness;
+    int age;
 } el_pop;
 
 el_pop *POP_NEW[num_pop];
 el_pop *POP_NOW[num_pop];
+
+double fitness_vector[num_pop];
 
 //attiva e disattiva GnuPlot
 int attivaGnuPlot = 0;
@@ -36,7 +41,7 @@ int attivaGnuPlot = 0;
 
 int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione_attuale;
 double esponente_U;
-double xb_selezionato;
+//double xb_selezionato;
 double best_xb;
 int n, c, d;
 int range_init_min, range_init_max;
@@ -175,13 +180,13 @@ void init(int n, int c, int d) {
         for (row = 0; row < c; row++) {
             POP_NEW[pop_index] -> V_p[row] = malloc(d * sizeof (double));
         }
-        srand(rand());
         //init V_p
         for (i = 0; i < c; i++) {
             for (j = 0; j < d; j++) {
-				//POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][d];
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
-                //POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][d];
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)];
+                srand48(random_at_most(100));
+                POP_NEW[pop_index] -> V_p[i][j] = lrand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
@@ -226,8 +231,12 @@ void init(int n, int c, int d) {
         }*/
 
         //calcolo fitness
-        double xb = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
-        POP_NEW[pop_index]->fitness = xb;
+        double fit = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+        POP_NEW[pop_index]->fitness = fit;
+        fitness_vector[pop_index] = fit;
+
+        //impostazione età
+        POP_NEW[pop_index] -> age = starting_age;
     }
     //###END INIT POPOLAZIONE 0
     printf("\n########## FINE INIT #############\n");
@@ -236,6 +245,7 @@ void init(int n, int c, int d) {
 void lavora(int n, int c, int d) {
     int row;
     numero_generazione_attuale = 0;
+    int conteggio_successi_generazione_attuale;
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
         numero_generazione_attuale++;
@@ -262,19 +272,19 @@ void lavora(int n, int c, int d) {
         //    dw_upperbound = dw_upperbound / 1.1;
 
         int indice_base;
-        //indice_base = random_at_most(((long) num_pop_iniziale) - 1);
-        
+        conteggio_successi_generazione_attuale = 0;
+
         /////////////////DE////////////////////
         for (i_target = 0; i_target < num_pop_iniziale; i_target++) {//PER OGNI COMPONENTE DELLA POP
             /*if(indice_base == i_target){
                 printf("!");
                 continue;
             }*/
-                
+
             //SCELTA CANDIDATI
             //tre vettori devono essere scelti a caso nella popolazione
             //diversi dal target (indice i) e mutualmente
-            
+
             int indice_1, indice_2;
             do {
                 indice_1 = random_at_most(((long) num_pop_iniziale) - 1);
@@ -306,7 +316,7 @@ void lavora(int n, int c, int d) {
 
             int i1, j1;
             for (i1 = 0; i1 < c; i1++) {
-				double f;
+                double f;
                 if (tipo_dw == 2)//dithering
                     f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound);
                 else if (tipo_dw == 3) //dither + jitter
@@ -377,6 +387,9 @@ void lavora(int n, int c, int d) {
             //calcolo XB mutante            
             mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p, 1);
 
+            //impostazione timer età mutante
+            mutant -> age = starting_age;
+
             //SELECTION
             //TIPO 1
             /*int indice_sostituito = 0;
@@ -408,10 +421,11 @@ void lavora(int n, int c, int d) {
                 xb_selezionato = POP_NOW[i_CPop]->fitness;
             }*/
             //TIPO 2 (STANDARD)
+            
             if (mutant->fitness < POP_NOW[i_target]->fitness) {
-                xb_selezionato = mutant->fitness;
+                conteggio_successi_generazione_attuale++;
                 POP_NEW[i_target] = mutant;
-                //dw_upperbound = f;
+                fitness_vector[i_target] = mutant->fitness;
             } else {
                 for (row = 0; row < c; row++) {
                     free(mutant -> V_p[row]);
@@ -420,13 +434,63 @@ void lavora(int n, int c, int d) {
                 free(mutant->V_p);
                 free(mutant->U_p);
                 free(mutant);
+                //invecchiamento
+                double bestFit = DBL_MAX;
+                int bestFitIndex;
+                for(i=0;i<num_pop;i++){
+                    if(fitness_vector[i] < bestFit){
+                        bestFit = fitness_vector[i];
+                        bestFitIndex = i;
+                    }
+                }
+                if(i_target != bestFitIndex) //se non è il migliore invecchia
+                    POP_NOW[i_target] -> age--;
+                //morte
+                if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
+                    //init V_p
+                    for (i = 0; i < c; i++) {
+                        for (j = 0; j < d; j++) {
+                            POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)];
+                            //srand48(random_at_most(100));
+                            //POP_NOW[i_target] -> V_p[i][j] = lrand48();
+                        }
+                    }
+
+                    //init U
+                    for (i = 0; i < c; i++) {
+                        for (j = 0; j < n; j++) {
+                            double denom = 0.0;
+                            double dist_x_j__v_i = calcDistanza(X[j], POP_NOW[i_target] -> V_p[i]);
+
+                            int k;
+                            for (k = 0; k < c; k++) {
+                                double dist_xj_vk = calcDistanza(X[j], POP_NOW[i_target] -> V_p[k]);
+                                denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
+                            }
+                            POP_NOW[i_target] -> U_p[i][j] = 1.0 / denom;
+                            if (POP_NOW[i_target] -> U_p[i][j] < 0) {
+                                printf("ERR: INIT POP:inizializzato U di un membro con negativo::");
+                                exit(-1);
+                            }
+                        }
+                    }
+                }
+
                 POP_NEW[i_target] = POP_NOW[i_target];
-                xb_selezionato = POP_NOW[i_target]->fitness;
             }
         }//END DE
+        //END GENERAZIONE
         numero_generazioni--;
+        
+        if(conteggio_successi_generazione_attuale < ultimo_conteggio_successi){
+            srand48(random_at_most(100));
+            dw_upperbound = drand48();
+            //CR = drand48();
+        }
+        ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
+        
     } while (numero_generazioni > 0);
-
+    
 
     //computazione fitness della popolazione finale
     double best_fitness = DBL_MAX;
@@ -476,10 +540,12 @@ void plot() {
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
-    
+
+    starting_age = 10;
+
     //letture da utente
     printf("tipo dataset: ");
-    scanf("%d",&tipo_dataset);
+    scanf("%d", &tipo_dataset);
     printf("numero di punti in input: ");
     scanf("%d", &n);
     printf("numero di dimensioni: ");
@@ -488,28 +554,29 @@ int main(int argc, char** argv) {
     scanf("%d", &c);
     printf("numero di generazioni: ");
     scanf("%d", &numero_generazioni);
-    printf("crossover rate (reale tra 0 e 1): ");
-    scanf("%lf", &CR);
-    printf("differential weight upperbound: ");
-    scanf("%lf", &dw_upperbound);
-    printf("range init max: ");
-    scanf("%d", &range_init_max);
-    printf("tipo diff. weight: 1-costante 2-dithered 3-dithered/jittered: ");
+    //printf("crossover rate (reale tra 0 e 1): ");
+    //scanf("%lf", &CR);
+    CR = drand48();
+    //printf("differential weight upperbound: ");
+    //scanf("%lf", &dw_upperbound);
+    srand48(random_at_most(100));
+    dw_upperbound = drand48();
+    printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
     scanf("%d", &tipo_dw);
-    
-	//stream file
+
+    //stream file
     out_X = fopen("x.dat", "r");
     out_V = fopen("v_defc.dat", "w");
     out_U = fopen("u_defc.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
-    out_csv = fopen("output.csv", "a");
-    
-    
+    out_csv = fopen("output_defcv4.csv", "a");
+
+
     int ngenIniziali = numero_generazioni;
-    dw_lowerbound = 0.001;
+    dw_lowerbound = 0.01;
     fputs("\n######\n", out_LOG_RIS); //nuova log entry
-    
-	
+
+
 
     //allocazione X
     int row;
@@ -531,18 +598,8 @@ int main(int argc, char** argv) {
     lavora(n, c, d);
     plot();
 
-    //aggiornamento log
-    fprintf(out_LOG_RIS, "punti in input:%d\n", n);
-    fprintf(out_LOG_RIS, "dimensioni:%d\n", d);
-    fprintf(out_LOG_RIS, "centroidi:%d\n", c);
-    fprintf(out_LOG_RIS, "popolazione:%d\n", num_pop_iniziale);
-    fprintf(out_LOG_RIS, "numero generazioni:%d\n", numero_generazione_attuale);
-    fprintf(out_LOG_RIS, "crossover rate:%lf\n", CR);
-    fprintf(out_LOG_RIS, "dw lowerbound:%lf\n", dw_lowerbound);
-    fprintf(out_LOG_RIS, "dw upperbound:%lf\n", dw_upperbound);
-
     //scrittura csv
-    fprintf(out_csv,"%d,",tipo_dataset);
+    fprintf(out_csv, "%d,", tipo_dataset);
     fprintf(out_csv, "%d,", n);
     fprintf(out_csv, "%d,", c);
     fprintf(out_csv, "%d,", d);
@@ -552,8 +609,7 @@ int main(int argc, char** argv) {
     fprintf(out_csv, "%d,", tipo_dw);
     fprintf(out_csv, "%lf,", dw_lowerbound);
     fprintf(out_csv, "%lf,", dw_upperbound);
-    fprintf(out_csv, "%d,", range_init_min);
-    fprintf(out_csv, "%d,", range_init_max);
+    fprintf(out_csv, "%d,", ultimo_conteggio_successi);
     fprintf(out_csv, "%lf\n", best_xb);
 
     return (0);

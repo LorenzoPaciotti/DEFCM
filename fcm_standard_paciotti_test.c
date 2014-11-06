@@ -8,7 +8,7 @@
 int c,n,d;
 
 double m = 2.0; //fuzzification
-double epsilon = 0.000000000000000001; //minima distanza per arrestare
+double epsilon = 0.0000000000000000000001; //minima distanza per arrestare
 
 
 int i, j;
