@@ -302,12 +302,22 @@ void lavora(int n, int c, int d) {
                     mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
             }
-            //CROSSOVER CON IL VETTORE TARGET (TIPO 1)
-            for (i1 = 0; i1 < c; i1++) {
+            
+            //CROSSOVER CON IL VETTORE TARGET UNIFORME - CUSTOM non previsto da DE
+            /*for (i1 = 0; i1 < c; i1++) {
                 double prob_crossover = dbl_rnd_inRange(0.0, 1.0);
                 for (j1 = 0; j1 < d; j1++) {
                     if (prob_crossover < CR) {
                         //prendo il cromosoma del target
+                        mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
+                    }
+                }
+            }*/
+            
+            //CROSSOVER SINGLE-POINT
+            for (i1 = 0; i1 < c; i1++) {
+                for (j1 = 0; j1 < d; j1++) {
+                    if (i1 >= floor((double)c/2)) {//prendo i cromosomi dal target so oltre il punto di CO
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
                 }
@@ -340,7 +350,7 @@ void lavora(int n, int c, int d) {
                 }
             }
 
-            //calcolo XB mutante            
+            //calcolo fitness mutante            
             mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p, 1);
 
             //impostazione timer età mutante
@@ -372,8 +382,8 @@ void lavora(int n, int c, int d) {
                 free(mutant->V_p);
                 free(mutant->U_p);
                 free(mutant);
-                //invecchiamento
                 
+                //INVECCHIAMENTO
                 if (i_target != bestFitIndex) //se non è il migliore invecchia
                     POP_NOW[i_target] -> age--;
                 //morte
@@ -382,8 +392,8 @@ void lavora(int n, int c, int d) {
                     //init V_p
                     for (i = 0; i < c; i++) {
                         for (j = 0; j < d; j++) {
-                            //srand48(random_at_most(10));
-                            POP_NOW[i_target] -> V_p[i][j] = (X[random_at_most(n - 1)][random_at_most(d - 1)]);
+                            srand48(random_at_most(10));
+                            POP_NOW[i_target] -> V_p[i][j] = (X[random_at_most(n - 1)][random_at_most(d - 1)])*drand48();
                         }
                     }
 
@@ -417,13 +427,16 @@ void lavora(int n, int c, int d) {
 
                 POP_NEW[i_target] = POP_NOW[i_target];
             }
+            //END SELECTION
         }//END DE//END GENERATION
         numero_generazioni--;
         printf("%d", conteggio_successi_generazione_attuale);
         fflush(stdin);
         
+        //ADATTAMENTO PARAMETRI
         if (conteggio_successi_generazione_attuale == 0 && ultimo_conteggio_successi == 0) {
-            dw_upperbound = dbl_rnd_inRange(0.5, 0.7);
+            printf("DW");
+            dw_upperbound = dbl_rnd_inRange(0.6, 0.7);
             //dw_lowerbound = dbl_rnd_inRange(0.0001,0.001);
         }
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
@@ -490,12 +503,12 @@ int main(int argc, char** argv) {
     scanf("%d", &c);
     printf("numero di generazioni: ");
     scanf("%d", &numero_generazioni);
-    printf("crossover rate (reale tra 0 e 1): ");
-    scanf("%lf", &CR);
+    //printf("crossover rate (reale tra 0 e 1): ");
+    //scanf("%lf", &CR);
     //printf("differential weight upperbound: ");
     //scanf("%lf", &dw_upperbound);
     dw_upperbound = 0.7;
-    dw_lowerbound = 0.0001;
+    dw_lowerbound = 0.001;
     starting_age = 25;
     printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
     scanf("%d", &tipo_dw);
@@ -544,7 +557,7 @@ int main(int argc, char** argv) {
     fprintf(out_csv, "%d,", ngenIniziali);
     fprintf(out_csv, "%d,", tipo_dw);
     fprintf(out_csv, "%lf,", dw_lowerbound);
-    fprintf(out_csv, "%lf,", dw_upperbound);
+    //fprintf(out_csv, "%lf,", dw_upperbound);
     fprintf(out_csv, "%lf\n", best_xb);
 
     return (0);

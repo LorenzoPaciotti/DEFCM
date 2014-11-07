@@ -309,6 +309,15 @@ void lavora(int n, int c, int d) {
                     }
                 }
             }
+            
+            //CROSSOVER SINGLE-POINT
+            /*for (i1 = 0; i1 < c; i1++) {
+                for (j1 = 0; j1 < d; j1++) {
+                    if (i1 >= floor((double)c/2)) {//prendo i cromosomi dal target so oltre il punto di CO
+                        mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
+                    }
+                }
+            }*/
 
             ///CALCOLO FITNESS DEL MUTANTE
             //calcolo U mutante
