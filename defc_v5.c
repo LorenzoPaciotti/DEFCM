@@ -18,6 +18,8 @@ int dw_adattivo;
 int tipo_dw;
 int tipo_dataset;
 int starting_age;
+int ultimo_conteggio_successi;
+int conteggio_successi_generazione_attuale;
 
 #define num_pop 20
 
@@ -232,6 +234,7 @@ void lavora(int n, int c, int d) {
     numero_generazione_attuale = 0;
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
+        conteggio_successi_generazione_attuale = 0;
         numero_generazione_attuale++;
         printf(".");
         fflush(stdout);
@@ -342,12 +345,25 @@ void lavora(int n, int c, int d) {
 
             //impostazione timer età mutante
             mutant -> age = starting_age;
+            
+            
+            //MIGLIORE
+            double bestFit = DBL_MAX;
+                int bestFitIndex;
+                for (i = 0; i < num_pop; i++) {
+                    if (fitness_vector[i] < bestFit) {
+                        bestFit = fitness_vector[i];
+                        bestFitIndex = i;
+                    }
+            }
+            //END MIGLIORE
 
             //SELECTION
             //TIPO 2 (STANDARD)
             if (mutant->fitness < POP_NOW[i_target]->fitness) {
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
+                conteggio_successi_generazione_attuale++;
             } else {
                 for (row = 0; row < c; row++) {
                     free(mutant -> V_p[row]);
@@ -357,22 +373,17 @@ void lavora(int n, int c, int d) {
                 free(mutant->U_p);
                 free(mutant);
                 //invecchiamento
-                double bestFit = DBL_MAX;
-                int bestFitIndex;
-                for (i = 0; i < num_pop; i++) {
-                    if (fitness_vector[i] < bestFit) {
-                        bestFit = fitness_vector[i];
-                        bestFitIndex = i;
-                    }
-                }
+                
                 if (i_target != bestFitIndex) //se non è il migliore invecchia
                     POP_NOW[i_target] -> age--;
                 //morte
                 if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
+                    printf("D");
                     //init V_p
                     for (i = 0; i < c; i++) {
                         for (j = 0; j < d; j++) {
-                            POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)];
+                            //srand48(random_at_most(10));
+                            POP_NOW[i_target] -> V_p[i][j] = (X[random_at_most(n - 1)][random_at_most(d - 1)]);
                         }
                     }
 
@@ -406,8 +417,16 @@ void lavora(int n, int c, int d) {
 
                 POP_NEW[i_target] = POP_NOW[i_target];
             }
-        }//END DE
+        }//END DE//END GENERATION
         numero_generazioni--;
+        printf("%d", conteggio_successi_generazione_attuale);
+        fflush(stdin);
+        
+        if (conteggio_successi_generazione_attuale == 0 && ultimo_conteggio_successi == 0) {
+            dw_upperbound = dbl_rnd_inRange(0.5, 0.7);
+            //dw_lowerbound = dbl_rnd_inRange(0.0001,0.001);
+        }
+        ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
     } while (numero_generazioni > 0);
 
 
@@ -459,9 +478,7 @@ void plot() {
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
-
-    starting_age = 10;
-
+    
     //letture da utente
     printf("tipo dataset: ");
     scanf("%d", &tipo_dataset);
@@ -478,6 +495,8 @@ int main(int argc, char** argv) {
     //printf("differential weight upperbound: ");
     //scanf("%lf", &dw_upperbound);
     dw_upperbound = 0.7;
+    dw_lowerbound = 0.0001;
+    starting_age = 25;
     printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
     scanf("%d", &tipo_dw);
 
@@ -486,12 +505,11 @@ int main(int argc, char** argv) {
     out_V = fopen("v_defc.dat", "w");
     out_U = fopen("u_defc.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
-    out_csv = fopen("output_defcv3.csv", "a");
+    out_csv = fopen("output_defcv5.csv", "a");
     debug_log = fopen("debug", "w");
 
 
     int ngenIniziali = numero_generazioni;
-    dw_lowerbound = 0.001;
     fputs("\n######\n", out_LOG_RIS); //nuova log entry
 
 

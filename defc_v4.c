@@ -37,7 +37,7 @@ double fitness_vector[num_pop];
 //attiva e disattiva GnuPlot
 int attivaGnuPlot = 0;
 
-
+int debug = 0;
 
 int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione_attuale;
 double esponente_U;
@@ -78,8 +78,8 @@ double calcDistanza(double a[d], double b[d]) {
         ris += pow(a[i] - b[i], 2.0);
 
     if (ris == 0) {
-        puts("!!!CALCOLATA UNA DISTANZA NULLA!!!");
-        exit(-1);
+        printf("!!!null dist!!!");
+        //exit(-1);
     }
     return sqrt(ris);
 }
@@ -117,6 +117,8 @@ double dbl_rnd_inRange(double fMin, double fMax) {//random double in un range
 ///////////////////////////////////////////////////////////////////////////////
 
 double calcolaFitness(double **V, double **U, int debug) {
+    if(debug)
+        ;//printf("dbg");
     //CALCOLO SIGMA
     double sigma = 0.0;
     for (i = 0; i < n; i++) {
@@ -185,8 +187,8 @@ void init(int n, int c, int d) {
             for (j = 0; j < d; j++) {
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][d];
                 POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)];
-                srand48(random_at_most(100));
-                POP_NEW[pop_index] -> V_p[i][j] = lrand48();
+                //srand48(random_at_most(100));
+                //POP_NEW[pop_index] -> V_p[i][j] = lrand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
@@ -364,19 +366,17 @@ void lavora(int n, int c, int d) {
                     double denom = 0.0;
                     double dist_x_j__v_i = calcDistanza(X[j], mutant -> V_p[i]);
                     if (dist_x_j__v_i == 0) {
-                        puts("calcolo U mutante, distanza nulla");
-                        exit(-1);
+                        printf("calcolo U mutante, distanza nulla");
                     }
                     int k;
                     for (k = 0; k < c; k++) {
                         double dist_xj_vk = calcDistanza(X[j], mutant -> V_p[k]);
                         if (dist_xj_vk == 0) {
-                            puts("calcolo U mutante, distanza nulla");
-                            exit(-1);
+                            printf("calcolo U mutante, distanza nulla");
                         }
                         denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
                         if (denom == 0) {
-                            puts("calcolo U mutante, denom nullo");
+                            printf("calcolo U mutante, denom nullo");
                             exit(-1);
                         }
                     }
@@ -392,36 +392,8 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //TIPO 1
-            /*int indice_sostituito = 0;
-            if (mutant->fitness < POP_NOW[i_CPop]->fitness) {
-                indice_sostituito = i_CPop;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[i_CPop] = mutant;
-            } else if (mutant->fitness < POP_NOW[indice_1]->fitness) {
-                indice_sostituito = indice_1;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[indice_1] = mutant;
-            } else if (mutant->fitness < POP_NOW[indice_2]->fitness) {
-                indice_sostituito = indice_2;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[indice_2] = mutant;
-            } else if (mutant->fitness < POP_NOW[indice_3]->fitness) {
-                indice_sostituito = indice_3;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[indice_3] = mutant;
-            } else {
-                for (row = 0; row < c; row++) {
-                    free(mutant -> V_p[row]);
-                    free(mutant -> U_p[row]);
-                }
-                free(mutant->V_p);
-                free(mutant->U_p);
-                free(mutant);
-                POP_NEW[i_CPop] = POP_NOW[i_CPop];
-                xb_selezionato = POP_NOW[i_CPop]->fitness;
-            }*/
             //TIPO 2 (STANDARD)
-            
+
             if (mutant->fitness < POP_NOW[i_target]->fitness) {
                 conteggio_successi_generazione_attuale++;
                 POP_NEW[i_target] = mutant;
@@ -437,22 +409,21 @@ void lavora(int n, int c, int d) {
                 //invecchiamento
                 double bestFit = DBL_MAX;
                 int bestFitIndex;
-                for(i=0;i<num_pop;i++){
-                    if(fitness_vector[i] < bestFit){
+                for (i = 0; i < num_pop; i++) {
+                    if (fitness_vector[i] < bestFit) {
                         bestFit = fitness_vector[i];
                         bestFitIndex = i;
                     }
                 }
-                if(i_target != bestFitIndex) //se non è il migliore invecchia
-                    POP_NOW[i_target] -> age--;
+                if (i_target != bestFitIndex) //se non è il migliore invecchia
+                    //POP_NOW[i_target] -> age--;
                 //morte
                 if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
+                    printf("D");
                     //init V_p
                     for (i = 0; i < c; i++) {
                         for (j = 0; j < d; j++) {
                             POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)];
-                            //srand48(random_at_most(100));
-                            //POP_NOW[i_target] -> V_p[i][j] = lrand48();
                         }
                     }
 
@@ -474,6 +445,13 @@ void lavora(int n, int c, int d) {
                             }
                         }
                     }
+                    //calcolo fitness
+                    //double fit = calcolaFitness(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
+                    //POP_NOW[i_target]->fitness = fit;
+                    //fitness_vector[i_target] = fit;
+
+                    //impostazione età
+                    POP_NOW[i_target] -> age = starting_age;
                 }
 
                 POP_NEW[i_target] = POP_NOW[i_target];
@@ -481,16 +459,23 @@ void lavora(int n, int c, int d) {
         }//END DE
         //END GENERAZIONE
         numero_generazioni--;
+        printf("%d", conteggio_successi_generazione_attuale);
+        fflush(stdin);
+        //uccisione a caso
+        /*if(conteggio_successi_generazione_attuale == 0){
+            int index = random_at_most(num_pop-1);
+            POP_NOW[index]->V_p
+        }*/
         
-        if(conteggio_successi_generazione_attuale < ultimo_conteggio_successi){
-            srand48(random_at_most(100));
-            dw_upperbound = drand48();
-            //CR = drand48();
+        if (conteggio_successi_generazione_attuale < ultimo_conteggio_successi || conteggio_successi_generazione_attuale == 0) {
+            dw_upperbound = dbl_rnd_inRange(0.5, 0.7);
+            /*srand48(random_at_most(100));
+            dw_upperbound = drand48();*/
         }
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
-        
+
     } while (numero_generazioni > 0);
-    
+
 
     //computazione fitness della popolazione finale
     double best_fitness = DBL_MAX;
@@ -554,13 +539,12 @@ int main(int argc, char** argv) {
     scanf("%d", &c);
     printf("numero di generazioni: ");
     scanf("%d", &numero_generazioni);
-    //printf("crossover rate (reale tra 0 e 1): ");
-    //scanf("%lf", &CR);
-    CR = drand48();
+    printf("crossover rate (reale tra 0 e 1): ");
+    scanf("%lf", &CR);
+    //CR = drand48();
     //printf("differential weight upperbound: ");
     //scanf("%lf", &dw_upperbound);
-    srand48(random_at_most(100));
-    dw_upperbound = drand48();
+    dw_upperbound = 0.7;
     printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
     scanf("%d", &tipo_dw);
 

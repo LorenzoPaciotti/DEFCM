@@ -32,7 +32,7 @@ int main() {
     FILE *out_X;
     out_X = fopen("x.dat", "w");
     int n, d;
-    double mi_gauss, sigma_gauss;
+    double sigma_gauss;
     printf("numero di punti: ");
     scanf("%d", &n); //numero di punti totale in input
     printf("numero di dimensioni: ");
@@ -49,15 +49,19 @@ int main() {
         for (j = 0; j < d; j++) {
             //gaussiana con media mi_gauss e devstd sigma_gauss
             srand48(rand());
-            if (j == 0 && i < 250)
-                X[i][j] = 0 + (sigma_gauss * random_normal()); // + (1 * random_normal());
-            else if (j == 0 && i >= 250)
-                X[i][j] = 20; //-(mi_gauss + (sigma_gauss * random_normal()));
-            
-            if(j==1 && i<250)
-                X[i][j] = 0 + (sigma_gauss * random_normal());//X[i][j] = mi_gauss + (sigma_gauss * random_normal());
-            else if(j==1 && i>=250)
+            if (j == 0 && i < 100)//x1
+                X[i][j] = 0 + (sigma_gauss * random_normal());
+            else if (j == 0 && i >= 100 && i < 200)//x2
+                X[i][j] = 10 + (sigma_gauss * random_normal());
+            else if (j == 0 && i >= 200)//x3
                 X[i][j] = 20 + (sigma_gauss * random_normal());
+
+            if (j == 1 && i < 100)//y1
+                X[i][j] = 10 + (4 * sigma_gauss * random_normal());
+            else if (j == 1 && i >= 100 && i < 200)//y2
+                X[i][j] = 30 + (4 * sigma_gauss * random_normal());
+            else if (j == 1 && i >= 200)//y3
+                X[i][j] = 20 + (4 * sigma_gauss * random_normal());
         }
     }
     stampaMatriceSuFile(n, d, X, out_X);
