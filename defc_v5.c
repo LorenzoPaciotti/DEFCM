@@ -20,6 +20,8 @@ int tipo_dataset;
 int starting_age;
 int ultimo_conteggio_successi;
 int conteggio_successi_generazione_attuale;
+int conteggio_adattamenti;
+int reset_threshold;
 
 #define num_pop 20
 
@@ -302,7 +304,7 @@ void lavora(int n, int c, int d) {
                     mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
             }
-            
+
             //CROSSOVER CON IL VETTORE TARGET UNIFORME - CUSTOM non previsto da DE
             /*for (i1 = 0; i1 < c; i1++) {
                 double prob_crossover = dbl_rnd_inRange(0.0, 1.0);
@@ -313,11 +315,11 @@ void lavora(int n, int c, int d) {
                     }
                 }
             }*/
-            
+
             //CROSSOVER SINGLE-POINT
             for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
-                    if (i1 >= floor((double)c/2)) {//prendo i cromosomi dal target so oltre il punto di CO
+                    if (i1 >= floor((double) c / 2)) {//prendo i cromosomi dal target so oltre il punto di CO
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
                 }
@@ -355,16 +357,16 @@ void lavora(int n, int c, int d) {
 
             //impostazione timer età mutante
             mutant -> age = starting_age;
-            
-            
+
+
             //MIGLIORE
             double bestFit = DBL_MAX;
-                int bestFitIndex;
-                for (i = 0; i < num_pop; i++) {
-                    if (fitness_vector[i] < bestFit) {
-                        bestFit = fitness_vector[i];
-                        bestFitIndex = i;
-                    }
+            int bestFitIndex;
+            for (i = 0; i < num_pop; i++) {
+                if (fitness_vector[i] < bestFit) {
+                    bestFit = fitness_vector[i];
+                    bestFitIndex = i;
+                }
             }
             //END MIGLIORE
 
@@ -382,47 +384,48 @@ void lavora(int n, int c, int d) {
                 free(mutant->V_p);
                 free(mutant->U_p);
                 free(mutant);
-                
+
                 //INVECCHIAMENTO
-                if (i_target != bestFitIndex) //se non è il migliore invecchia
-                    POP_NOW[i_target] -> age--;
-                //morte
-                if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
-                    printf("D");
-                    //init V_p
-                    for (i = 0; i < c; i++) {
-                        for (j = 0; j < d; j++) {
-                            srand48(random_at_most(10));
-                            POP_NOW[i_target] -> V_p[i][j] = (X[random_at_most(n - 1)][random_at_most(d - 1)])*drand48();
-                        }
-                    }
-
-                    //init U
-                    for (i = 0; i < c; i++) {
-                        for (j = 0; j < n; j++) {
-                            double denom = 0.0;
-                            double dist_x_j__v_i = calcDistanza(X[j], POP_NOW[i_target] -> V_p[i]);
-
-                            int k;
-                            for (k = 0; k < c; k++) {
-                                double dist_xj_vk = calcDistanza(X[j], POP_NOW[i_target] -> V_p[k]);
-                                denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
-                            }
-                            POP_NOW[i_target] -> U_p[i][j] = 1.0 / denom;
-                            if (POP_NOW[i_target] -> U_p[i][j] < 0) {
-                                printf("ERR: INIT POP:inizializzato U di un membro con negativo::");
-                                exit(-1);
+                if (i_target != bestFitIndex) { //se non è il migliore invecchia
+                    if(POP_NOW[i_target] -> age > 0)//non sono in modalità reset
+                        POP_NOW[i_target] -> age--;
+                    //morte
+                    if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
+                        printf("D");
+                        //init V_p
+                        for (i = 0; i < c; i++) {
+                            for (j = 0; j < d; j++) {
+                                POP_NOW[i_target] -> V_p[i][j] = (X[random_at_most(n - 1)][random_at_most(d - 1)]) + drand48(); //per errore dist nulla
                             }
                         }
-                    }
-                    
-                    //calcolo fitness
-                    double fit = calcolaFitness(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
-                    POP_NOW[i_target]->fitness = fit;
-                    fitness_vector[i_target] = fit;
 
-                    //impostazione età
-                    POP_NOW[i_target] -> age = starting_age;
+                        //init U
+                        for (i = 0; i < c; i++) {
+                            for (j = 0; j < n; j++) {
+                                double denom = 0.0;
+                                double dist_x_j__v_i = calcDistanza(X[j], POP_NOW[i_target] -> V_p[i]);
+
+                                int k;
+                                for (k = 0; k < c; k++) {
+                                    double dist_xj_vk = calcDistanza(X[j], POP_NOW[i_target] -> V_p[k]);
+                                    denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
+                                }
+                                POP_NOW[i_target] -> U_p[i][j] = 1.0 / denom;
+                                if (POP_NOW[i_target] -> U_p[i][j] < 0) {
+                                    printf("ERR: INIT POP:inizializzato U di un membro con negativo::");
+                                    exit(-1);
+                                }
+                            }
+                        }
+
+                        //calcolo fitness
+                        double fit = calcolaFitness(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
+                        POP_NOW[i_target]->fitness = fit;
+                        fitness_vector[i_target] = fit;
+
+                        //impostazione età
+                        POP_NOW[i_target] -> age = starting_age;
+                    }
                 }
 
                 POP_NEW[i_target] = POP_NOW[i_target];
@@ -432,13 +435,26 @@ void lavora(int n, int c, int d) {
         numero_generazioni--;
         printf("%d", conteggio_successi_generazione_attuale);
         fflush(stdin);
-        
+
         //ADATTAMENTO PARAMETRI
         if (conteggio_successi_generazione_attuale == 0 && ultimo_conteggio_successi == 0) {
             printf("DW");
-            dw_upperbound = dbl_rnd_inRange(0.6, 0.7);
+            dw_upperbound = dbl_rnd_inRange(dw_upperbound - 1, dw_upperbound);
+            conteggio_adattamenti++;
             //dw_lowerbound = dbl_rnd_inRange(0.0001,0.001);
+        } else {
+            conteggio_adattamenti--;
         }
+        
+        //RESET
+        if (conteggio_adattamenti == reset_threshold) {
+            puts("RESET");
+            for(i=0; i<num_pop;i++)
+                POP_NOW[i] -> age = 0;
+            conteggio_adattamenti = 0;//reset contatore
+        }
+        //END RESET
+        
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
     } while (numero_generazioni > 0);
 
@@ -491,28 +507,45 @@ void plot() {
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
-    
-    //letture da utente
-    printf("tipo dataset: ");
-    scanf("%d", &tipo_dataset);
-    printf("numero di punti in input: ");
-    scanf("%d", &n);
-    printf("numero di dimensioni: ");
-    scanf("%d", &d);
-    printf("numero di centroidi: ");
-    scanf("%d", &c);
-    printf("numero di generazioni: ");
-    scanf("%d", &numero_generazioni);
-    //printf("crossover rate (reale tra 0 e 1): ");
-    //scanf("%lf", &CR);
-    //printf("differential weight upperbound: ");
-    //scanf("%lf", &dw_upperbound);
-    dw_upperbound = 0.7;
-    dw_lowerbound = 0.001;
-    starting_age = 25;
-    printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
-    scanf("%d", &tipo_dw);
 
+    if (argc == 0) {
+        //letture da utente
+        printf("tipo dataset: ");
+        scanf("%d", &tipo_dataset);
+        printf("numero di punti in input: ");
+        scanf("%d", &n);
+        printf("numero di dimensioni: ");
+        scanf("%d", &d);
+        printf("numero di centroidi: ");
+        scanf("%d", &c);
+        printf("numero di generazioni: ");
+        scanf("%d", &numero_generazioni);
+        //printf("crossover rate (reale tra 0 e 1): ");
+        //scanf("%lf", &CR);
+        //printf("differential weight upperbound: ");
+        //scanf("%lf", &dw_upperbound);
+        printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
+        scanf("%d", &tipo_dw);
+    } else if (argc == 7) {
+            tipo_dataset = atoi(argv[1]);
+            n = atoi(argv[2]);
+            d = atoi(argv[3]);
+            c = atoi(argv[4]);
+            numero_generazioni = atoi(argv[5]);
+            tipo_dw = atoi(argv[6]);
+        } else {
+            puts("defc5 tipo_ds n d c num_gen tipo_dw");
+            exit(0);
+        }
+    //END READ
+    
+    //PARAMETRI INIZIALI
+    dw_upperbound = 0.7;
+    dw_lowerbound = 0.00001;
+    starting_age = 10;
+    conteggio_adattamenti = 0;
+    reset_threshold = 20;
+    
     //stream file
     out_X = fopen("x.dat", "r");
     out_V = fopen("v_defc.dat", "w");
@@ -552,7 +585,7 @@ int main(int argc, char** argv) {
     fprintf(out_csv, "%d,", n);
     fprintf(out_csv, "%d,", c);
     fprintf(out_csv, "%d,", d);
-    fprintf(out_csv, "%lf,", CR);
+    //fprintf(out_csv, "%lf,", CR);
     fprintf(out_csv, "%d,", num_pop);
     fprintf(out_csv, "%d,", ngenIniziali);
     fprintf(out_csv, "%d,", tipo_dw);
