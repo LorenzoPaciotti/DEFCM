@@ -290,8 +290,20 @@ void lavora(int n, int c, int d) {
             }
 
 
-            //MUTATION
+            //MIGLIORE
+            double bestFit = DBL_MAX;
+            int bestFitIndex;
+            for (i = 0; i < num_pop; i++) {
+                if (fitness_vector[i] < bestFit) {
+                    bestFit = fitness_vector[i];
+                    bestFitIndex = i;
+                }
+            }
+            //END MIGLIORE
+
             int i1, j1;
+            //MUTATION (TIPO 1 3-random)
+            
             for (i1 = 0; i1 < c; i1++) {
                 double f;
                 if (tipo_dw == 2)//dithering
@@ -305,6 +317,20 @@ void lavora(int n, int c, int d) {
                 }
             }
 
+            //MUTATION (TIPO 2 best-rand-rand)
+            /*for (i1 = 0; i1 < c; i1++) {
+                double f;
+                if (tipo_dw == 2)//dithering
+                    f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound);
+                else if (tipo_dw == 3) //dither + jitter
+                    f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound) + 0.001 * (dbl_rnd_inRange(0, 1) - 0.5);
+                else
+                    f = dw_upperbound;
+                for (j1 = 0; j1 < d; j1++) {
+                    mutant->V_p[i1][j1] = POP_NOW[bestFitIndex]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
+                }
+            }*/
+
             //CROSSOVER CON IL VETTORE TARGET UNIFORME - CUSTOM non previsto da DE
             /*for (i1 = 0; i1 < c; i1++) {
                 double prob_crossover = dbl_rnd_inRange(0.0, 1.0);
@@ -317,13 +343,13 @@ void lavora(int n, int c, int d) {
             }*/
 
             //CROSSOVER SINGLE-POINT
-            for (i1 = 0; i1 < c; i1++) {
+            /*for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
                     if (i1 >= floor((double) c / 2)) {//prendo i cromosomi dal target so oltre il punto di CO
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
                 }
-            }
+            }*/
 
             ///CALCOLO FITNESS DEL MUTANTE
             //calcolo U mutante
@@ -360,8 +386,7 @@ void lavora(int n, int c, int d) {
 
 
             //MIGLIORE
-            double bestFit = DBL_MAX;
-            int bestFitIndex;
+            bestFit = DBL_MAX;
             for (i = 0; i < num_pop; i++) {
                 if (fitness_vector[i] < bestFit) {
                     bestFit = fitness_vector[i];
@@ -377,6 +402,7 @@ void lavora(int n, int c, int d) {
                 fitness_vector[i_target] = mutant->fitness;
                 conteggio_successi_generazione_attuale++;
             } else {
+                //IL MUTANTE è SCARTATO
                 for (row = 0; row < c; row++) {
                     free(mutant -> V_p[row]);
                     free(mutant -> U_p[row]);
@@ -387,15 +413,16 @@ void lavora(int n, int c, int d) {
 
                 //INVECCHIAMENTO
                 if (i_target != bestFitIndex) { //se non è il migliore invecchia
-                    if(POP_NOW[i_target] -> age > 0)//non sono in modalità reset
+                    if (POP_NOW[i_target] -> age > 0)//non sono in modalità reset
                         POP_NOW[i_target] -> age--;
                     //morte
                     if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
-                        printf("D");
+                        printf("|D|");
                         //init V_p
                         for (i = 0; i < c; i++) {
                             for (j = 0; j < d; j++) {
-                                POP_NOW[i_target] -> V_p[i][j] = (X[random_at_most(n - 1)][random_at_most(d - 1)]) + drand48(); //per errore dist nulla
+                                srand48(time(0));
+                                POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j] + drand48(); //per errore dist nulla
                             }
                         }
 
@@ -438,23 +465,24 @@ void lavora(int n, int c, int d) {
 
         //ADATTAMENTO PARAMETRI
         if (conteggio_successi_generazione_attuale == 0 && ultimo_conteggio_successi == 0) {
-            printf("DW");
-            dw_upperbound = dbl_rnd_inRange(dw_upperbound - 1, dw_upperbound);
+            printf("##DW##");
+            dw_upperbound = dbl_rnd_inRange(dw_upperbound - .2, dw_upperbound);
             conteggio_adattamenti++;
             //dw_lowerbound = dbl_rnd_inRange(0.0001,0.001);
         } else {
             conteggio_adattamenti--;
         }
-        
+
         //RESET
         if (conteggio_adattamenti == reset_threshold) {
-            puts("RESET");
-            for(i=0; i<num_pop;i++)
+            puts("!!RESET GLOBALE");
+            for (i = 0; i < num_pop; i++) {
                 POP_NOW[i] -> age = 0;
-            conteggio_adattamenti = 0;//reset contatore
+            }
+            conteggio_adattamenti = 0; //reset contatore
         }
         //END RESET
-        
+
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
     } while (numero_generazioni > 0);
 
@@ -507,7 +535,7 @@ void plot() {
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
-
+    puts("v5: dw upperbound auto-adattante, CR fisso, invecchiamento, reset");
     if (argc == 0) {
         //letture da utente
         printf("tipo dataset: ");
@@ -527,25 +555,26 @@ int main(int argc, char** argv) {
         printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
         scanf("%d", &tipo_dw);
     } else if (argc == 7) {
-            tipo_dataset = atoi(argv[1]);
-            n = atoi(argv[2]);
-            d = atoi(argv[3]);
-            c = atoi(argv[4]);
-            numero_generazioni = atoi(argv[5]);
-            tipo_dw = atoi(argv[6]);
-        } else {
-            puts("defc5 tipo_ds n d c num_gen tipo_dw");
-            exit(0);
-        }
+        tipo_dataset = atoi(argv[1]);
+        n = atoi(argv[2]);
+        d = atoi(argv[3]);
+        c = atoi(argv[4]);
+        numero_generazioni = atoi(argv[5]);
+        tipo_dw = atoi(argv[6]);
+    } else {
+        puts("defc5 tipo_ds n d c num_gen tipo_dw");
+        exit(0);
+    }
     //END READ
-    
+
     //PARAMETRI INIZIALI
     dw_upperbound = 0.7;
-    dw_lowerbound = 0.00001;
+    dw_lowerbound = 0.001;
     starting_age = 10;
     conteggio_adattamenti = 0;
-    reset_threshold = 20;
-    
+    reset_threshold = 50;
+    CR = 0.5; //usato solo con crossover tipo 1
+
     //stream file
     out_X = fopen("x.dat", "r");
     out_V = fopen("v_defc.dat", "w");

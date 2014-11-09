@@ -378,40 +378,10 @@ void lavora(int n, int c, int d) {
             mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p, 1);
 
             //SELECTION
-            //TIPO 1
-            /*int indice_sostituito = 0;
-            if (mutant->fitness < POP_NOW[i_CPop]->fitness) {
-                indice_sostituito = i_CPop;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[i_CPop] = mutant;
-            } else if (mutant->fitness < POP_NOW[indice_1]->fitness) {
-                indice_sostituito = indice_1;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[indice_1] = mutant;
-            } else if (mutant->fitness < POP_NOW[indice_2]->fitness) {
-                indice_sostituito = indice_2;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[indice_2] = mutant;
-            } else if (mutant->fitness < POP_NOW[indice_3]->fitness) {
-                indice_sostituito = indice_3;
-                xb_selezionato = mutant->fitness;
-                POP_NEW[indice_3] = mutant;
-            } else {
-                for (row = 0; row < c; row++) {
-                    free(mutant -> V_p[row]);
-                    free(mutant -> U_p[row]);
-                }
-                free(mutant->V_p);
-                free(mutant->U_p);
-                free(mutant);
-                POP_NEW[i_CPop] = POP_NOW[i_CPop];
-                xb_selezionato = POP_NOW[i_CPop]->fitness;
-            }*/
             //TIPO 2 (STANDARD)
             if (mutant->fitness < POP_NOW[i_target]->fitness) {
                 xb_selezionato = mutant->fitness;
                 POP_NEW[i_target] = mutant;
-                //dw_upperbound = f;
             } else {
                 for (row = 0; row < c; row++) {
                     free(mutant -> V_p[row]);
@@ -477,32 +447,41 @@ int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
     
-    //letture da utente
-    printf("tipo dataset: ");
-    scanf("%d",&tipo_dataset);
-    printf("numero di punti in input: ");
-    scanf("%d", &n);
-    printf("numero di dimensioni: ");
-    scanf("%d", &d);
-    printf("numero di centroidi: ");
-    scanf("%d", &c);
-    printf("numero di generazioni: ");
-    scanf("%d", &numero_generazioni);
-    printf("crossover rate (reale tra 0 e 1): ");
-    scanf("%lf", &CR);
-    printf("differential weight upperbound: ");
-    scanf("%lf", &dw_upperbound);
-    printf("range init max: ");
-    scanf("%d", &range_init_max);
-    printf("tipo diff. weight: 1-costante 2-dithered 3-dithered/jittered: ");
-    scanf("%d", &tipo_dw);
+    puts("v2: dw upperbound fisso, CR fisso");
+    if (argc == 0) {
+        //letture da utente
+        printf("tipo dataset: ");
+        scanf("%d", &tipo_dataset);
+        printf("numero di punti in input: ");
+        scanf("%d", &n);
+        printf("numero di dimensioni: ");
+        scanf("%d", &d);
+        printf("numero di centroidi: ");
+        scanf("%d", &c);
+        printf("numero di generazioni: ");
+        scanf("%d", &numero_generazioni);
+        printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
+        scanf("%d", &tipo_dw);
+    } else if (argc == 7) {
+        tipo_dataset = atoi(argv[1]);
+        n = atoi(argv[2]);
+        d = atoi(argv[3]);
+        c = atoi(argv[4]);
+        numero_generazioni = atoi(argv[5]);
+        tipo_dw = atoi(argv[6]);
+    } else {
+        puts("./defc2 tipo_ds n d c num_gen tipo_dw");
+        exit(0);
+    }
     
+    dw_upperbound = 0.7;
+    CR = 0.5;
 	//stream file
     out_X = fopen("x.dat", "r");
     out_V = fopen("v_defc.dat", "w");
     out_U = fopen("u_defc.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
-    out_csv = fopen("output.csv", "a");
+    out_csv = fopen("output_defcv2.csv", "a");
     
     
     int ngenIniziali = numero_generazioni;
@@ -552,8 +531,8 @@ int main(int argc, char** argv) {
     fprintf(out_csv, "%d,", tipo_dw);
     fprintf(out_csv, "%lf,", dw_lowerbound);
     fprintf(out_csv, "%lf,", dw_upperbound);
-    fprintf(out_csv, "%d,", range_init_min);
-    fprintf(out_csv, "%d,", range_init_max);
+    //fprintf(out_csv, "%d,", range_init_min);
+    //fprintf(out_csv, "%d,", range_init_max);
     fprintf(out_csv, "%lf\n", best_xb);
 
     return (0);

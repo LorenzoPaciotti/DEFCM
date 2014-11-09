@@ -54,14 +54,14 @@ int main() {
             else if (j == 0 && i >= 100 && i < 200)//x2
                 X[i][j] = 10 + (sigma_gauss * random_normal());
             else if (j == 0 && i >= 200)//x3
-                X[i][j] = 20 + (sigma_gauss * random_normal());
+                X[i][j] = 25 + (sigma_gauss * random_normal());
 
             if (j == 1 && i < 100)//y1
-                X[i][j] = 10 + (4 * sigma_gauss * random_normal());
+                X[i][j] = 10 + (2 * sigma_gauss * random_normal());
             else if (j == 1 && i >= 100 && i < 200)//y2
                 X[i][j] = 30 + (4 * sigma_gauss * random_normal());
             else if (j == 1 && i >= 200)//y3
-                X[i][j] = 20 + (4 * sigma_gauss * random_normal());
+                X[i][j] = 25 + (6 * sigma_gauss * random_normal());
         }
     }
     stampaMatriceSuFile(n, d, X, out_X);

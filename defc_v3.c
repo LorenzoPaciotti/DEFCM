@@ -183,7 +183,7 @@ void init(int n, int c, int d) {
         for (i = 0; i < c; i++) {
             for (j = 0; j < d; j++) {
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][d];
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)]; //+drand48();//;
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)]; //;//;
                 //POP_NEW[pop_index] -> V_p[i][j] = drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
@@ -381,7 +381,7 @@ void lavora(int n, int c, int d) {
                     //init V_p
                     for (i = 0; i < c; i++) {
                         for (j = 0; j < d; j++) {
-                            POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)];
+                            POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)]+drand48();
                         }
                     }
 
@@ -469,26 +469,43 @@ int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
 
-    starting_age = 10;
-
-    //letture da utente
-    printf("tipo dataset: ");
-    scanf("%d", &tipo_dataset);
-    printf("numero di punti in input: ");
-    scanf("%d", &n);
-    printf("numero di dimensioni: ");
-    scanf("%d", &d);
-    printf("numero di centroidi: ");
-    scanf("%d", &c);
-    printf("numero di generazioni: ");
-    scanf("%d", &numero_generazioni);
-    printf("crossover rate (reale tra 0 e 1): ");
-    scanf("%lf", &CR);
-    //printf("differential weight upperbound: ");
-    //scanf("%lf", &dw_upperbound);
+    
+    puts("v3: dw upperbound fisso, CR fisso, invecchiamento");
+    if (argc == 0) {
+        //letture da utente
+        printf("tipo dataset: ");
+        scanf("%d", &tipo_dataset);
+        printf("numero di punti in input: ");
+        scanf("%d", &n);
+        printf("numero di dimensioni: ");
+        scanf("%d", &d);
+        printf("numero di centroidi: ");
+        scanf("%d", &c);
+        printf("numero di generazioni: ");
+        scanf("%d", &numero_generazioni);
+        //printf("crossover rate (reale tra 0 e 1): ");
+        //scanf("%lf", &CR);
+        //printf("differential weight upperbound: ");
+        //scanf("%lf", &dw_upperbound);
+        printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
+        scanf("%d", &tipo_dw);
+    } else if (argc == 7) {
+        tipo_dataset = atoi(argv[1]);
+        n = atoi(argv[2]);
+        d = atoi(argv[3]);
+        c = atoi(argv[4]);
+        numero_generazioni = atoi(argv[5]);
+        tipo_dw = atoi(argv[6]);
+    } else {
+        
+        puts("./defc3 tipo_ds n d c num_gen tipo_dw");
+        exit(0);
+    }
+    
+    dw_lowerbound = 0.001;
     dw_upperbound = 0.7;
-    printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
-    scanf("%d", &tipo_dw);
+    CR = 0.5;
+    starting_age = 10;
 
     //stream file
     out_X = fopen("x.dat", "r");
@@ -500,7 +517,7 @@ int main(int argc, char** argv) {
 
 
     int ngenIniziali = numero_generazioni;
-    dw_lowerbound = 0.001;
+    
     fputs("\n######\n", out_LOG_RIS); //nuova log entry
 
 
