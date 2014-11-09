@@ -22,6 +22,7 @@ int ultimo_conteggio_successi;
 int conteggio_successi_generazione_attuale;
 int conteggio_adattamenti;
 int reset_threshold;
+int bestFitIndex;
 
 #define num_pop 20
 
@@ -231,6 +232,16 @@ void init(int n, int c, int d) {
     printf("\n########## FINE INIT #############\n");
 }
 
+void aggiornaVettoreFitness() {
+    double bestFit = DBL_MAX;
+    for (i = 0; i < num_pop; i++) {
+        if (fitness_vector[i] < bestFit) {
+            bestFit = fitness_vector[i];
+            bestFitIndex = i;
+        }
+    }
+}
+
 void lavora(int n, int c, int d) {
     int row;
     numero_generazione_attuale = 0;
@@ -290,20 +301,10 @@ void lavora(int n, int c, int d) {
             }
 
 
-            //MIGLIORE
-            double bestFit = DBL_MAX;
-            int bestFitIndex;
-            for (i = 0; i < num_pop; i++) {
-                if (fitness_vector[i] < bestFit) {
-                    bestFit = fitness_vector[i];
-                    bestFitIndex = i;
-                }
-            }
-            //END MIGLIORE
+
 
             int i1, j1;
             //MUTATION (TIPO 1 3-random)
-            
             for (i1 = 0; i1 < c; i1++) {
                 double f;
                 if (tipo_dw == 2)//dithering
@@ -332,7 +333,7 @@ void lavora(int n, int c, int d) {
             }*/
 
             //CROSSOVER CON IL VETTORE TARGET UNIFORME - CUSTOM non previsto da DE
-            /*for (i1 = 0; i1 < c; i1++) {
+            for (i1 = 0; i1 < c; i1++) {
                 double prob_crossover = dbl_rnd_inRange(0.0, 1.0);
                 for (j1 = 0; j1 < d; j1++) {
                     if (prob_crossover < CR) {
@@ -340,7 +341,7 @@ void lavora(int n, int c, int d) {
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
                 }
-            }*/
+            }
 
             //CROSSOVER SINGLE-POINT
             /*for (i1 = 0; i1 < c; i1++) {
@@ -386,14 +387,7 @@ void lavora(int n, int c, int d) {
 
 
             //MIGLIORE
-            bestFit = DBL_MAX;
-            for (i = 0; i < num_pop; i++) {
-                if (fitness_vector[i] < bestFit) {
-                    bestFit = fitness_vector[i];
-                    bestFitIndex = i;
-                }
-            }
-            //END MIGLIORE
+            aggiornaVettoreFitness();
 
             //SELECTION
             //TIPO 2 (STANDARD)
@@ -422,7 +416,8 @@ void lavora(int n, int c, int d) {
                         for (i = 0; i < c; i++) {
                             for (j = 0; j < d; j++) {
                                 srand48(time(0));
-                                POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j] + drand48(); //per errore dist nulla
+                                //POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j] + drand48(); //per errore dist nulla
+                                POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
                             }
                         }
 
@@ -548,10 +543,6 @@ int main(int argc, char** argv) {
         scanf("%d", &c);
         printf("numero di generazioni: ");
         scanf("%d", &numero_generazioni);
-        //printf("crossover rate (reale tra 0 e 1): ");
-        //scanf("%lf", &CR);
-        //printf("differential weight upperbound: ");
-        //scanf("%lf", &dw_upperbound);
         printf("tipo diff. weight: 1=costante 2=dithered 3=dithered/jittered: ");
         scanf("%d", &tipo_dw);
     } else if (argc == 7) {
@@ -570,7 +561,7 @@ int main(int argc, char** argv) {
     //PARAMETRI INIZIALI
     dw_upperbound = 0.7;
     dw_lowerbound = 0.001;
-    starting_age = 10;
+    starting_age = 25;
     conteggio_adattamenti = 0;
     reset_threshold = 50;
     CR = 0.5; //usato solo con crossover tipo 1

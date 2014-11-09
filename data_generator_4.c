@@ -38,37 +38,37 @@ int main() {
     //printf("numero di dimensioni: ");
     //scanf("%d", &d);
     sigma_gauss = 1;
-    d=2;
-    n=800;
+    d = 2;
+    n = 1600;
     double X[n][d];
     //INIT X
     for (i = 0; i < n; i++) {
         for (j = 0; j < d; j++) {
             //gaussiana con media mi_gauss e devstd sigma_gauss
             srand48(rand());
-            if(j==0){//X
-                if(i<200)
+            if (j == 0) {//X
+                if (i < 200)
                     X[i][j] = 0 + (sigma_gauss * random_normal());
-                else if (i>=200 && i<400)
-                    X[i][j] = 10 + (sigma_gauss * random_normal());
-                else if (i>=400 && i<600)
+                else if (i >= 200 && i < 400)
+                    X[i][j] = 10 + (3 * sigma_gauss * random_normal());
+                else if (i >= 400 && i < 600)
                     X[i][j] = 30 + (sigma_gauss * random_normal());
-                else if(i>=600 && i<800)
+                else if (i >= 600)// && i < 800)
                     X[i][j] = 40 + (sigma_gauss * random_normal());
-            }else{//Y
-                if(i<200)
-                    X[i][j] = 0 + (8*sigma_gauss * random_normal());
-                else if (i>=200 && i<400)
-                    X[i][j] = 10 + (sigma_gauss * random_normal());
-                else if (i>=400 && i<600)
-                    X[i][j] = 30 + (sigma_gauss * random_normal());
-                else if(i>=600 && i<800)
-                    X[i][j] = 40 + (8*sigma_gauss * random_normal());
+            } else {//Y
+                if (i < 200)
+                    X[i][j] = 10 + (8 * sigma_gauss * random_normal());
+                else if (i >= 200 && i < 400)
+                    X[i][j] = 5 + (sigma_gauss * random_normal());
+                else if (i >= 400 && i < 600)
+                    X[i][j] = 10 + (3 * sigma_gauss * random_normal());
+                else if (i >= 600)// && i < 800)
+                    X[i][j] = 20 + (8 * sigma_gauss * random_normal());
             }
         }
     }
     stampaMatriceSuFile(n, d, X, out_X);
-    puts("800 punti 2 dimensioni 4 centroidi");
+    printf("%d punti, 2 dimensioni, 4 centroidi\n", n);
     puts("stampata su x.dat");
     return (0);
 }

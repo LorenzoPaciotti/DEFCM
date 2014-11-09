@@ -378,6 +378,7 @@ void lavora(int n, int c, int d) {
                     POP_NOW[i_target] -> age--;
                 //morte
                 if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
+                    printf("D");
                     //init V_p
                     for (i = 0; i < c; i++) {
                         for (j = 0; j < d; j++) {
@@ -505,7 +506,7 @@ int main(int argc, char** argv) {
     dw_lowerbound = 0.001;
     dw_upperbound = 0.7;
     CR = 0.5;
-    starting_age = 10;
+    starting_age = 25;
 
     //stream file
     out_X = fopen("x.dat", "r");
