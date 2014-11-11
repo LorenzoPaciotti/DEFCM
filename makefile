@@ -7,5 +7,6 @@ all:
 	gcc -ggdb -g -Wall -o data_gen4 data_generator_4.c -lm
 	gcc -ggdb -g -Wall -o defc3 defc_v3.c -lm
 	gcc -ggdb -g -Wall -o defc5 defc_v5.c -lm
+	gcc -ggdb -g -Wall -o defc7 defc_v7.c -lm
 clean:
 	rm defc_v2 fcm

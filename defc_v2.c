@@ -161,7 +161,7 @@ double calcolaXB(double **V, double **U, int debug) {
 }
 
 void init(int n, int c, int d) {
-    puts("###start init###");
+    puts("");
     int row;
     //###INIT POPOLAZIONE 0
     //init V e calcolo U
@@ -175,12 +175,13 @@ void init(int n, int c, int d) {
         for (row = 0; row < c; row++) {
             POP_NEW[pop_index] -> V_p[row] = malloc(d * sizeof (double));
         }
-        srand(rand());
         //init V_p
         for (i = 0; i < c; i++) {
+			srand48(time(0));
+			int riga = random_at_most(n-1);
             for (j = 0; j < d; j++) {
-				//POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][d];
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
+				POP_NEW[pop_index] -> V_p[i][j] = X[riga][j]+drand48();
+                //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
                 //POP_NEW[pop_index] -> V_p[i][j] = drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
@@ -211,26 +212,13 @@ void init(int n, int c, int d) {
                 }
             }
         }
-        //RICALCOLO POSIZIONE CENTROIDI
-        /*for (i = 0; i < c; i++) {
-            double denom = 0.0;
-            for (j = 0; j < n; j++)//sommatoria denom (fatta una sola volta a centr.)
-                denom += pow(POP_NEW[pop_index] ->U_p[i][j], m);
-            for (k = 0; k < d; k++) {
-                double num = 0.0;
-                for (j = 0; j < n; j++) {//SOMMATORIA numeratore
-                    num += X[j][k] * pow(POP_NEW[pop_index] ->U_p[i][j], m);
-                }
-                POP_NEW[pop_index] ->V_p[i][k] = num / denom;
-            }
-        }*/
 
         //calcolo fitness
         double xb = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
         POP_NEW[pop_index]->fitness = xb;
     }
     //###END INIT POPOLAZIONE 0
-    printf("\n########## FINE INIT #############\n");
+    puts("");
 }
 
 void lavora(int n, int c, int d) {
@@ -239,8 +227,6 @@ void lavora(int n, int c, int d) {
     do {//NUOVA GENERAZIONE
         //SCAMBIO VETTORI POPOLAZIONE
         numero_generazione_attuale++;
-        printf(".");
-        fflush(stdout);
         int i_target;
         for (i_target = 0; i_target < num_pop_iniziale; i_target++) {
             if (POP_NEW[i_target] != POP_NOW[i_target]) {
@@ -256,14 +242,6 @@ void lavora(int n, int c, int d) {
                 POP_NOW[i_target] = POP_NEW[i_target];
             }
         }
-
-        //SPERIMENTALE: cambio dinamico di dw_upperbound
-        //if (dw_adattivo && numero_generazione_attuale > 0 && dw_upperbound > dw_lowerbound)
-        //    dw_upperbound = dw_upperbound / 1.1;
-
-        int indice_base;
-        //indice_base = random_at_most(((long) num_pop_iniziale) - 1);
-        
         /////////////////DE////////////////////
         for (i_target = 0; i_target < num_pop_iniziale; i_target++) {//PER OGNI COMPONENTE DELLA POP
             /*if(indice_base == i_target){
@@ -275,7 +253,7 @@ void lavora(int n, int c, int d) {
             //tre vettori devono essere scelti a caso nella popolazione
             //diversi dal target (indice i) e mutualmente
             
-            int indice_1, indice_2;
+            int indice_1, indice_2, indice_base;
             do {
                 indice_1 = random_at_most(((long) num_pop_iniziale) - 1);
             } while (indice_1 == i_target); // || indice_1 == indice_base
@@ -374,7 +352,7 @@ void lavora(int n, int c, int d) {
                 }
             }
 
-            //calcolo XB mutante            
+            //calcolo fitness mutante            
             mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p, 1);
 
             //SELECTION
@@ -411,7 +389,6 @@ void lavora(int n, int c, int d) {
     //calcolo xb del migliore
     best_xb = calcolaXB(POP_NEW[indice_best]->V_p, POP_NEW[indice_best]->U_p, 0);
 
-    puts("\n\n***********************************************");
     printf("miglior XB:%lf\n", best_xb);
     fprintf(out_LOG_RIS, "\nmiglior XB:%lf\n\n", best_xb);
     stampaMatriceSuFile(c, d, POP_NEW[indice_best]->V_p, out_LOG_RIS);
@@ -476,12 +453,13 @@ int main(int argc, char** argv) {
     
     dw_upperbound = 0.7;
     CR = 0.5;
+    
 	//stream file
-    out_X = fopen("x.dat", "r");
-    out_V = fopen("v_defc.dat", "w");
-    out_U = fopen("u_defc.dat", "w");
+    out_X = fopen("dataset/s3.data", "r");
+    out_V = fopen("v_defc2.dat", "w");
+    out_U = fopen("u_defc2.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
-    out_csv = fopen("output_defcv2.csv", "a");
+    out_csv = fopen("csv/output_defcv2.csv", "a");
     
     
     int ngenIniziali = numero_generazioni;
@@ -509,17 +487,7 @@ int main(int argc, char** argv) {
     init(n, c, d);
     lavora(n, c, d);
     plot();
-
-    //aggiornamento log
-    fprintf(out_LOG_RIS, "punti in input:%d\n", n);
-    fprintf(out_LOG_RIS, "dimensioni:%d\n", d);
-    fprintf(out_LOG_RIS, "centroidi:%d\n", c);
-    fprintf(out_LOG_RIS, "popolazione:%d\n", num_pop_iniziale);
-    fprintf(out_LOG_RIS, "numero generazioni:%d\n", numero_generazione_attuale);
-    fprintf(out_LOG_RIS, "crossover rate:%lf\n", CR);
-    fprintf(out_LOG_RIS, "dw lowerbound:%lf\n", dw_lowerbound);
-    fprintf(out_LOG_RIS, "dw upperbound:%lf\n", dw_upperbound);
-
+    
     //scrittura csv
     fprintf(out_csv,"%d,",tipo_dataset);
     fprintf(out_csv, "%d,", n);

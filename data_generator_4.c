@@ -33,13 +33,13 @@ int main() {
     out_X = fopen("x.dat", "w");
     int n, d;
     double sigma_gauss;
-    //printf("numero di punti: ");
-    //scanf("%d", &n); //numero di punti totale in input
+    printf("numero di punti: ");
+    scanf("%d", &n); //numero di punti totale in input
     //printf("numero di dimensioni: ");
     //scanf("%d", &d);
     sigma_gauss = 1;
     d = 2;
-    n = 1600;
+    //n = 5000;
     double X[n][d];
     //INIT X
     for (i = 0; i < n; i++) {
@@ -57,13 +57,13 @@ int main() {
                     X[i][j] = 40 + (sigma_gauss * random_normal());
             } else {//Y
                 if (i < 200)
-                    X[i][j] = 10 + (8 * sigma_gauss * random_normal());
+                    X[i][j] = 10 + (4 * sigma_gauss * random_normal());
                 else if (i >= 200 && i < 400)
                     X[i][j] = 5 + (sigma_gauss * random_normal());
                 else if (i >= 400 && i < 600)
                     X[i][j] = 10 + (3 * sigma_gauss * random_normal());
                 else if (i >= 600)// && i < 800)
-                    X[i][j] = 20 + (8 * sigma_gauss * random_normal());
+                    X[i][j] = 20 + (4 * sigma_gauss * random_normal());
             }
         }
     }

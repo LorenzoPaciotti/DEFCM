@@ -1,31 +1,32 @@
 #!/usr/bin/gnuplot
  
 set terminal postscript eps enhanced color "Helvetica" 20
+set output "s1.eps"
 
  
 # beginning of multiplot
-#set multiplot
+set multiplot
 
 set key off
 set grid
  
 # the first plot
-set size 1,1
-set origin 0,0
+#set size 1,1
+#set origin 0,0
 #set xlabel "X"
 #set ylabel "Y"
-#set xrange[-10:50]
-set yrange[-10:50]
-set output 'X.eps'
-#plot "x.dat" title "matrice X" with p pt 3
+set xrange[0:1000000]
+set yrange[0:1000000]
+#set output 'X.eps'
+plot "s1.data" with p pt 1
 
-set terminal postscript eps enhanced color "Helvetica" 20
-set output 'V_DEFCM.eps'
-plot "v_defc.dat" title "matrice X" with p pt 3 ps 3
+#set terminal postscript eps enhanced color "Helvetica" 20
+#set output 'V_DEFCM.eps'
+plot "v_defc.dat" with p pt 11 ps 3 lc 0
 
-set terminal postscript eps enhanced color "Helvetica" 20
-set output 'V_FCM.eps'
-plot "v_fcm.dat" title "matrice X" with p pt 3 ps 3
+#set terminal postscript eps enhanced color "Helvetica" 20
+#set output 'V_FCM.eps'
+plot "v_fcm.dat" with p pt 15 ps 2 lc 10
 # smaller overlay plot
 #set size 0.40,0.40
 #set origin 0.5,0.5
