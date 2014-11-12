@@ -177,9 +177,9 @@ void init(int n, int c, int d) {
         }
         //init V_p
         for (i = 0; i < c; i++) {
-			srand48(time(0));
-			int riga = random_at_most(n-1);
             for (j = 0; j < d; j++) {
+				srand48(time(0));
+				int riga = random_at_most(n-1);
 				POP_NEW[pop_index] -> V_p[i][j] = X[riga][j]+drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
                 //POP_NEW[pop_index] -> V_p[i][j] = drand48();

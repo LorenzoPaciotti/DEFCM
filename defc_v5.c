@@ -412,14 +412,14 @@ void lavora(int n, int c, int d) {
                     if (POP_NOW[i_target] -> age == 0) { //ma non è immortale?
 						//init V_p
 						for (i = 0; i < c; i++) {
-							srand48(time(0));
-							int riga = random_at_most(n-1);
 							for (j = 0; j < d; j++) {
-								POP_NEW[pop_index] -> V_p[i][j] = X[riga][j]+drand48();
-								//POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
-								//POP_NEW[pop_index] -> V_p[i][j] = drand48();
-								//POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
-								//POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
+								srand48(time(0));
+								int riga = random_at_most(n-1);
+								POP_NOW[i_target] -> V_p[i][j] = X[riga][j]+drand48();
+								//POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
+								//POP_NOW[i_target] -> V_p[i][j] = drand48();
+								//POP_NOW[i_target] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
+								//POP_NOW[i_target] -> V_p[i][j] = random_at_most(range_init_max);
 							}
 						}
 
