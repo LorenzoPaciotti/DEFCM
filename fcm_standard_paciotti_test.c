@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     FILE *out_V, *out_X, *out_U;
     out_V = fopen("v_fcm.dat", "w");
     out_U = fopen("u_fcm.dat", "w");
-    out_X = fopen("dataset/s3.data", "r");
+    out_X = fopen("dataset/compound.data", "r");
     
     //letture da utente
     puts("numero di punti in input");

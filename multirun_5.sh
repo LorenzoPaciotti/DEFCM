@@ -2,8 +2,10 @@
 make
 echo -n "PARAMETRI: < tipo_ds input_points dimensioni centroidi generazioni tipo_dw > "
 read text
+#echo ************************************************************************************************************************************
+#echo ************************************************************************************************************************************
 echo "PARAMETRI LETTI: $text"
-for i in 1 2 3 4 5
+for i in 1 2 3 4 5 6 7 8 9 10
 do
 echo "run # $i"
 #echo "DEFC v5"
@@ -15,4 +17,3 @@ echo "run # $i"
 echo "DEFC v7"
 time ./defc7 $text
 done
-./plot.sh
