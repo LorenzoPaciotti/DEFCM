@@ -25,6 +25,7 @@ double best_xb;
 int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione_attuale, numero_generazioni_iniziale;
 double esponente_U;
 int n, c, d;
+double intens_mutazione_neonato;
 
 #define num_pop 30
 
@@ -182,7 +183,7 @@ void init(int n, int c, int d) {
             for (j = 0; j < d; j++) {
                 srand48(time(0));
                 //POP_NEW[pop_index] -> V_p[i][j] = X[riga][j] + drand48();
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)]+drand48();
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
                 //POP_NEW[pop_index] -> V_p[i][j] = drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
@@ -319,10 +320,10 @@ void lavora(int n, int c, int d) {
                 else
                     f = dw_upperbound;
                 for (j1 = 0; j1 < d; j1++) {
-                    /*if (numero_generazione_attuale > floor(numero_generazioni_iniziale * (3/4)))
+                    if (numero_generazione_attuale > floor(numero_generazioni_iniziale * (3 / 4)))
                         mutant->V_p[i1][j1] = POP_NOW[bestFitIndex]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
-                    else*/
-                    mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
+                    else
+                        mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
             }
 
@@ -404,19 +405,20 @@ void lavora(int n, int c, int d) {
                         POP_NOW[i_target] -> age--;
                     //morte
                     if (POP_NOW[i_target] -> age <= 0) { //ma non è immortale?
+                        //RINASCITA
                         //REINIT V_p
                         for (i = 0; i < c; i++) {
                             //int riga = random_at_most(n-1);
                             for (j = 0; j < d; j++) {
                                 srand48(time(0));
-                                POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j]+drand48();
+                                POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j]+(drand48() * intens_mutazione_neonato);
                                 //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][j]+drand48();
                                 //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
                                 //POP_NOW[i_target] -> V_p[i][j] = drand48();
                             }
                         }
 
-                        //init U
+                        //calcola U
                         for (i = 0; i < c; i++) {
                             for (j = 0; j < n; j++) {
                                 double denom = 0.0;
@@ -455,8 +457,8 @@ void lavora(int n, int c, int d) {
         if (conteggio_successi_generazione_attuale == 0 && ultimo_conteggio_successi == 0) {
             printf("DW.");
             //dw_upperbound = dbl_rnd_inRange(dw_upperbound - .05, dw_upperbound);
-            if(dw_upperbound>dw_lowerbound*2)
-				dw_upperbound = (dw_upperbound/(2^numero_generazione_attuale));
+            if (dw_upperbound > dw_lowerbound * 2)
+                dw_upperbound = (dw_upperbound / 2.0);
             conteggio_adattamenti++;
         } else {
             conteggio_adattamenti--;
@@ -498,8 +500,8 @@ void lavora(int n, int c, int d) {
     //calcolo xb del migliore
     best_xb = calcolaXB(POP_NOW[bestFitIndex]->V_p, POP_NOW[bestFitIndex]->U_p, 0);
 
-    printf("\nmiglior XB:%lf\n", best_xb);
-    fprintf(out_LOG_RIS, "\nmiglior XB:\t%lf\n\n", best_xb);
+    printf("\nmiglior XB: \t%lf\n", best_xb);
+    fprintf(out_LOG_RIS, "\nmiglior XB: %lf\n\n", best_xb);
     stampaMatrice(c, d, POP_NOW[bestFitIndex]->V_p);
     stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, out_LOG_RIS);
     stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, out_V);
@@ -562,14 +564,14 @@ int main(int argc, char** argv) {
     //PARAMETRI INIZIALI
     dw_upperbound = 0.7;
     dw_lowerbound = 0.001;
-    starting_age = 25;
+    starting_age = 50;
     conteggio_adattamenti = 0;
     reset_threshold = 10;
     CR = 0.5; //usato solo con crossover tipo 1
-    //prob_mutazione_casuale = 0.1;
+    intens_mutazione_neonato = 1; //DEFAULT 1
 
     //stream file
-    out_X = fopen("dataset/s4.data", "r");
+    out_X = fopen("dataset/s3.data", "r");
     out_V = fopen("v_defc7.dat", "w");
     out_U = fopen("u_defc7.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
@@ -611,6 +613,7 @@ int main(int argc, char** argv) {
     fprintf(out_csv, "%d,", num_pop);
     fprintf(out_csv, "%d,", numero_generazioni_iniziale);
     fprintf(out_csv, "%d,", tipo_dw);
+    fprintf(out_csv, "%d,", starting_age);
     //fprintf(out_csv, "%lf,", dw_lowerbound);
     //fprintf(out_csv, "%lf,", dw_upperbound);
     fprintf(out_csv, "%lf\n", best_xb);
