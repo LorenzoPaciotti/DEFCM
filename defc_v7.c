@@ -26,6 +26,7 @@ int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione
 double esponente_U;
 int n, c, d;
 double intens_mutazione_neonato;
+int abilita_sorting;
 
 #define num_pop 30
 
@@ -163,6 +164,34 @@ double calcolaXB(double **V, double **U, int debug) {
     return sigma / (n * min_sep);
 }
 
+void sortMatrice(double **V) {
+    if (abilita_sorting) {
+        int riga, colonna;
+        double temp;
+        int swapped;
+
+        for (riga = 0; riga < c - 1; riga++) {
+            swapped = 0;
+            for (colonna = 0; colonna < d; colonna++) {
+                if (colonna == 0) {
+                    if (V[riga][colonna] > V[riga + 1][colonna]) {
+                        swapped = 1;
+                        temp = V[riga + 1][colonna];
+                        V[riga + 1][colonna] = V[riga][colonna];
+                        V[riga][colonna] = temp;
+                    }
+                } else {
+                    if (swapped == 1) {
+                        temp = V[riga + 1][colonna];
+                        V[riga + 1][colonna] = V[riga][colonna];
+                        V[riga][colonna] = temp;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void init(int n, int c, int d) {
     int row;
     //###INIT POPOLAZIONE 0
@@ -178,18 +207,19 @@ void init(int n, int c, int d) {
             POP_NEW[pop_index] -> V_p[row] = malloc(d * sizeof (double));
         }
         //init V_p
+        srand48(time(0));
         for (i = 0; i < c; i++) {
             //int riga = random_at_most(n-1);
             for (j = 0; j < d; j++) {
-                srand48(time(0));
                 //POP_NEW[pop_index] -> V_p[i][j] = X[riga][j] + drand48();
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
-                //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
+                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(j)] + drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
         }
+        //riordino matrice
+        sortMatrice(POP_NEW[pop_index]->V_p);
 
         //alloc U_p
         POP_NEW[pop_index] -> U_p = malloc(c * sizeof (double*));
@@ -310,7 +340,7 @@ void lavora(int n, int c, int d) {
                 }
             }*/
 
-            //MUTATION (TIPO 2 best-rand-rand) singolo punto
+            //MUTATION (TIPO 2 best-rand-rand) con f omogeneo per vettore dopo 3/4 delle gen., rand-rand-rand altrimenti
             aggiornaVettoreFitness(); //per il best
             for (i1 = 0; i1 < c; i1++) {
                 if (tipo_dw == 2)//dithering
@@ -328,8 +358,9 @@ void lavora(int n, int c, int d) {
             }
 
             //CROSSOVER CON IL VETTORE TARGET UNIFORME - CUSTOM non previsto da DE
+            double prob_crossover;
             for (i1 = 0; i1 < c; i1++) {
-                double prob_crossover = dbl_rnd_inRange(0.0, 1.0);
+                prob_crossover = dbl_rnd_inRange(0.0, 1.0);
                 for (j1 = 0; j1 < d; j1++) {
                     if (prob_crossover < CR) {
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
@@ -345,6 +376,9 @@ void lavora(int n, int c, int d) {
                     }
                 }
             }*/
+
+            //SORT MATRICE MUTANTE
+            sortMatrice(mutant->V_p);
 
             ///CALCOLO FITNESS DEL MUTANTE
             //calcolo U mutante
@@ -407,16 +441,19 @@ void lavora(int n, int c, int d) {
                     if (POP_NOW[i_target] -> age <= 0) { //ma non è immortale?
                         //RINASCITA
                         //REINIT V_p
+                        srand48(time(0));
                         for (i = 0; i < c; i++) {
                             //int riga = random_at_most(n-1);
+                            double mutazione = drand48() * intens_mutazione_neonato;
                             for (j = 0; j < d; j++) {
-                                srand48(time(0));
-                                POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j]+(drand48() * intens_mutazione_neonato);
+                                POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j]+mutazione;
                                 //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][j]+drand48();
-                                //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
+                                //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
                                 //POP_NOW[i_target] -> V_p[i][j] = drand48();
                             }
                         }
+                        //SORT MATRICE V
+                        sortMatrice(POP_NOW[i_target]->V_p);
 
                         //calcola U
                         for (i = 0; i < c; i++) {
@@ -456,9 +493,11 @@ void lavora(int n, int c, int d) {
         //ADATTAMENTO PARAMETRI
         if (conteggio_successi_generazione_attuale == 0 && ultimo_conteggio_successi == 0) {
             printf("DW.");
-            //dw_upperbound = dbl_rnd_inRange(dw_upperbound - .05, dw_upperbound);
-            if (dw_upperbound > dw_lowerbound * 2)
-                dw_upperbound = (dw_upperbound / 2.0);
+            //TIPO 1
+            dw_upperbound = dbl_rnd_inRange(dw_upperbound - .5, dw_upperbound + .5);
+            //TIPO 2
+            //if (dw_upperbound > dw_lowerbound * 2)
+            //    dw_upperbound = (dw_upperbound / 2.0);
             conteggio_adattamenti++;
         } else {
             conteggio_adattamenti--;
@@ -468,7 +507,8 @@ void lavora(int n, int c, int d) {
         if (conteggio_adattamenti == reset_threshold) {
             printf("#RESET GLOBALE#");
             for (i = 0; i < num_pop; i++) {
-                POP_NOW[i] -> age = 0;
+                if(i!=bestFitIndex)
+                    POP_NOW[i] -> age = 0;
             }
             conteggio_adattamenti = 0; //reset contatore
         }
@@ -533,7 +573,7 @@ void plot() {
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     num_pop_iniziale = num_pop;
-    puts("v7: dw upperbound adattivo con successi, CR fisso, invecchiamento, reset, mutazione singolo punto");
+    
     if (argc == 0) {
         //letture da utente
         //printf("tipo dataset: ");
@@ -564,18 +604,20 @@ int main(int argc, char** argv) {
     //PARAMETRI INIZIALI
     dw_upperbound = 0.7;
     dw_lowerbound = 0.001;
-    starting_age = 50;
+    starting_age = 25;
     conteggio_adattamenti = 0;
-    reset_threshold = 10;
+    reset_threshold = 5;
     CR = 0.5; //usato solo con crossover tipo 1
-    intens_mutazione_neonato = 1; //DEFAULT 1
+    intens_mutazione_neonato = 100; //DEFAULT 1
+    abilita_sorting = 0;
+    
+    puts("v7: dw upperbound adattivo con successi, CR fisso, invecchiamento, reset, mutazione singolo punto, sorting");
 
     //stream file
-    out_X = fopen("dataset/s3.data", "r");
+    out_X = fopen("dataset/gauss420D.data", "r");
     out_V = fopen("v_defc7.dat", "w");
     out_U = fopen("u_defc7.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
-    out_csv = fopen("csv/output_defcv7.csv", "a");
     debug_log = fopen("debug", "w");
 
 
@@ -605,6 +647,7 @@ int main(int argc, char** argv) {
     //plot();
 
     //scrittura csv
+    out_csv = fopen("csv/output_defcv7.csv", "a");
     fprintf(out_csv, "%d,", tipo_dataset);
     fprintf(out_csv, "%d,", n);
     fprintf(out_csv, "%d,", c);
@@ -617,6 +660,7 @@ int main(int argc, char** argv) {
     //fprintf(out_csv, "%lf,", dw_lowerbound);
     //fprintf(out_csv, "%lf,", dw_upperbound);
     fprintf(out_csv, "%lf\n", best_xb);
+    fclose(out_csv);
 
     return (0);
 }

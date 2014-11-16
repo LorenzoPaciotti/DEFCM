@@ -35,11 +35,9 @@ int main() {
     double sigma_gauss;
     printf("numero di punti: ");
     scanf("%d", &n); //numero di punti totale in input
-    //printf("numero di dimensioni: ");
-    //scanf("%d", &d);
+    printf("numero di dimensioni: ");
+    scanf("%d", &d);
     sigma_gauss = 1;
-    d = 2;
-    //n = 5000;
     double X[n][d];
     //INIT X
     for (i = 0; i < n; i++) {
@@ -68,7 +66,7 @@ int main() {
         }
     }
     stampaMatriceSuFile(n, d, X, out_X);
-    printf("%d punti, 2 dimensioni, 4 centroidi\n", n);
+    printf("%d punti, %d dimensioni, 4 centroidi\n", n,d);
     puts("stampata su x.dat");
     return (0);
 }
