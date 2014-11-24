@@ -7,7 +7,7 @@ set output "s1.eps"
 # beginning of multiplot
 set multiplot
 
-set key off
+set key left
 set grid
  
 # the first plot
@@ -19,7 +19,7 @@ set xrange[0:1000000]
 set yrange[0:1000000]
 #set output 'X.eps'
 plot "s1.data" with p pt 1
-
+unset grid
 #set terminal postscript eps enhanced color "Helvetica" 20
 #set output 'V_DEFCM.eps'
 plot "v_defc.dat" with p pt 11 ps 3 lc 0

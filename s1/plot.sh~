@@ -7,7 +7,7 @@ set output "s1.eps"
 # beginning of multiplot
 set multiplot
 
-set key off
+set key left
 set grid
  
 # the first plot
@@ -26,7 +26,7 @@ plot "v_defc.dat" with p pt 11 ps 3 lc 0
 
 #set terminal postscript eps enhanced color "Helvetica" 20
 #set output 'V_FCM.eps'
-plot "v_fcm.dat" with p pt 15 ps 2 lc 10
+plot "v_fcm.dat" with p pt 15 ps 2 lc 15
 # smaller overlay plot
 #set size 0.40,0.40
 #set origin 0.5,0.5

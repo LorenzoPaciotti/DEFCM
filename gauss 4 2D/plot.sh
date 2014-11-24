@@ -7,7 +7,7 @@ set output "gauss4.eps"
 # beginning of multiplot
 set multiplot
 
-set key off
+
 set grid
  
 # the first plot
@@ -15,16 +15,16 @@ set grid
 #set origin 0,0
 #set xlabel "X"
 #set ylabel "Y"
-set xrange[-10:60]
-set yrange[-10:60]
+set xrange[-5:45]
+set yrange[0:35]
+unset key
 plot "x.dat" with p pt 1
-
-#set terminal postscript eps enhanced color "Helvetica" 20
-#set output 'V_DEFCM.eps'
-plot "v_defc7.dat" with p pt 11 ps 3 lc 0
 unset grid
-#set terminal postscript eps enhanced color "Helvetica" 20
-#set output 'V_FCM.eps'
+
+set key center top
+plot "v_defc7.dat" with p pt 11 ps 3 lc 0
+
+set key left top
 plot "v_fcm.dat" with p pt 15 ps 2 lc 15
 # smaller overlay plot
 #set size 0.40,0.40

@@ -8,7 +8,7 @@
 int c,n,d;
 
 double m = 2.0; //fuzzification
-double epsilon = 0.0000001; //minima distanza per arrestare
+double epsilon = 0.000000000001; //minima distanza per arrestare
 
 
 int i, j;
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     FILE *out_V, *out_X, *out_U;
     out_V = fopen("v_fcm.dat", "w");
     out_U = fopen("u_fcm.dat", "w");
-    out_X = fopen("dataset/gauss420D.data", "r");
+    out_X = fopen("dataset/gauss1.data", "r");
     
     //letture da utente
     puts("numero di punti in input");

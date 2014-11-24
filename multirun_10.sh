@@ -14,6 +14,6 @@ echo "run # $i"
 #time ./defc3 $text
 #echo "DEFC v2"
 #time ./defc2 $text
-echo "DEFC v7"
-time ./defc7 $text
+#echo "DEFC v7"
+./defc7 $text
 done
