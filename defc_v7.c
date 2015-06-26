@@ -26,7 +26,7 @@ int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione
 double esponente_U;
 int n, c, d;
 double intens_mutazione_neonato;
-int abilita_sorting;
+int abilita_partitioning;
 
 #define num_pop 30
 
@@ -164,8 +164,9 @@ double calcolaFitness(double **V, double **U, int debug) {
     return sigma;
 }
 
+//usata per partizionare in sottopopolazioni
 void sortMatrice(double **V) {
-    if (abilita_sorting) {
+    if (abilita_partitioning) {
         int riga, colonna;
         double temp;
         int swapped;
@@ -192,6 +193,7 @@ void sortMatrice(double **V) {
     }
 }
 
+//INIZIALIZZAZIONE GENERALE DI TUTTA LA POPOLAZIONE INIZIALE
 void init(int n, int c, int d) {
     int row;
     //###INIT POPOLAZIONE 0
@@ -331,16 +333,17 @@ void lavora(int n, int c, int d) {
             int i1, j1;
             double f;
             //MUTATION (TIPO 1 rand-rand-rand) singolo punto
-            for (i1 = 0; i1 < c; i1++) {
+            for (i1 = 0; i1 < c; i1++) {//centroide
                 if (tipo_dw == 2)//dithering
                     f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound);
                 else if (tipo_dw == 3) //dither + jitter
                     f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound) + 0.001 * (dbl_rnd_inRange(0, 1) - 0.5);
                 else
                     f = dw_upperbound;
-                for (j1 = 0; j1 < d; j1++) {
-                    mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
-                }
+                    
+				for (j1 = 0; j1 < d; j1++) {
+					mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
+				}
             }
 
             //MUTATION (TIPO 2 best-rand-rand) con f omogeneo per vettore dopo 3/4 delle gen., rand-rand-rand altrimenti
@@ -362,7 +365,7 @@ void lavora(int n, int c, int d) {
 
 
             //CROSSOVER CON IL VETTORE TARGET UNIFORME - CUSTOM non previsto da DE
-            double prob_crossover;
+            /*double prob_crossover;
             for (i1 = 0; i1 < c; i1++) {
                 prob_crossover = dbl_rnd_inRange(0.0, 1.0);
                 for (j1 = 0; j1 < d; j1++) {
@@ -370,16 +373,16 @@ void lavora(int n, int c, int d) {
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
                 }
-            }
+            }*/
 
             //CROSSOVER SINGLE-POINT
-            /*for (i1 = 0; i1 < c; i1++) {
-                for (j1 = 0; j1 < d; j1++) {
+            for (i1 = 0; i1 < c; i1++) {//centroide
+                for (j1 = 0; j1 < d; j1++) {//coordinata centroide
                     if (i1 >= floor((double) c / 2)) {//prendo i cromosomi dal target so oltre il punto di CO
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
                 }
-            }*/
+            }
 
             //SORT MATRICE MUTANTE
             sortMatrice(mutant->V_p);
@@ -449,9 +452,9 @@ void lavora(int n, int c, int d) {
                             //int rigaX = random_at_most(n-1);
                             //double mutazione = drand48() * intens_mutazione_neonato;
                             for (j = 0; j < d; j++) {
-                                POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j] + drand48();
+                                //POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j] + drand48();
                                 //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][j]+drand48();
-                                //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
+                                POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
                                 //POP_NOW[i_target] -> V_p[i][j] = lrand48();
                             }
                         }
@@ -612,14 +615,16 @@ int main(int argc, char** argv) {
     reset_threshold = 5;
     CR = 0.5; //usato solo con crossover tipo 1
     intens_mutazione_neonato = 1; //DEFAULT 1
-    abilita_sorting = 0;
+    abilita_partitioning = 1;
 
-    puts("v7: dw upperbound adattivo con successi, CR fisso, invecchiamento, reset, mutazione singolo punto, sorting");
+    puts("v7: dw upperbound adattivo con successi, CR fisso, invecchiamento, reset, mutazione singolo punto, partitioning");
 
     //stream file
+    //matrice di input
     out_X = fopen("dataset/gauss4.data", "r");
-    //out_X = fopen("x.dat", "r");
+    //matrice di output centroidi
     out_V = fopen("v_defc7.dat", "w");
+    //matrice output appartenenze
     out_U = fopen("u_defc7.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");
     debug_log = fopen("debug", "w");
