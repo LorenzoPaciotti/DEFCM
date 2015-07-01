@@ -565,7 +565,7 @@ int main(int argc, char** argv) {
     CR = 0.5; //usato solo con crossover tipo 1
 
     //stream file
-    out_X = fopen("dataset/s3.data", "r");
+    out_X = fopen("dataset/gauss4.data", "r");
     out_V = fopen("v_defc5.dat", "w");
     out_U = fopen("u_defc5.dat", "w");
     out_LOG_RIS = fopen("log_ris", "a");

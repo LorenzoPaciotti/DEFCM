@@ -17,15 +17,15 @@ set origin 0,0
 #set xrange[-10:50]
 set yrange[-10:50]
 set output 'X.eps'
-#plot "x.dat" title "matrice X" with p pt 3
+plot "x.dat" title "matrice X" with p pt 3
 
 set terminal postscript eps enhanced color "Helvetica" 20
 set output 'V_DEFCM.eps'
 plot "v_defc.dat" title "matrice X" with p pt 3 ps 3
 
-set terminal postscript eps enhanced color "Helvetica" 20
-set output 'V_FCM.eps'
-plot "v_fcm.dat" title "matrice X" with p pt 3 ps 3
+#set terminal postscript eps enhanced color "Helvetica" 20
+#set output 'V_FCM.eps'
+#plot "v_fcm.dat" title "matrice X" with p pt 3 ps 3
 # smaller overlay plot
 #set size 0.40,0.40
 #set origin 0.5,0.5
