@@ -27,6 +27,7 @@ int abilita_partitioning; //riordina gli array V per far accoppiare solo i centr
 int abilita_invecchiamento;
 int usa_xb_per_fitness;
 int abilita_shuffle;
+int abilita_reset;
 int attivaGnuPlot; //attiva e disattiva GnuPlot
 
 //numero di elementi della popolazione - fare parametrico
@@ -547,7 +548,19 @@ void lavora(int n, int c, int d) {
             }//END SELECTION
         }//END DE//END GENERATION
 
+
         numero_generazioni--;
+        
+        if(abilita_reset){
+        if (conteggio_adattamenti == reset_threshold) {
+            puts("#RESET GLOBALE#");
+            for (i = 0; i < num_pop; i++) {
+                if (i != bestFitIndex)
+                    POP_NOW[i] -> age = 0;
+            }
+            conteggio_adattamenti = 0; //reset contatore
+        }
+        }
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
     } while (numero_generazioni > 0);
     //END GENERAZIONI
@@ -613,11 +626,12 @@ int main(int argc, char** argv) {
     num_pop_iniziale = num_pop;
 
     //PARAMETRI INIZIALI
-    starting_age = 5;
+    starting_age = 25;
     abilita_partitioning = 1;
     abilita_invecchiamento = 1;
+    abilita_reset = 1; //richiede invecchiamento
     abilita_shuffle = 0;
-    usa_xb_per_fitness = 0; //mai funzionato
+    usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
     int leggi_parametri_esterni = 0; //leggere parametri da CL

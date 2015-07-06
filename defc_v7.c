@@ -519,7 +519,7 @@ void lavora(int n, int c, int d) {
 
         //RESET
         if (conteggio_adattamenti == reset_threshold) {
-            printf("#RESET GLOBALE#");
+            puts("#RESET GLOBALE#");
             for (i = 0; i < num_pop; i++) {
                 if (i != bestFitIndex)
                     POP_NOW[i] -> age = 0;
