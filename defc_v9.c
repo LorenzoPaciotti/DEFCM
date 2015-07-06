@@ -551,15 +551,18 @@ void lavora(int n, int c, int d) {
 
         numero_generazioni--;
         
+        if(conteggio_successi_generazione_attuale == 0)
+            conteggio_adattamenti++;
+        
         if(abilita_reset){
-        if (conteggio_adattamenti == reset_threshold) {
-            puts("#RESET GLOBALE#");
-            for (i = 0; i < num_pop; i++) {
-                if (i != bestFitIndex)
-                    POP_NOW[i] -> age = 0;
+            if (conteggio_adattamenti == reset_threshold) {
+                puts("#RESET GLOBALE#");
+                for (i = 0; i < num_pop; i++) {
+                    if (i != bestFitIndex)
+                        POP_NOW[i] -> age = 0;
+                }
+                conteggio_adattamenti = 0; //reset contatore
             }
-            conteggio_adattamenti = 0; //reset contatore
-        }
         }
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
     } while (numero_generazioni > 0);
@@ -630,6 +633,7 @@ int main(int argc, char** argv) {
     abilita_partitioning = 1;
     abilita_invecchiamento = 1;
     abilita_reset = 1; //richiede invecchiamento
+    reset_threshold = 10;
     abilita_shuffle = 0;
     usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
@@ -666,7 +670,7 @@ int main(int argc, char** argv) {
         tipo_dataset = 04; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 2000;
+        numero_generazioni = 1000;
     }
 
     puts("v9: jDE");
