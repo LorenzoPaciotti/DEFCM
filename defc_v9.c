@@ -15,7 +15,7 @@ int tipo_dataset;
 int starting_age;
 int ultimo_conteggio_successi;
 int conteggio_successi_generazione_attuale;
-int conteggio_adattamenti;
+int conteggio_reset;
 int reset_threshold;
 int bestFitIndex;
 double best_xb;
@@ -436,7 +436,7 @@ void lavora(int n, int c, int d) {
 
             //SORT MATRICE MUTANTE (ORA DETTO TRIAL)
             sortMatrice(mutant->V_p);
-            
+
             //shake matrice mutante
             //shuffle(mutant->V_p,c);
 
@@ -550,18 +550,18 @@ void lavora(int n, int c, int d) {
 
 
         numero_generazioni--;
-        
-        if(conteggio_successi_generazione_attuale == 0)
-            conteggio_adattamenti++;
-        
-        if(abilita_reset){
-            if (conteggio_adattamenti == reset_threshold) {
+
+        if (conteggio_successi_generazione_attuale == 0)
+            conteggio_reset++;
+
+        if (abilita_reset) {
+            if (conteggio_reset == reset_threshold) {
                 puts("#RESET GLOBALE#");
                 for (i = 0; i < num_pop; i++) {
                     if (i != bestFitIndex)
                         POP_NOW[i] -> age = 0;
                 }
-                conteggio_adattamenti = 0; //reset contatore
+                conteggio_reset = 0; //reset contatore
             }
         }
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
