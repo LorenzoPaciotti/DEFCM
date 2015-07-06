@@ -3,7 +3,7 @@ make
 echo -n "PARAMETRI: < tipo_ds input_points dimensioni centroidi generazioni tipo_dw > "
 read text
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-for i in 1 2 3 4 5 6 7 8 9 10
+for i in 1 2 3 4
 do
 echo "run # $i"
 #echo "#DEFC v5"

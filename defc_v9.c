@@ -584,6 +584,7 @@ void lavora(int n, int c, int d) {
     stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, out_V);
     stampaMatriceSuFile(c, n, POP_NOW[bestFitIndex]->U_p, out_U);
     puts("###################################################################");
+    puts("###################################################################");
 }
 
 void plot() {
@@ -612,13 +613,13 @@ int main(int argc, char** argv) {
     num_pop_iniziale = num_pop;
 
     //PARAMETRI INIZIALI
-    starting_age = 10;
+    starting_age = 5;
     abilita_partitioning = 1;
     abilita_invecchiamento = 1;
-    abilita_shuffle = 1;
+    abilita_shuffle = 0;
     usa_xb_per_fitness = 0; //mai funzionato
     attivaGnuPlot = 0;
-    int output_csv = 0; //accende output su csv
+    int output_csv = 1; //accende output su csv
     int leggi_parametri_esterni = 0; //leggere parametri da CL
 
     if (leggi_parametri_esterni) {
@@ -647,11 +648,11 @@ int main(int argc, char** argv) {
     } else {
         //test
         puts("!override parametri input attivo");
-        n = 10000;
-        tipo_dataset = 0;
+        n = 3200;
+        tipo_dataset = 04; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 100;
+        numero_generazioni = 2000;
     }
 
     puts("v9: jDE");
@@ -688,6 +689,9 @@ int main(int argc, char** argv) {
     lavora(n, c, d);
     plot();
 
+    fclose(out_U);
+    fclose(out_V);
+
     //scrittura csv
     if (output_csv) {
         out_csv = fopen("csv/output_defcv9.csv", "a");
@@ -698,7 +702,10 @@ int main(int argc, char** argv) {
         fprintf(out_csv, "%d,", num_pop);
         fprintf(out_csv, "%d,", numero_generazioni_iniziale);
         fprintf(out_csv, "%d,", starting_age);
-        fprintf(out_csv, "%lf\n", best_xb);
+        fprintf(out_csv, "%d,", abilita_partitioning);
+        fprintf(out_csv, "%d,", abilita_invecchiamento);
+        fprintf(out_csv, "%lf,", best_xb);
+        fprintf(out_csv, "%lf\n", best_fit);
         fclose(out_csv);
     }
 
