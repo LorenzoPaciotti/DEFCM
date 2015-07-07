@@ -25,9 +25,8 @@ double best_xb;
 int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione_attuale, numero_generazioni_iniziale;
 double esponente_U;
 int n, c, d; //numero di punti in input, numero di centroidi, numero di dimensioni
-double intens_mutazione_neonato; //intensità variazione casuale di un neonato che nasce dal best fit
 int abilita_partitioning; //riordina gli array V per far accoppiare solo i centroidi della stessa zona dello spazio
-int attivaGnuPlot = 0;//attiva e disattiva GnuPlot
+int attivaGnuPlot = 0; //attiva e disattiva GnuPlot
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 50, 100
@@ -39,7 +38,7 @@ typedef struct el_pop {
     double **U_p;
     double fitness;
     int age;
-    
+
 } el_pop;
 
 //vettore nuova popolazione
@@ -223,11 +222,10 @@ void init(int n, int c, int d) {
         for (i = 0; i < c; i++) {
             //int rigaX = random_at_most(n-1);
             for (j = 0; j < d; j++) {
-                srand48(time(0));
                 //POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
-                POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][j] + drand48();
-                //POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][j] + drand48();
+                POP_NEW[pop_index] -> V_p[i][j] = drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
@@ -342,20 +340,18 @@ void lavora(int n, int c, int d) {
 
 
             int i1, j1;
-            //fattore scala mutazione
             double f;
-            //MUTATION (TIPO 1 rand-rand-rand) singolo punto
-            //la f cambia da vettore centroide a vettore centroide
+            ///MUTATION (TIPO 1 rand-rand-rand) singolo punto
+            //scelta f
             if (tipo_dw == 2)//dithering
-                    f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound);
-                else if (tipo_dw == 3) //dither + jitter
-                    f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound) + 0.001 * (dbl_rnd_inRange(0, 1) - 0.5);
-                else
-                    f = dw_upperbound;
+                f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound);
+            else if (tipo_dw == 3) //dither + jitter
+                f = dbl_rnd_inRange(dw_lowerbound, dw_upperbound) + 0.001 * (dbl_rnd_inRange(0, 1) - 0.5);
+            else
+                f = dw_upperbound;
+
             for (i1 = 0; i1 < c; i1++) {//centroide
-                //controllare effetto del partitioning
                 for (j1 = 0; j1 < d; j1++) {
-                    
                     mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
             }
@@ -382,7 +378,7 @@ void lavora(int n, int c, int d) {
             double prob_crossover;
             for (i1 = 0; i1 < c; i1++) {
                 for (j1 = 0; j1 < d; j1++) {
-                prob_crossover = dbl_rnd_inRange(0.0, 1.0);
+                    prob_crossover = dbl_rnd_inRange(0.0, 1.0);
                     if (prob_crossover < CR) {
                         mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
                     }
@@ -433,7 +429,7 @@ void lavora(int n, int c, int d) {
 
             //impostazione timer età mutante
             mutant -> age = starting_age;
-            
+
             //SELECTION
             //TIPO 2 (STANDARD)
             if (mutant->fitness < POP_NOW[i_target]->fitness) {//IL MUTANTE RIMPIAZZA IL TGT
@@ -458,14 +454,8 @@ void lavora(int n, int c, int d) {
                         //RINASCITA
                         //REINIT V_p
                         for (i = 0; i < c; i++) {
-                            //int rigaX = random_at_most(n-1);
-                            //la mutazione è usata solo con rinascita basata su best fit
-                            //double mutazione = drand48() * intens_mutazione_neonato;
                             for (j = 0; j < d; j++) {
-                                //POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j] + drand48();
-                                //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][j]+drand48();
-                                POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
-                                //POP_NOW[i_target] -> V_p[i][j] = lrand48();
+                                POP_NOW[i_target]->V_p[i][j] = drand48();
                             }
                         }
                         //SORT MATRICE V
@@ -509,11 +499,7 @@ void lavora(int n, int c, int d) {
         //ADATTAMENTO PARAMETRI
         if (conteggio_successi_generazione_attuale == 0 && ultimo_conteggio_successi == 0) {
             printf("DW!\n");
-            //TIPO 1
             dw_upperbound = dbl_rnd_inRange(dw_upperbound - 0.1, dw_upperbound + 0.1);
-            //TIPO 2
-            //if (dw_upperbound > dw_lowerbound * 2)
-            //    dw_upperbound = (dw_upperbound / 2.0);
             conteggio_adattamenti++;
         }
 
@@ -527,11 +513,10 @@ void lavora(int n, int c, int d) {
             conteggio_adattamenti = 0; //reset contatore
         }
         //END RESET
-
         ultimo_conteggio_successi = conteggio_successi_generazione_attuale;
     } while (numero_generazioni > 0);
     //END GENERAZIONI
-    
+
     puts("end lavora");
 
     //ULTIMO SCAMBIO POPOLAZIONI
@@ -595,7 +580,6 @@ int main(int argc, char** argv) {
     conteggio_adattamenti = 0;
     reset_threshold = 5;
     CR = 0.5; //usato solo con crossover tipo 1
-    intens_mutazione_neonato = 1; //DEFAULT 1
     abilita_partitioning = 0;
     int output_csv = 0; //accende output su csv
     int leggi_parametri_esterni = 1; //leggere parametri da CL
@@ -603,8 +587,8 @@ int main(int argc, char** argv) {
     if (leggi_parametri_esterni) {
         if (argc == 0) {
             //letture da utente
-            //printf("tipo dataset: ");
-            //scanf("%d", &tipo_dataset);
+            printf("tipo dataset: ");
+            scanf("%d", &tipo_dataset);
             printf("numero di punti in input: ");
             scanf("%d", &n);
             printf("numero di dimensioni: ");
@@ -629,19 +613,19 @@ int main(int argc, char** argv) {
     } else {
         //test
         n = 3200;
-        tipo_dataset = 0;
+        tipo_dataset = 04;
         d = 2;
         c = 4;
-        numero_generazioni = 200;
+        numero_generazioni = 100;
         tipo_dw = 2;
     }
-    
+
     puts("v7: dw upperbound adattivo con successi, CR fisso, invecchiamento, reset, mutazione singolo punto, partitioning");
     numero_generazioni_iniziale = numero_generazioni;
 
     //stream file
     //matrice di input
-    out_X = fopen("dataset/s3.data", "r");
+    out_X = fopen("dataset/gauss4.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc7.dat", "w");
     //matrice output appartenenze
@@ -649,7 +633,7 @@ int main(int argc, char** argv) {
     //out_LOG_RIS = fopen("log_ris", "a");
     //debug_log = fopen("debug", "w");
     //fputs("\n######\n", out_LOG_RIS); //nuova log entry
-    
+
     //allocazione X
     int row;
     X = malloc(n * sizeof (double*));
@@ -677,13 +661,10 @@ int main(int argc, char** argv) {
         fprintf(out_csv, "%d,", n);
         fprintf(out_csv, "%d,", c);
         fprintf(out_csv, "%d,", d);
-        //fprintf(out_csv, "%lf,", CR);
         fprintf(out_csv, "%d,", num_pop);
         fprintf(out_csv, "%d,", numero_generazioni_iniziale);
         fprintf(out_csv, "%d,", tipo_dw);
         fprintf(out_csv, "%d,", starting_age);
-        //fprintf(out_csv, "%lf,", dw_lowerbound);
-        //fprintf(out_csv, "%lf,", dw_upperbound);
         fprintf(out_csv, "%lf\n", best_xb);
         fclose(out_csv);
     }

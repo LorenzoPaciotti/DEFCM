@@ -24,7 +24,7 @@ int conteggio_adattamenti;
 int reset_threshold;
 int bestFitIndex;
 
-#define num_pop 20
+#define num_pop 100
 
 typedef struct el_pop {//individuo della popolazione
     double **V_p;
@@ -185,12 +185,12 @@ void init(int n, int c, int d) {
         }
         //init V_p
         for (i = 0; i < c; i++) {
-			srand(time(0));
-			int riga = random_at_most(n-1);
+			//srand(time(0));
+			//int riga = random_at_most(n-1);
             for (j = 0; j < d; j++) {
-				POP_NEW[pop_index] -> V_p[i][j] = X[riga][j]+drand48();
+				//POP_NEW[pop_index] -> V_p[i][j] = X[riga][j]+drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n-1)][random_at_most(d-1)];//+drand48();//;
-                //POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                POP_NEW[pop_index] -> V_p[i][j] = drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }

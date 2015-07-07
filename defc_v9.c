@@ -31,7 +31,7 @@ int abilita_reset;
 int attivaGnuPlot; //attiva e disattiva GnuPlot
 
 //numero di elementi della popolazione - fare parametrico
-#define num_pop 100 // 50, 100
+#define num_pop 30 // 30, 50, 100
 
 //struttura elemento popolazione
 
@@ -496,6 +496,7 @@ void lavora(int n, int c, int d) {
                         if (POP_NOW[i_target] -> age > 0)//non sono in modalità reset
                             POP_NOW[i_target] -> age--;
                         if (POP_NOW[i_target] -> age <= 0) {//morte
+                            puts("M.");
                             //RINASCITA
                             //REINIT V_p
                             for (i = 0; i < c; i++) {
@@ -629,11 +630,12 @@ int main(int argc, char** argv) {
     num_pop_iniziale = num_pop;
 
     //PARAMETRI INIZIALI
-    starting_age = 25;
-    abilita_partitioning = 1;
-    abilita_invecchiamento = 1;
-    abilita_reset = 1; //richiede invecchiamento
-    reset_threshold = 10;
+    starting_age = 15;
+    abilita_partitioning = 0;
+    abilita_invecchiamento = 0;
+    abilita_reset = 0; //richiede invecchiamento
+    conteggio_reset = 0;
+    reset_threshold = 5;
     abilita_shuffle = 0;
     usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
@@ -670,7 +672,7 @@ int main(int argc, char** argv) {
         tipo_dataset = 04; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 1000;
+        numero_generazioni = 400;
     }
 
     puts("v9: jDE");
