@@ -496,7 +496,6 @@ void lavora(int n, int c, int d) {
                         if (POP_NOW[i_target] -> age > 0)//non sono in modalità reset
                             POP_NOW[i_target] -> age--;
                         if (POP_NOW[i_target] -> age <= 0) {//morte
-                            puts("M.");
                             //RINASCITA
                             //REINIT V_p
                             for (i = 0; i < c; i++) {
@@ -633,9 +632,9 @@ int main(int argc, char** argv) {
 
     //PARAMETRI INIZIALI
     starting_age = 15;
-    abilita_partitioning = 0;
-    abilita_invecchiamento = 0;
-    abilita_reset = 0; //richiede invecchiamento
+    abilita_partitioning = 1;
+    abilita_invecchiamento = 1;
+    abilita_reset = 1; //richiede invecchiamento
     conteggio_reset = 0;
     reset_threshold = 5;
     abilita_shuffle = 0;
