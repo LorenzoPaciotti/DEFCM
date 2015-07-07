@@ -31,7 +31,7 @@ int abilita_reset;
 int attivaGnuPlot; //attiva e disattiva GnuPlot
 
 //numero di elementi della popolazione - fare parametrico
-#define num_pop 30 // 30, 50, 100
+#define num_pop 100 // 30, 50, 100
 
 //struttura elemento popolazione
 
@@ -260,6 +260,7 @@ void init(int n, int c, int d) {
             POP_NEW[pop_index] -> V_p[row] = malloc(d * sizeof (double));
         }
         //init V_p
+        //srand48(time(NULL));//!!test!!
         for (i = 0; i < c; i++) {
             //int rigaX = random_at_most(n-1);
             for (j = 0; j < d; j++) {
@@ -597,6 +598,8 @@ void lavora(int n, int c, int d) {
 
     printf("\n**MIGLIOR XB FINALE: \t%lf\n", best_xb);
     printf("\n**MIGLIOR FITNESS FINALE: \t%lf\n", best_fit);
+    printf("\n**f: \t%lf\n", POP_NOW[bestFitIndex]->f);
+    printf("\n**CR: \t%lf\n", POP_NOW[bestFitIndex]->CR);
     stampaMatrice(c, d, POP_NOW[bestFitIndex]->V_p);
     stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, out_V);
     stampaMatriceSuFile(c, n, POP_NOW[bestFitIndex]->U_p, out_U);
