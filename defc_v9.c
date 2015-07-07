@@ -262,13 +262,12 @@ void init(int n, int c, int d) {
         //init V_p
         //srand48(time(NULL));//!!test!!
         for (i = 0; i < c; i++) {
-            //int rigaX = random_at_most(n-1);
+            int rigaX = random_at_most(n-1);
             for (j = 0; j < d; j++) {
-
                 //POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
-                //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][j] + drand48();
-                POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
+                //POP_NEW[pop_index] -> V_p[i][j] = drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
                 //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
             }
