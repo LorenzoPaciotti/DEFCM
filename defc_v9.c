@@ -670,11 +670,11 @@ int main(int argc, char** argv) {
     } else {
         //test
         puts("!override parametri input attivo");
-        n = 3200;
+        n = 1600;
         tipo_dataset = 04; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 400;
+        numero_generazioni = 1200;
     }
 
     puts("v9: jDE");
