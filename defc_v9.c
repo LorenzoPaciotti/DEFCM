@@ -678,7 +678,7 @@ int main(int argc, char** argv) {
         tipo_dataset = 4; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 2000;
+        numero_generazioni = 20000;
     }
 
     puts("v9: jDE");
