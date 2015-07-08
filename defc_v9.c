@@ -672,8 +672,8 @@ int main(int argc, char** argv) {
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni/100; //timer iniziale
-    abilita_invecchiamento = 1;
-    abilita_reset = 1; //richiede invecchiamento
+    abilita_invecchiamento = 0;
+    abilita_reset = 0; //richiede invecchiamento
     reset_threshold = 10;
     abilita_partitioning = 0;
     abilita_shuffle = 1; //non usare con partitioning
