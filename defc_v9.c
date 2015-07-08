@@ -9,7 +9,7 @@
 FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS, *out_csv, *debug_log, *dataset; //puntatori a file di output
 
 double **X;
-double m = 2.0; //fuzzification factor
+double m; //fuzzification factor
 double CR; //crossover rate
 int tipo_dataset;
 int starting_age;
@@ -633,21 +633,8 @@ void plot() {
 }
 
 int main(int argc, char** argv) {
-    esponente_U = 2.0 / (m - 1.0);
-
-    //PARAMETRI INIZIALI
-    starting_age = num_pop/2; //timer iniziale
-    abilita_invecchiamento = 0;
-    abilita_reset = 0; //richiede invecchiamento
-    conteggio_reset = 0;
-    reset_threshold = 10;
-    abilita_partitioning = 0;
-    abilita_shuffle = 1; //non usare con partitioning
-    usa_xb_per_fitness = 0; //diverge
-    attivaGnuPlot = 0;
-    int output_csv = 1; //accende output su csv
+    
     int leggi_parametri_esterni = 0; //leggere parametri da CL
-
     if (leggi_parametri_esterni) {
         if (argc == 0) {
             //letture da utente
@@ -678,9 +665,23 @@ int main(int argc, char** argv) {
         tipo_dataset = 4; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 20000;
+        numero_generazioni = 10000;
     }
+    
+    //PARAMETRI INIZIALI
+    m = 2.0; //fuzzification factor
+    esponente_U = 2.0 / (m - 1.0);
+    starting_age = numero_generazioni/100; //timer iniziale
+    abilita_invecchiamento = 1;
+    abilita_reset = 1; //richiede invecchiamento
+    reset_threshold = 10;
+    abilita_partitioning = 0;
+    abilita_shuffle = 1; //non usare con partitioning
+    usa_xb_per_fitness = 0; //diverge
+    attivaGnuPlot = 0;
+    int output_csv = 1; //accende output su csv
 
+    conteggio_reset = 0;
     puts("v9: jDE");
     numero_generazioni_iniziale = numero_generazioni;
 
