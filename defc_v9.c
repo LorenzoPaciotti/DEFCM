@@ -20,7 +20,7 @@ int reset_threshold;
 int bestFitIndex;
 double best_xb;
 double best_fit;
-int num_pop_iniziale, numero_generazioni, i, j, k, pop_index, numero_generazione_attuale, numero_generazioni_iniziale;
+int numero_generazioni, i, j, k, pop_index, numero_generazione_attuale, numero_generazioni_iniziale;
 double esponente_U;
 int n, c, d; //numero di punti in input, numero di centroidi, numero di dimensioni
 int abilita_partitioning; //riordina gli array V per far accoppiare solo i centroidi della stessa zona dello spazio
@@ -131,18 +131,6 @@ int rand_int(int n) {
     return rnd % n;
 }
 
-void shuffleArray(int *array, int n) {
-    int i, j, tmp;
-
-    for (i = n - 1; i > 0; i--) {
-        j = rand_int(i + 1);
-        tmp = array[j];
-        array[j] = array[i];
-        array[i] = tmp;
-    }
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 double calcolaXB(double **V, double **U, int debug) {
@@ -200,7 +188,6 @@ double calcolaFitness(double **V, double **U, int debug) {
 }
 
 //usata per partizionare in sottopopolazioni
-
 void sortMatrice(double **V) {
     if (abilita_partitioning) {
         double temp;
@@ -231,6 +218,30 @@ void sortMatrice(double **V) {
     }
 }
 
+//usato per lo shake della matrice V
+void shuffleMatrice(double **V){
+    if(abilita_shuffle){
+        int riga,colonna,destinazione;
+        double temp;
+        
+        for (riga = c - 1; riga > 0; riga--) {//riga centroide
+            for(colonna=0;colonna<d;colonna++){//colonna dimensione
+                if(colonna==0){
+                    destinazione = rand_int(riga + 1);
+                    temp = V[riga][colonna];
+                    V[riga][colonna] = V[destinazione][colonna];
+                    V[destinazione][colonna] = temp;
+                }
+                else{
+                    temp = V[riga][colonna];
+                    V[riga][colonna] = V[destinazione][colonna];
+                    V[destinazione][colonna] = temp;
+                }
+            }
+        }
+    }
+}
+
 void aggiornaBestFitIndex() {
     double bestFit = DBL_MAX;
     for (i = 0; i < num_pop; i++) {
@@ -250,7 +261,7 @@ void init(int n, int c, int d) {
     //###INIT POPOLAZIONE 0
     //init V e calcolo U
 
-    for (pop_index = 0; pop_index < num_pop_iniziale; pop_index++) {
+    for (pop_index = 0; pop_index < num_pop; pop_index++) {
         //alloc struttura
         POP_NEW[pop_index] = malloc(sizeof (el_pop));
 
@@ -327,7 +338,7 @@ void lavora(int n, int c, int d) {
         conteggio_successi_generazione_attuale = 0;
         numero_generazione_attuale++;
         int i_target;
-        for (i = 0; i < num_pop_iniziale; i++) {
+        for (i = 0; i < num_pop; i++) {
             if (POP_NEW[i] != POP_NOW[i]) {//l'individuo era stato sostituito da un trial
                 if (POP_NOW[i] != 0) {//free del vecchio individuo
                     for (row = 0; row < c; row++) {
@@ -352,22 +363,22 @@ void lavora(int n, int c, int d) {
         /////////////////////////////
 
         /////////////////DE////////////////////
-        for (i_target = 0; i_target < num_pop_iniziale; i_target++) {//PER OGNI COMPONENTE DELLA POP
+        for (i_target = 0; i_target < num_pop; i_target++) {//PER OGNI COMPONENTE DELLA POP
             //SCELTA CANDIDATI
             //tre vettori devono essere scelti a caso nella popolazione
             //diversi dal target (indice i) e mutualmente
 
             int indice_1, indice_2, indice_base;
             do {
-                indice_1 = random_at_most(((long) num_pop_iniziale) - 1);
+                indice_1 = random_at_most(((long) num_pop) - 1);
             } while (indice_1 == i_target); // || indice_1 == indice_base
 
             do {
-                indice_2 = random_at_most(((long) num_pop_iniziale) - 1);
+                indice_2 = random_at_most(((long) num_pop) - 1);
             } while (indice_2 == i_target || indice_2 == indice_1); // || indice_2 == indice_base
 
             do {
-                indice_base = random_at_most(((long) num_pop_iniziale) - 1);
+                indice_base = random_at_most(((long) num_pop) - 1);
             } while (indice_base == i_target || indice_base == indice_1 || indice_base == indice_2);
 
             //l'elemento mutante
@@ -438,7 +449,7 @@ void lavora(int n, int c, int d) {
             sortMatrice(mutant->V_p);
 
             //shake matrice mutante
-            //shuffle(mutant->V_p,c);
+            shuffleMatrice(mutant->V_p);
 
             //calcolo U trial
             for (i = 0; i < c; i++) {
@@ -491,23 +502,18 @@ void lavora(int n, int c, int d) {
 
                 if (abilita_invecchiamento) {
                     //INVECCHIAMENTO del sopravvissuto
-                    aggiornaBestFitIndex(); //MIGLIORE
+                    aggiornaBestFitIndex();
                     if (i_target != bestFitIndex) { //se non è il migliore invecchia
                         if (POP_NOW[i_target] -> age > 0)//non sono in modalità reset
                             POP_NOW[i_target] -> age--;
                         if (POP_NOW[i_target] -> age <= 0) {//morte
+                        printf("*");
                             //RINASCITA
                             //REINIT V_p
                             for (i = 0; i < c; i++) {
-                                //int rigaX = random_at_most(n-1);
-                                //la mutazione è usata solo con rinascita basata su best fit
-                                //double mutazione = drand48() * intens_mutazione_neonato;
                                 for (j = 0; j < d; j++) {
-                                    //POP_NOW[i_target] -> V_p[i][j] = POP_NOW[bestFitIndex]->V_p[i][j] + drand48();
-                                    //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n-1)][j]+drand48();
-                                    //POP_NOW[i_target] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
-                                    //POP_NOW[i_target] -> V_p[i][j] = lrand48();
                                     POP_NOW[i_target] -> V_p[i][j] = drand48();
+                                    //in alternativa basato sul best fit?
                                 }
                             }
                             //SORT MATRICE V
@@ -571,7 +577,7 @@ void lavora(int n, int c, int d) {
     puts("\n*END MAIN LOOP*");
 
     //ULTIMO SCAMBIO POPOLAZIONI
-    for (i = 0; i < num_pop_iniziale; i++) {
+    for (i = 0; i < num_pop; i++) {
         if (POP_NEW[i] != POP_NOW[i]) {
             if (POP_NOW[i] != 0) {
                 for (row = 0; row < c; row++) {
@@ -628,16 +634,15 @@ void plot() {
 
 int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
-    num_pop_iniziale = num_pop;
 
     //PARAMETRI INIZIALI
-    starting_age = 15;
-    abilita_partitioning = 1;
-    abilita_invecchiamento = 1;
-    abilita_reset = 1; //richiede invecchiamento
+    starting_age = num_pop/2; //timer iniziale
+    abilita_invecchiamento = 0;
+    abilita_reset = 0; //richiede invecchiamento
     conteggio_reset = 0;
-    reset_threshold = 5;
-    abilita_shuffle = 0;
+    reset_threshold = 10;
+    abilita_partitioning = 0;
+    abilita_shuffle = 1; //non usare con partitioning
     usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
@@ -669,11 +674,11 @@ int main(int argc, char** argv) {
     } else {
         //test
         puts("!override parametri input attivo");
-        n = 1600;
-        tipo_dataset = 04; //gauss = 0, s = 1
+        n = 3200;
+        tipo_dataset = 4; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 1200;
+        numero_generazioni = 2000;
     }
 
     puts("v9: jDE");
@@ -708,7 +713,7 @@ int main(int argc, char** argv) {
 
     init(n, c, d);
     lavora(n, c, d);
-    plot();
+    //plot();
 
     fclose(out_U);
     fclose(out_V);
