@@ -34,6 +34,7 @@ int attivaGnuPlot; //attiva e disattiva GnuPlot
 #define num_pop 100 // 30, 50, 100
 
 //struttura elemento popolazione
+//revert
 
 typedef struct el_pop {
     double **V_p;
@@ -188,6 +189,7 @@ double calcolaFitness(double **V, double **U, int debug) {
 }
 
 //usata per partizionare in sottopopolazioni
+
 void sortMatrice(double **V) {
     if (abilita_partitioning) {
         double temp;
@@ -219,20 +221,20 @@ void sortMatrice(double **V) {
 }
 
 //usato per lo shake della matrice V
-void shuffleMatrice(double **V){
-    if(abilita_shuffle){
-        int riga,colonna,destinazione;
+
+void shuffleMatrice(double **V) {
+    if (abilita_shuffle) {
+        int riga, colonna, destinazione;
         double temp;
-        
+
         for (riga = c - 1; riga > 0; riga--) {//riga centroide
-            for(colonna=0;colonna<d;colonna++){//colonna dimensione
-                if(colonna==0){
+            for (colonna = 0; colonna < d; colonna++) {//colonna dimensione
+                if (colonna == 0) {
                     destinazione = rand_int(riga + 1);
                     temp = V[riga][colonna];
                     V[riga][colonna] = V[destinazione][colonna];
                     V[destinazione][colonna] = temp;
-                }
-                else{
+                } else {
                     temp = V[riga][colonna];
                     V[riga][colonna] = V[destinazione][colonna];
                     V[destinazione][colonna] = temp;
@@ -273,7 +275,7 @@ void init(int n, int c, int d) {
         //init V_p
         //srand48(time(NULL));//!!test!!
         for (i = 0; i < c; i++) {
-            int rigaX = random_at_most(n-1);
+            int rigaX = random_at_most(n - 1);
             for (j = 0; j < d; j++) {
                 //POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                 //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
@@ -507,7 +509,7 @@ void lavora(int n, int c, int d) {
                         if (POP_NOW[i_target] -> age > 0)//non sono in modalità reset
                             POP_NOW[i_target] -> age--;
                         if (POP_NOW[i_target] -> age <= 0) {//morte
-                        printf("*");
+                            printf("*");
                             //RINASCITA
                             //REINIT V_p
                             for (i = 0; i < c; i++) {
@@ -633,7 +635,7 @@ void plot() {
 }
 
 int main(int argc, char** argv) {
-    
+
     int leggi_parametri_esterni = 0; //leggere parametri da CL
     if (leggi_parametri_esterni) {
         if (argc == 0) {
@@ -667,11 +669,11 @@ int main(int argc, char** argv) {
         c = 4;
         numero_generazioni = 10000;
     }
-    
+
     //PARAMETRI INIZIALI
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
-    starting_age = numero_generazioni/100; //timer iniziale
+    starting_age = numero_generazioni / 100; //timer iniziale
     abilita_invecchiamento = 0;
     abilita_reset = 0; //richiede invecchiamento
     reset_threshold = 10;
