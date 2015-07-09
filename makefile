@@ -9,5 +9,6 @@ all:
 	gcc -ggdb -g -Wall -o defc5 defc_v5.c -lm
 	gcc -ggdb -g -Wall -o defc7 defc_v7.c -lm
 	gcc -ggdb -g -Wall -o defc9 defc_v9.c -lm
+	gcc -ggdb -g -Wall -o defc9b defc_v9b.c -lm
 clean:
 	rm defc_v2 fcm

@@ -146,7 +146,7 @@ double calcolaXB(double **V, double **U, int debug) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
 
             //aggiornamento contatore elementi del cluster
-            if (U[j][i] > 0.5)
+            if (U[j][i] > 0.8)
                 V[j][d]++;
         }
     }
@@ -698,7 +698,7 @@ int main(int argc, char** argv) {
 
     conteggio_reset = 0;
 
-    puts("v9: jDE");
+    puts("v9b: jDE, conteggio degli elementi di ogni cluster");
     numero_generazioni_iniziale = numero_generazioni;
 
     //stream file
@@ -737,7 +737,7 @@ int main(int argc, char** argv) {
 
     //scrittura csv
     if (output_csv) {
-        out_csv = fopen("csv/output_defcv9.csv", "a");
+        out_csv = fopen("csv/output_defcv9b.csv", "a");
         fprintf(out_csv, "%d,", tipo_dataset);
         fprintf(out_csv, "%d,", n);
         fprintf(out_csv, "%d,", c);
