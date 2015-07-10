@@ -18,6 +18,7 @@ int conteggio_successi_generazione_attuale;
 int conteggio_reset;
 int reset_threshold;
 int bestFitIndex;
+int bestXBIndex;
 double best_xb;
 double best_fit;
 int numero_generazioni, i, j, k, pop_index, numero_generazione_attuale, numero_generazioni_iniziale;
@@ -56,9 +57,11 @@ el_pop *POP_NOW[num_pop];
 //per confronto veloce delle fitness conosciute
 double fitness_vector[num_pop];
 
+//per confronti XB
+double xb_vector[num_pop];
+
 void stampaMatrice(int righe, int col, double **mat) {
     int i, j;
-    printf("\n\n");
     for (i = 0; i < righe; i++) {
         for (j = 0; j < col; j++) {
             printf("%lf", mat[i][j]);
@@ -263,7 +266,15 @@ void aggiornaBestFitIndex() {
     }
 }
 
-
+void aggiornaBestXBIndex(){
+    double temp = DBL_MAX;
+    for (i = 0; i < num_pop; i++) {
+        if (xb_vector[i] < temp) {
+            temp = xb_vector[i];
+            bestXBIndex = i;
+        }
+    }
+}
 
 //INIZIALIZZAZIONE GENERALE DI TUTTA LA POPOLAZIONE INIZIALE
 
@@ -343,8 +354,10 @@ void init(int n, int c, int d) {
         POP_NEW[pop_index]->fitness = fit;
         fitness_vector[pop_index] = fit;
         //calcolo XB
-        POP_NEW[pop_index]->XB = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
-
+        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+        POP_NEW[pop_index]->XB = xb;
+        xb_vector[pop_index] = xb;
+        
         //solo con test abilitato
         if (testLoadVIdeale && pop_index == 0) {
             printf("fitness ideale:\t%lf\n", POP_NEW[pop_index]->fitness);
@@ -389,10 +402,14 @@ void lavora(int n, int c, int d) {
 
         //DEBUG/////////////////////////
         if (numero_generazione_attuale % 50 == 0) {
+            puts("#####DEBUG#####");
             aggiornaBestFitIndex();
-            double best_xb = calcolaXB(POP_NOW[bestFitIndex]->V_p, POP_NOW[bestFitIndex]->U_p, 0);
+            aggiornaBestXBIndex();
+            double best_xb = POP_NOW[bestXBIndex]->XB;
             double best_fit = POP_NOW[bestFitIndex]->fitness;
             printf("generazione:%d  best XB:%lf  best fit:%lf\n", numero_generazioni, best_xb, best_fit);
+            stampaMatriceSuFile(c, d , POP_NOW[bestXBIndex]->V_p,debug_log);
+            stampaMatriceSuFile(c, d , POP_NOW[bestFitIndex]->V_p,debug_log);
         }
         /////////////////////////////
 
@@ -525,6 +542,7 @@ void lavora(int n, int c, int d) {
             if (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB) {//IL TRIAL RIMPIAZZA IL TGT
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
+                xb_vector[i_target] = mutant->XB;
                 //jDE - aggiornameto f e CR che hanno avuto successo
                 POP_NEW[i_target]->CR = CR;
                 POP_NEW[i_target]->f = f;
@@ -584,7 +602,9 @@ void lavora(int n, int c, int d) {
                             fitness_vector[i_target] = fit;
 
                             //calcolo XB
-                            POP_NOW[i_target]->XB = calcolaXB(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
+                            double xb = calcolaXB(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
+                            POP_NOW[i_target]->XB = xb;
+                            xb_vector[i_target] = xb;
 
                             //impostazione età
                             POP_NOW[i_target] -> age = starting_age;
@@ -637,17 +657,18 @@ void lavora(int n, int c, int d) {
 
     //computazione fitness della popolazione finale
     aggiornaBestFitIndex();
-
-    //calcolo xb del migliore
-    best_xb = calcolaXB(POP_NOW[bestFitIndex]->V_p, POP_NOW[bestFitIndex]->U_p, 0);
-
+    aggiornaBestXBIndex();
+    
+    best_xb = POP_NOW[bestFitIndex]->XB;
     best_fit = POP_NOW[bestFitIndex]->fitness;
-
     printf("\n**MIGLIOR XB FINALE: \t%lf\n", best_xb);
     printf("\n**MIGLIOR FITNESS FINALE: \t%lf\n", best_fit);
     printf("\n**f: \t%lf\n", POP_NOW[bestFitIndex]->f);
     printf("\n**CR: \t%lf\n", POP_NOW[bestFitIndex]->CR);
-    stampaMatrice(c, d + 1, POP_NOW[bestFitIndex]->V_p);
+    printf("matrice del best XB:");
+    stampaMatrice(c, d , POP_NOW[bestXBIndex]->V_p);
+    printf("matrice del best fitness:");
+    stampaMatrice(c, d , POP_NOW[bestFitIndex]->V_p);
     stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, out_V);
     stampaMatriceSuFile(c, n, POP_NOW[bestFitIndex]->U_p, out_U);
     puts("###################################################################");
@@ -708,7 +729,7 @@ int main(int argc, char** argv) {
         tipo_dataset = 4; //gauss = 0, s = 1
         d = 2;
         c = 4;
-        numero_generazioni = 200;
+        numero_generazioni = 10000;
     }
 
     //PARAMETRI INIZIALI
@@ -740,8 +761,7 @@ int main(int argc, char** argv) {
     //matrice V per test funzione obiettivo
     in_V = fopen("v_test.dat", "r");
     //out_LOG_RIS = fopen("log_ris", "a");
-    //debug_log = fopen("debug", "w");
-    //fputs("\n######\n", out_LOG_RIS); //nuova log entry
+    debug_log = fopen("debug/debug_defcv9b", "w");
 
     //allocazione X
     int row;
@@ -766,6 +786,7 @@ int main(int argc, char** argv) {
     fclose(out_U);
     fclose(out_V);
     fclose(in_V);
+    fclose(debug_log);
 
     //scrittura csv
     if (output_csv) {
