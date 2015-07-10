@@ -6,7 +6,7 @@
 #include <time.h>
 #include <string.h>
 
-FILE *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS, *out_csv, *debug_log, *dataset; //puntatori a file di output
+FILE *in_V, *out_V, *out_X, *out_U, *out_LOG, *out_LOG_RIS, *out_csv, *debug_log, *dataset; //puntatori a file di output
 
 double **X;
 double m; //fuzzification factor
@@ -29,6 +29,7 @@ int usa_xb_per_fitness;
 int abilita_shuffle;
 int abilita_reset;
 int attivaGnuPlot; //attiva e disattiva GnuPlot
+int testLoadVIdeale;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -39,6 +40,7 @@ typedef struct el_pop {
     double **V_p;
     double **U_p;
     double fitness;
+    double XB;
     int age;
     //jDE
     double f;
@@ -165,7 +167,8 @@ double calcolaXB(double **V, double **U, int debug) {
             if (j == i)
                 j++;
             if (j < c) {
-                dist_tmp = (pow(calcDistanza(V[i], V[j]), 2.0));
+                //qui va messo un qualche tipo di peso 
+                dist_tmp = (pow(calcDistanza(V[i], V[j]), 2.0)); //* (V[i][d] / V[j][d]);
                 if (dist_tmp < min_sep)
                     min_sep = dist_tmp;
                 j++;
@@ -280,20 +283,31 @@ void init(int n, int c, int d) {
             POP_NEW[pop_index] -> V_p[row] = malloc((d * sizeof (double)) + (1 * sizeof (double)));
         }
 
-        //init V_p
-        //srand48(time(NULL));//!!test!!
-        for (i = 0; i < c; i++) {
-            int rigaX = random_at_most(n - 1);
-            for (j = 0; j < d; j++) {
-                //POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
-                //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
-                POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
-                //POP_NEW[pop_index] -> V_p[i][j] = drand48();
-                //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
-                //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
+        if (testLoadVIdeale && pop_index == 0) {//carica una V da file per testare la funzione obiettivo
+            //solo per test, leggo V da file esterno
+            for (i = 0; i < c; i++) {
+                for (j = 0; j < d; j++) {
+                    if (!fscanf(in_V, "%lf", &POP_NEW[pop_index] -> V_p[i][j]))
+                        break;
+                }
+                POP_NEW[pop_index]->V_p[i][d] = 0;
             }
-            //init del contatore di elementi nel cluster
-            POP_NEW[pop_index]->V_p[i][d] = 0;
+        } else {
+            //init V_p 
+            //srand48(time(NULL));//!!test!!
+            for (i = 0; i < c; i++) {
+                int rigaX = random_at_most(n - 1);
+                for (j = 0; j < d; j++) {
+                    //POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
+                    //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
+                    POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
+                    //POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                    //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
+                    //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
+                }
+                //init del contatore di elementi nel cluster
+                POP_NEW[pop_index]->V_p[i][d] = 0;
+            }
         }
 
         //riordino matrice
@@ -328,6 +342,14 @@ void init(int n, int c, int d) {
         double fit = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
         POP_NEW[pop_index]->fitness = fit;
         fitness_vector[pop_index] = fit;
+        //calcolo XB
+        POP_NEW[pop_index]->XB = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+
+        //solo con test abilitato
+        if (testLoadVIdeale && pop_index == 0) {
+            printf("fitness ideale:\t%lf\n", POP_NEW[pop_index]->fitness);
+            printf("XB ideale\t%lf\n", POP_NEW[pop_index]->XB);
+        }
 
 
         //impostazione età
@@ -493,11 +515,14 @@ void lavora(int n, int c, int d) {
             //calcolo fitness trial   
             mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p, 1);
 
+            //calcolo XB trial
+            mutant->XB = calcolaXB(mutant->V_p, mutant->U_p, 0);
+
             //impostazione timer età trial
             mutant -> age = starting_age;
 
             //SELECTION
-            if (mutant->fitness < POP_NOW[i_target]->fitness) {//IL TRIAL RIMPIAZZA IL TGT
+            if (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB) {//IL TRIAL RIMPIAZZA IL TGT
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
                 //jDE - aggiornameto f e CR che hanno avuto successo
@@ -557,6 +582,9 @@ void lavora(int n, int c, int d) {
                             double fit = calcolaFitness(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
                             POP_NOW[i_target]->fitness = fit;
                             fitness_vector[i_target] = fit;
+
+                            //calcolo XB
+                            POP_NOW[i_target]->XB = calcolaXB(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
 
                             //impostazione età
                             POP_NOW[i_target] -> age = starting_age;
@@ -695,6 +723,7 @@ int main(int argc, char** argv) {
     usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
     int output_csv = 0; //accende output su csv
+    testLoadVIdeale = 1;
 
     conteggio_reset = 0;
 
@@ -708,6 +737,8 @@ int main(int argc, char** argv) {
     out_V = fopen("v_defc9.dat", "w");
     //matrice output appartenenze
     out_U = fopen("u_defc9.dat", "w");
+    //matrice V per test funzione obiettivo
+    in_V = fopen("v_test.dat", "r");
     //out_LOG_RIS = fopen("log_ris", "a");
     //debug_log = fopen("debug", "w");
     //fputs("\n######\n", out_LOG_RIS); //nuova log entry
@@ -734,6 +765,7 @@ int main(int argc, char** argv) {
 
     fclose(out_U);
     fclose(out_V);
+    fclose(in_V);
 
     //scrittura csv
     if (output_csv) {
