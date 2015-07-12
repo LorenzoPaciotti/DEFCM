@@ -408,8 +408,8 @@ void lavora(int n, int c, int d) {
             double best_xb = POP_NOW[bestXBIndex]->XB;
             double best_fit = POP_NOW[bestFitIndex]->fitness;
             printf("generazione:%d  best XB:%lf  best fit:%lf\n", numero_generazioni, best_xb, best_fit);
-            stampaMatriceSuFile(c, d , POP_NOW[bestXBIndex]->V_p,debug_log);
-            stampaMatriceSuFile(c, d , POP_NOW[bestFitIndex]->V_p,debug_log);
+            //stampaMatriceSuFile(c, d , POP_NOW[bestXBIndex]->V_p,debug_log);
+            //stampaMatriceSuFile(c, d , POP_NOW[bestFitIndex]->V_p,debug_log);
         }
         /////////////////////////////
 
@@ -725,11 +725,11 @@ int main(int argc, char** argv) {
     } else {
         //test
         puts("!override parametri input attivo");
-        n = 3200;
+        n = 10000;
         tipo_dataset = 4; //gauss = 0, s = 1
         d = 2;
-        c = 4;
-        numero_generazioni = 10000;
+        c = 5;
+        numero_generazioni = 100;
     }
 
     //PARAMETRI INIZIALI
@@ -753,7 +753,7 @@ int main(int argc, char** argv) {
 
     //stream file
     //matrice di input
-    out_X = fopen("dataset/gauss4.data", "r");
+    out_X = fopen("dataset/gauss1.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9.dat", "w");
     //matrice output appartenenze
