@@ -25,8 +25,8 @@ unset grid
 set key top center
 plot "v_defc7.dat" with p pt 11 ps 3 lc 0
 
-#set key top left
-#plot "v_fcm.dat" with p pt 15 ps 2 lc 15
+set key top left
+plot "v_fcm.dat" with p pt 15 ps 2 lc 15
 # smaller overlay plot
 #set size 0.40,0.40
 #set origin 0.5,0.5
