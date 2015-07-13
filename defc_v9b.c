@@ -306,8 +306,12 @@ void init(int n, int c, int d) {
             }
         } else {
             //init V_p 
+            int rigaX;
+            if (random_init)
+                srand48(time(NULL));
             for (i = 0; i < c; i++) {
-                int rigaX = random_at_most(n - 1);
+                if (!random_init)
+                    rigaX = random_at_most(n - 1);
                 for (j = 0; j < d; j++) {
                     if (random_init)
                         POP_NEW[pop_index] -> V_p[i][j] = drand48();
@@ -736,10 +740,10 @@ int main(int argc, char** argv) {
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni / 100; //timer iniziale
-    abilita_invecchiamento = 1;
-    abilita_reset = 1; //richiede invecchiamento
+    abilita_invecchiamento = 0;
+    abilita_reset = 0; //richiede invecchiamento
     reset_threshold = 10;
-    abilita_partitioning = 1;
+    abilita_partitioning = 0;
     abilita_shuffle = 0; //non usare con partitioning
     usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
