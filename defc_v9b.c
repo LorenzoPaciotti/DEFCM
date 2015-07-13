@@ -25,12 +25,13 @@ int numero_generazioni, i, j, k, pop_index, numero_generazione_attuale, numero_g
 double esponente_U;
 int n, c, d; //numero di punti in input, numero di centroidi, numero di dimensioni
 int abilita_partitioning; //riordina gli array V per far accoppiare solo i centroidi della stessa zona dello spazio
-int abilita_invecchiamento;
-int usa_xb_per_fitness;
-int abilita_shuffle;
-int abilita_reset;
+int abilita_invecchiamento; //invecchiamento e reinizializzazione
+int usa_xb_per_fitness; //usa XB invece di sigma
+int abilita_shuffle; //shuffle posizione centroidi
+int abilita_reset; //reset generale popolazione
 int attivaGnuPlot; //attiva e disattiva GnuPlot
-int testLoadVIdeale;
+int testLoadVIdeale; //test solo per dataset gauss 4
+int random_init; //inizializza V popolazione iniziale completamente in modo casuale
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -305,16 +306,13 @@ void init(int n, int c, int d) {
             }
         } else {
             //init V_p 
-            //srand48(time(NULL));//!!test!!
             for (i = 0; i < c; i++) {
                 int rigaX = random_at_most(n - 1);
                 for (j = 0; j < d; j++) {
-                    //POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
-                    //POP_NEW[pop_index] -> V_p[i][j] = X[random_at_most(n - 1)][random_at_most(d - 1)] + drand48();
-                    POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
-                    //POP_NEW[pop_index] -> V_p[i][j] = drand48();
-                    //POP_NEW[pop_index] -> V_p[i][j] = dbl_rnd_inRange(0,range_init_max);
-                    //POP_NEW[pop_index] -> V_p[i][j] = random_at_most(range_init_max);
+                    if (random_init)
+                        POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                    else
+                        POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                 }
                 //init del contatore di elementi nel cluster
                 POP_NEW[pop_index]->V_p[i][d] = 0;
@@ -738,16 +736,16 @@ int main(int argc, char** argv) {
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni / 100; //timer iniziale
-    abilita_invecchiamento = 0;
-    abilita_reset = 0; //richiede invecchiamento
+    abilita_invecchiamento = 1;
+    abilita_reset = 1; //richiede invecchiamento
     reset_threshold = 10;
-    abilita_partitioning = 0;
+    abilita_partitioning = 1;
     abilita_shuffle = 0; //non usare con partitioning
     usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
     int output_csv = 0; //accende output su csv
     testLoadVIdeale = 0; //solo con gauss4 per test
-
+    random_init = 1;
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
