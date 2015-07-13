@@ -9,5 +9,4 @@ read text
 #echo "#DEFC v9"
 #time ./defc9 $text &
 echo "#DEFC v9b"
-time ./defc9b $text &
-top
+time ./defc9b $text
