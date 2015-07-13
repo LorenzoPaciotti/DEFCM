@@ -34,7 +34,7 @@ int testLoadVIdeale; //test solo per dataset gauss 4
 int random_init; //inizializza V popolazione iniziale completamente in modo casuale
 
 //numero di elementi della popolazione - fare parametrico
-#define num_pop 100 // 30, 50, 100
+#define num_pop 30 // 30, 50, 100
 
 //struttura elemento popolazione
 
