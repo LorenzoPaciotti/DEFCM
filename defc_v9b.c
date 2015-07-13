@@ -307,8 +307,6 @@ void init(int n, int c, int d) {
         } else {
             //init V_p 
             int rigaX;
-            if (random_init)
-                srand48(time(NULL));
             for (i = 0; i < c; i++) {
                 if (!random_init)
                     rigaX = random_at_most(n - 1);
@@ -783,6 +781,8 @@ int main(int argc, char** argv) {
     }
     fclose(out_X);
 
+    if (random_init)
+        srand48(time(NULL));
     init(n, c, d);
     lavora(n, c, d);
     //plot();
