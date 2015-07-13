@@ -744,7 +744,7 @@ int main(int argc, char** argv) {
     abilita_reset = 0; //richiede invecchiamento
     reset_threshold = 10;
     abilita_partitioning = 0;
-    abilita_shuffle = 0; //non usare con partitioning
+    abilita_shuffle = 1; //non usare con partitioning
     usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
