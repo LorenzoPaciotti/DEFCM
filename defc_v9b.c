@@ -539,6 +539,7 @@ void lavora(int n, int c, int d) {
             mutant -> age = starting_age;
 
             //SELECTION
+            //selezione può essere fatta su fitness o su XB
             if (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB) {//IL TRIAL RIMPIAZZA IL TGT
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
