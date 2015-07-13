@@ -540,7 +540,8 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //selezione può essere fatta su fitness o su XB
-            if (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB) {//IL TRIAL RIMPIAZZA IL TGT
+            if (mutant->fitness < POP_NOW[i_target]->fitness) { //&& mutant->XB < POP_NOW[i_target]->XB) {
+                //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
                 xb_vector[i_target] = mutant->XB;
