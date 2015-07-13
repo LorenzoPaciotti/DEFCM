@@ -762,8 +762,9 @@ int main(int argc, char** argv) {
     out_V = fopen("v_defc9.dat", "w");
     //matrice output appartenenze
     out_U = fopen("u_defc9.dat", "w");
-    //matrice V per test funzione obiettivo
-    in_V = fopen("v_test.dat", "r");
+    if (testLoadVIdeale)
+        //matrice V per test funzione obiettivo
+        in_V = fopen("v_test.dat", "r");
     //out_LOG_RIS = fopen("log_ris", "a");
     debug_log = fopen("debug/debug_defcv9b", "w");
 
@@ -791,7 +792,8 @@ int main(int argc, char** argv) {
 
     fclose(out_U);
     fclose(out_V);
-    fclose(in_V);
+    if (testLoadVIdeale)
+        fclose(in_V);
     fclose(debug_log);
 
     //scrittura csv
