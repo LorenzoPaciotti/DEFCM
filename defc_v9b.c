@@ -407,9 +407,11 @@ void lavora(int n, int c, int d) {
             aggiornaBestXBIndex();
             double best_xb = POP_NOW[bestXBIndex]->XB;
             double best_fit = POP_NOW[bestFitIndex]->fitness;
-            printf("generazione:%d  best XB:%lf  best fit:%lf\n", numero_generazioni, best_xb, best_fit);
+            printf("generazione:%d  best XB:%lf  best fit:%lf\n", numero_generazione_attuale, best_xb, best_fit);
+            fprintf(debug_log, "%d\n", numero_generazione_attuale);
             stampaMatriceSuFile(c, d, POP_NOW[bestXBIndex]->V_p, debug_log);
             stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, debug_log);
+            fprintf(debug_log, "\n");
         }
         /////////////////////////////
 
