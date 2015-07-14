@@ -1,6 +1,5 @@
 #!/bin/bash
 echo "controllo git"
-git status
 git pull
 echo "making..."
 make
