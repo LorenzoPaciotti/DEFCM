@@ -601,7 +601,7 @@ void lavora(int n, int c, int d) {
                                     rigaX = random_at_most(n - 1);
                                 for (j = 0; j < d; j++) {
                                     if (!random_init)
-                                        POP_NOW[i_target] -> V_p[i][j] = X[rigaX][j];
+                                        POP_NOW[i_target] -> V_p[i][j] = X[rigaX][j] + drand48();
                                     else
                                         POP_NOW[i_target] -> V_p[i][j] = drand48();
                                     //in alternativa basato sul best fit?
