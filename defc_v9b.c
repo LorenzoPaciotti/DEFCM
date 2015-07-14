@@ -32,6 +32,7 @@ int abilita_reset; //reset generale popolazione
 int attivaGnuPlot; //attiva e disattiva GnuPlot
 int testLoadVIdeale; //test solo per dataset gauss 4
 int random_init; //inizializza V popolazione iniziale completamente in modo casuale
+int aggiungi_peso_sigma;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -150,10 +151,6 @@ double calcolaXB(double **V, double **U, int debug) {
     for (i = 0; i < n; i++) {
         for (j = 0; j < c; j++) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
-
-            //aggiornamento contatore elementi del cluster
-            if (U[j][i] > 0.8)
-                V[j][d]++;
         }
     }
 
@@ -171,8 +168,7 @@ double calcolaXB(double **V, double **U, int debug) {
             if (j == i)
                 j++;
             if (j < c) {
-                //qui va messo un qualche tipo di peso 
-                dist_tmp = (pow(calcDistanza(V[i], V[j]), 2.0)); //* (V[i][d] / V[j][d]);
+                dist_tmp = (pow(calcDistanza(V[i], V[j]), 2.0));
                 if (dist_tmp < min_sep)
                     min_sep = dist_tmp;
                 j++;
@@ -180,6 +176,9 @@ double calcolaXB(double **V, double **U, int debug) {
         }
         j = 0;
     }
+
+    //CALCOLO SUM_SEP
+
 
 
     return sigma / (n * min_sep);
@@ -194,8 +193,19 @@ double calcolaFitness(double **V, double **U, int debug) {
         for (i = 0; i < n; i++) {
             for (j = 0; j < c; j++) {
                 sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
+
+                //aggiornamento contatore elementi del cluster
+                if (U[j][i] > 0.8)
+                    V[j][d]++;
+
+                if (aggiungi_peso_sigma) {
+                    //aggiunta di un peso per via del numeri di elementi vicini al centroide
+                    sigma += V[i][d];
+                }
             }
         }
+
+
         return sigma;
     }
 
@@ -750,6 +760,7 @@ int main(int argc, char** argv) {
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //solo con gauss4 per test
     random_init = 1;
+    aggiungi_peso_sigma = 0;
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
@@ -799,17 +810,17 @@ int main(int argc, char** argv) {
     //scrittura csv
     if (output_csv) {
         out_csv = fopen("csv/output_defcv9b.csv", "a");
-        fprintf(out_csv, "%d,", tipo_dataset);
-        fprintf(out_csv, "%d,", n);
-        fprintf(out_csv, "%d,", c);
-        fprintf(out_csv, "%d,", d);
-        fprintf(out_csv, "%d,", num_pop);
-        fprintf(out_csv, "%d,", numero_generazioni_iniziale);
-        fprintf(out_csv, "%d,", starting_age);
-        fprintf(out_csv, "%d,", abilita_partitioning);
-        fprintf(out_csv, "%d,", abilita_invecchiamento);
-        fprintf(out_csv, "%lf,", best_xb);
-        fprintf(out_csv, "%lf\n", best_fit);
+        fprintf(out_csv, "dataset:%d,", tipo_dataset);
+        fprintf(out_csv, "n:%d,", n);
+        fprintf(out_csv, "c:%d,", c);
+        fprintf(out_csv, "d:%d,", d);
+        fprintf(out_csv, "num_pop:%d,", num_pop);
+        fprintf(out_csv, "num_gen:%d,", numero_generazioni_iniziale);
+        fprintf(out_csv, "start_age:%d,", starting_age);
+        fprintf(out_csv, "partitioning:%d,", abilita_partitioning);
+        fprintf(out_csv, "aging:%d,", abilita_invecchiamento);
+        fprintf(out_csv, "best_XB:%lf,", best_xb);
+        fprintf(out_csv, "best_fit:%lf\n", best_fit);
         fclose(out_csv);
     }
 
