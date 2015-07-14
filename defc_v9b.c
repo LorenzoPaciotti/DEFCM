@@ -759,7 +759,7 @@ int main(int argc, char** argv) {
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //solo con gauss4 per test
-    random_init = 1;
+    random_init = 0;
     aggiungi_peso_sigma = 0;
 
 
