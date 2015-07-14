@@ -757,7 +757,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/gauss1.data", "r");
+    out_X = fopen("dataset/gauss4.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9.dat", "w");
     //matrice output appartenenze
