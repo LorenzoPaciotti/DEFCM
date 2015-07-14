@@ -819,6 +819,9 @@ int main(int argc, char** argv) {
         fprintf(out_csv, "start_age:%d,", starting_age);
         fprintf(out_csv, "partitioning:%d,", abilita_partitioning);
         fprintf(out_csv, "aging:%d,", abilita_invecchiamento);
+        fprintf(out_csv, "reset:%d,", abilita_reset);
+        fprintf(out_csv, "random_init:%d,", random_init);
+        fprintf(out_csv, "shuffle:%d,", abilita_shuffle);
         fprintf(out_csv, "best_XB:%lf,", best_xb);
         fprintf(out_csv, "best_fit:%lf\n", best_fit);
         fclose(out_csv);
