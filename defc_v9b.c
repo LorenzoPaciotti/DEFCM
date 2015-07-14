@@ -34,7 +34,7 @@ int testLoadVIdeale; //test solo per dataset gauss 4
 int random_init; //inizializza V popolazione iniziale completamente in modo casuale
 
 //numero di elementi della popolazione - fare parametrico
-#define num_pop 50 // 30, 50, 100
+#define num_pop 100 // 30, 50, 100
 
 //struttura elemento popolazione
 
@@ -749,7 +749,7 @@ int main(int argc, char** argv) {
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //solo con gauss4 per test
-    random_init = 0;
+    random_init = 1;
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
@@ -757,16 +757,16 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/gauss4.data", "r");
+    out_X = fopen("dataset/R15.data", "r");
     //matrice di output centroidi
-    out_V = fopen("v_defc9.dat", "w");
+    out_V = fopen("v_defc9b.out", "w");
     //matrice output appartenenze
-    out_U = fopen("u_defc9.dat", "w");
+    out_U = fopen("u_defc9b.out", "w");
     if (testLoadVIdeale)
         //matrice V per test funzione obiettivo
         in_V = fopen("v_test.dat", "r");
     //out_LOG_RIS = fopen("log_ris", "a");
-    debug_log = fopen("debug/debug_defcv9b", "w");
+    debug_log = fopen("debug/debug_defcv9b.debug", "w");
 
     //allocazione X
     int row;

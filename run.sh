@@ -1,6 +1,4 @@
 #!/bin/bash
-echo "controllo git"
-git pull
 echo "making..."
 make
 echo -n "PARAMETRI: < tipo_ds input_points dimensioni centroidi generazioni > "

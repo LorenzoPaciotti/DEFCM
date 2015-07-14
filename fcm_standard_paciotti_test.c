@@ -123,9 +123,9 @@ void plot() {
 int main(int argc, char** argv) {
     //PUNTATORI A FILE DI OUTPUT
     FILE *out_V, *out_X, *out_U;
-    out_V = fopen("v_fcm.dat", "w");
-    out_U = fopen("u_fcm.dat", "w");
-    out_X = fopen("dataset/gauss1.data", "r");
+    out_V = fopen("v_fcm.out", "w");
+    out_U = fopen("u_fcm.out", "w");
+    out_X = fopen("dataset/R15.data", "r");
     
     //letture da utente
     puts("numero di punti in input");
