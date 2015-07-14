@@ -33,6 +33,7 @@ int attivaGnuPlot; //attiva e disattiva GnuPlot
 int testLoadVIdeale; //test solo per dataset gauss 4
 int random_init; //inizializza V popolazione iniziale completamente in modo casuale
 int aggiungi_peso_sigma;
+int usa_sumsep;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -154,32 +155,45 @@ double calcolaXB(double **V, double **U, int debug) {
         }
     }
 
-
-    //CALCOLO MIN_SEP
-    //proposta: pesare la separazione con la dimensione del cluster o con il rapporto delle dimensioni
     double min_sep = DBL_MAX;
-
-    double dist_tmp = 0;
-    j = 0;
-    for (i = 0; i < c; i++) {
-        if (j == i)
-            j++;
-        while (j < c) {
+    //CALCOLO MIN_SEP
+    if (!usa_sumsep) {
+        double dist_tmp = 0;
+        j = 0;
+        for (i = 0; i < c; i++) {
             if (j == i)
                 j++;
-            if (j < c) {
-                dist_tmp = (pow(calcDistanza(V[i], V[j]), 2.0));
-                if (dist_tmp < min_sep)
-                    min_sep = dist_tmp;
-                j++;
+            while (j < c) {
+                if (j == i)
+                    j++;
+                if (j < c) {
+                    dist_tmp = (pow(calcDistanza(V[i], V[j]), 2.0));
+                    if (dist_tmp < min_sep)
+                        min_sep = dist_tmp;
+                    j++;
+                }
             }
+            j = 0;
         }
-        j = 0;
+    } else {
+        double distsum = 0;
+        //CALCOLO SUM_SEP
+        //invece di calcolare la minima separazione si prende la somma delle distanze fra i centroidi
+        for (i = 0; i < c; i++) {
+            if (j == i)
+                j++;
+            while (j < c) {
+                if (j == i)
+                    j++;
+                if (j < c) {
+                    distsum += (pow(calcDistanza(V[i], V[j]), 2.0));
+                    j++;
+                }
+            }
+            j = 0;
+        }
+        min_sep = distsum;
     }
-
-    //CALCOLO SUM_SEP
-
-
 
     return sigma / (n * min_sep);
 }
@@ -199,6 +213,7 @@ double calcolaFitness(double **V, double **U, int debug) {
                     V[j][d]++;
 
                 if (aggiungi_peso_sigma) {
+                    //da controllare
                     //aggiunta di un peso per via del numeri di elementi vicini al centroide
                     sigma += V[i][d];
                 }
@@ -413,14 +428,14 @@ void lavora(int n, int c, int d) {
         //DEBUG/////////////////////////
         if (numero_generazione_attuale % 50 == 0) {
             puts("#####DEBUG#####");
-            aggiornaBestFitIndex();
-            aggiornaBestXBIndex();
             double best_xb = POP_NOW[bestXBIndex]->XB;
             double best_fit = POP_NOW[bestFitIndex]->fitness;
             printf("generazione:%d  best XB:%lf  best fit:%lf\n", numero_generazione_attuale, best_xb, best_fit);
             fprintf(debug_log, "%d\n", numero_generazione_attuale);
             stampaMatriceSuFile(c, d, POP_NOW[bestXBIndex]->V_p, debug_log);
+            fprintf(debug_log, "\n");
             stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, debug_log);
+            fprintf(debug_log, "\n");
             fprintf(debug_log, "\n");
         }
         /////////////////////////////
@@ -579,14 +594,19 @@ void lavora(int n, int c, int d) {
                         if (POP_NOW[i_target] -> age <= 0) {//morte
                             printf("*");
                             //RINASCITA
-                            //REINIT V_p
+                            //init V_p 
+                            int rigaX;
                             for (i = 0; i < c; i++) {
+                                if (!random_init)
+                                    rigaX = random_at_most(n - 1);
                                 for (j = 0; j < d; j++) {
-                                    POP_NOW[i_target] -> V_p[i][j] = drand48();
-                                    //in alternativa basato sul best fit?
+                                    if (random_init)
+                                        POP_NOW[pop_index] -> V_p[i][j] = drand48();
+                                    else
+                                        POP_NOW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                                 }
-                                //reset contatore membri del cluster
-                                POP_NOW[i_target] -> V_p[i][d] = 0;
+                                //init del contatore di elementi nel cluster
+                                POP_NOW[pop_index]->V_p[i][d] = 0;
                             }
                             //SORT MATRICE V
                             sortMatrice(POP_NOW[i_target]->V_p);
@@ -633,6 +653,9 @@ void lavora(int n, int c, int d) {
 
 
         numero_generazioni--;
+
+        aggiornaBestFitIndex();
+        aggiornaBestXBIndex();
 
         if (conteggio_successi_generazione_attuale == 0)
             conteggio_reset++;
@@ -751,7 +774,7 @@ int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni / 10; //timer iniziale
     abilita_invecchiamento = 1;
-    abilita_reset = 0; //richiede invecchiamento
+    abilita_reset = 1; //richiede invecchiamento
     reset_threshold = 10;
     abilita_partitioning = 0;
     abilita_shuffle = 0; //non usare con partitioning
@@ -761,6 +784,7 @@ int main(int argc, char** argv) {
     testLoadVIdeale = 0; //solo con gauss4 per test
     random_init = 0;
     aggiungi_peso_sigma = 0;
+    usa_sumsep = 0;
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
