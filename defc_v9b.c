@@ -594,19 +594,20 @@ void lavora(int n, int c, int d) {
                         if (POP_NOW[i_target] -> age <= 0) {//morte
                             printf("*");
                             //RINASCITA
-                            //init V_p 
+                            //REINIT V_p
                             int rigaX;
                             for (i = 0; i < c; i++) {
                                 if (!random_init)
                                     rigaX = random_at_most(n - 1);
                                 for (j = 0; j < d; j++) {
-                                    if (random_init)
-                                        POP_NOW[pop_index] -> V_p[i][j] = drand48();
+                                    if (!random_init)
+                                        POP_NOW[i_target] -> V_p[i][j] = X[rigaX][j];
                                     else
-                                        POP_NOW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
+                                        POP_NOW[i_target] -> V_p[i][j] = drand48();
+                                    //in alternativa basato sul best fit?
                                 }
-                                //init del contatore di elementi nel cluster
-                                POP_NOW[pop_index]->V_p[i][d] = 0;
+                                //reset contatore membri del cluster
+                                POP_NOW[i_target] -> V_p[i][d] = 0;
                             }
                             //SORT MATRICE V
                             sortMatrice(POP_NOW[i_target]->V_p);
