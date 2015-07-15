@@ -146,6 +146,7 @@ double calcolaXB(double **V, double **U, int debug) {
      XB funzione del rapporto fra la variazione totale sigma
      e la separazione minima fra i centroidi
      */
+
     int i, j;
     //CALCOLO SIGMA
     double sigma = 0.0;
@@ -155,9 +156,10 @@ double calcolaXB(double **V, double **U, int debug) {
         }
     }
 
-    double min_sep = DBL_MAX;
     //CALCOLO MIN_SEP
+    double den;
     if (!usa_sumsep) {
+        double min_sep = DBL_MAX;
         double dist_tmp = 0;
         j = 0;
         for (i = 0; i < c; i++) {
@@ -175,6 +177,8 @@ double calcolaXB(double **V, double **U, int debug) {
             }
             j = 0;
         }
+
+        den = min_sep;
     } else {
         double distsum = 0;
         //CALCOLO SUM_SEP
@@ -192,10 +196,10 @@ double calcolaXB(double **V, double **U, int debug) {
             }
             j = 0;
         }
-        min_sep = distsum;
+        den = distsum;
     }
 
-    return sigma / (n * min_sep);
+    return sigma / (n * den);
 }
 
 double calcolaFitness(double **V, double **U, int debug) {
@@ -777,15 +781,15 @@ int main(int argc, char** argv) {
     abilita_invecchiamento = 1;
     abilita_reset = 1; //richiede invecchiamento
     reset_threshold = 10;
-    abilita_partitioning = 0;
+    abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
     abilita_shuffle = 0; //non usare con partitioning
-    usa_xb_per_fitness = 0; //diverge
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
-    testLoadVIdeale = 0; //solo con gauss4 per test
-    random_init = 0;
+    testLoadVIdeale = 0; //carica da file una matrice V predeterminata e la assegna al primo della popolazione
+    random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare 
     aggiungi_peso_sigma = 0;
-    usa_sumsep = 0;
+    usa_xb_per_fitness = 0; //diverge
+    usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
