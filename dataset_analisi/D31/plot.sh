@@ -25,7 +25,7 @@ set key left top
 plot "v_fcm.out" with p pt 15 ps 2 lc 15
 
 set key center top
-plot "v_defc.out" with p pt 11 ps 3 lc 0
+plot "v_defc9b.out" with p pt 11 ps 3 lc 0
 
 # smaller overlay plot
 #set size 0.40,0.40

@@ -34,6 +34,7 @@ int testLoadVIdeale; //test solo per dataset gauss 4
 int random_init; //inizializza V popolazione iniziale completamente in modo casuale
 int aggiungi_peso_sigma;
 int usa_sumsep;
+int init_fcm;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -790,6 +791,7 @@ int main(int argc, char** argv) {
     aggiungi_peso_sigma = 0;
     usa_xb_per_fitness = 0; //diverge
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, diverge
+    init_fcm = 1;
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
@@ -797,7 +799,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/D31.data", "r");
+    out_X = fopen("dataset/R15.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9b.out", "w");
     //matrice output appartenenze
