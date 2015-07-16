@@ -572,7 +572,7 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //selezione può essere fatta su fitness o su XB
-            if (mutant->fitness < POP_NOW[i_target]->fitness) { //&& mutant->XB < POP_NOW[i_target]->XB) {
+            if (mutant->fitness < POP_NOW[i_target]->fitness || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
@@ -791,7 +791,7 @@ int main(int argc, char** argv) {
     aggiungi_peso_sigma = 0;
     usa_xb_per_fitness = 0; //diverge
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, diverge
-    init_fcm = 1;
+    init_fcm = 0;
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
