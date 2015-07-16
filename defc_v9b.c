@@ -767,10 +767,10 @@ int main(int argc, char** argv) {
     } else {
         //test
         puts("!override parametri input attivo");
-        n = 10000;
-        tipo_dataset = 1; //gauss = 0, s = 1
+        n = 3100;
+        tipo_dataset = 0; //gauss = 0, s = 1
         d = 2;
-        c = 5;
+        c = 31;
         numero_generazioni = 50;
     }
 
@@ -779,7 +779,7 @@ int main(int argc, char** argv) {
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni / 10; //timer iniziale
     abilita_invecchiamento = 1;
-    abilita_reset = 1; //richiede invecchiamento
+    abilita_reset = 0; //richiede invecchiamento
     reset_threshold = 10;
     abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
     abilita_shuffle = 0; //non usare con partitioning
@@ -789,7 +789,7 @@ int main(int argc, char** argv) {
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare 
     aggiungi_peso_sigma = 0;
     usa_xb_per_fitness = 0; //diverge
-    usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB
+    usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, diverge
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
@@ -797,7 +797,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/R15.data", "r");
+    out_X = fopen("dataset/D31.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9b.out", "w");
     //matrice output appartenenze
