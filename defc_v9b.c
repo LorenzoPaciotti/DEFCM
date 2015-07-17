@@ -131,6 +131,22 @@ double dbl_rnd_inRange(double fMin, double fMax) {//random double in un range
     return fMin + f * (fMax - fMin);
 }
 
+unsigned int rand_int_in_interval(unsigned int min, unsigned int max) {
+    int r;
+    const unsigned int range = 1 + max - min;
+    const unsigned int buckets = RAND_MAX / range;
+    const unsigned int limit = buckets * range;
+
+    /* Create equal size buckets all in a row, then fire randomly towards
+     * the buckets until you land in one of them. All buckets are equally
+     * likely. If you land off the end of the line of buckets, try again. */
+    do {
+        r = rand();
+    } while (r >= limit);
+
+    return min + (r / buckets);
+}
+
 int rand_int(int n) {
     int limit = RAND_MAX - RAND_MAX % n;
     int rnd;
@@ -340,7 +356,7 @@ void init(int n, int c, int d) {
             if (attiva_partitioned_init) {
                 //inizializzo c-esimo centroide nella n/c - esima partizione dell'input
                 for (i = 0; i < c; i++) {
-                    rigaX = random_at_most((n / c * i) - 1);
+                    rigaX = rand_int_in_interval(0, floor(n / c));
                     for (j = 0; j < d; j++) {
                         POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                     }
