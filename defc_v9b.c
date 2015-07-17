@@ -35,6 +35,7 @@ int random_init; //inizializza V popolazione iniziale completamente in modo casu
 int aggiungi_peso_sigma;
 int usa_sumsep;
 int init_fcm;
+int attiva_partitioned_init;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -326,7 +327,7 @@ void init(int n, int c, int d) {
         }
 
         if (testLoadVIdeale && pop_index == 0) {//carica una V da file per testare la funzione obiettivo
-            //solo per test, leggo V da file esterno
+            //SOLO PER TEST, leggo V da file esterno
             for (i = 0; i < c; i++) {
                 for (j = 0; j < d; j++) {
                     if (!fscanf(in_V, "%lf", &POP_NEW[pop_index] -> V_p[i][j]))
@@ -335,19 +336,29 @@ void init(int n, int c, int d) {
                 POP_NEW[pop_index]->V_p[i][d] = 0;
             }
         } else {
-            //init V_p 
-            int rigaX;
-            for (i = 0; i < c; i++) {
-                if (!random_init)
-                    rigaX = random_at_most(n - 1);
-                for (j = 0; j < d; j++) {
-                    if (random_init)
-                        POP_NEW[pop_index] -> V_p[i][j] = drand48();
-                    else
+            if (attiva_partitioned_init) {
+                //inizializzo c-esimo centroide nella n/c - esima partizione dell'input
+                for (i = 0; i < c; i++) {
+                    rigaX = random_at_most((n / c * i) - 1);
+                    for (j = 0; j < d; j++) {
                         POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
+                    }
+                } else {
+                    //init V_p STANDARD
+                    int rigaX;
+                    for (i = 0; i < c; i++) {
+                        if (!random_init)
+                            rigaX = random_at_most(n - 1);
+                        for (j = 0; j < d; j++) {
+                            if (random_init)
+                                POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                            else
+                                POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
+                        }
+                        //init del contatore di elementi nel cluster
+                        POP_NEW[pop_index]->V_p[i][d] = 0;
+                    }
                 }
-                //init del contatore di elementi nel cluster
-                POP_NEW[pop_index]->V_p[i][d] = 0;
             }
         }
 
@@ -791,7 +802,8 @@ int main(int argc, char** argv) {
     aggiungi_peso_sigma = 0;
     usa_xb_per_fitness = 0; //diverge
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, diverge
-    init_fcm = 0;
+    init_fcm = 0; //non implementato
+    attiva_partitioned_init = 1;
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
