@@ -354,12 +354,18 @@ void init(int n, int c, int d) {
             }
         } else {
             if (attiva_partitioned_init) {
+                int conteggio_bin = 0;
+                int grandezza_bin = floor(n / c);
                 //inizializzo c-esimo centroide nella n/c - esima partizione dell'input
                 for (i = 0; i < c; i++) {
-                    rigaX = rand_int_in_interval(0, floor(n / c));
+                    if (i == c - 1)
+                        rigaX = rand_int_in_interval((grandezza_bin * conteggio_bin) - grandezza_bin, (grandezza_bin * conteggio_bin));
+                    else
+                        rigaX = rand_int_in_interval(grandezza_bin*conteggio_bin, (grandezza_bin * conteggio_bin) + grandezza_bin);
                     for (j = 0; j < d; j++) {
                         POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                     }
+                    conteggio_bin++;
                 }
             } else {
                 //init V_p STANDARD
@@ -417,6 +423,7 @@ void init(int n, int c, int d) {
 
         //solo con test abilitato
         if (testLoadVIdeale && pop_index == 0) {
+
             printf("fitness ideale:\t%lf\n", POP_NEW[pop_index]->fitness);
             printf("XB ideale\t%lf\n", POP_NEW[pop_index]->XB);
         }
@@ -492,7 +499,7 @@ void lavora(int n, int c, int d) {
             } while (indice_base == i_target || indice_base == indice_1 || indice_base == indice_2);
 
             //l'elemento mutante
-            el_pop *mutant = malloc(sizeof (el_pop));
+            el_pop * mutant = malloc(sizeof (el_pop));
             //alloc V_p del mutante
             mutant -> V_p = malloc(c * sizeof (double*));
             for (row = 0; row < c; row++) {
@@ -714,6 +721,7 @@ void lavora(int n, int c, int d) {
         if (POP_NEW[i] != POP_NOW[i]) {
             if (POP_NOW[i] != 0) {
                 for (row = 0; row < c; row++) {
+
                     free(POP_NOW[i] -> V_p[row]);
                     free(POP_NOW[i] -> U_p[row]);
                 }
@@ -759,6 +767,7 @@ void plot() {
         FILE * gnuplotPipe = popen("gnuplot -persistent", "w");
         int i;
         for (i = 0; i < 8; i++) {
+
             fprintf(gnuplotPipe, "%s \n", commandsForGnuplot[i]);
             fflush(gnuplotPipe);
         }
@@ -768,7 +777,7 @@ void plot() {
 
 int main(int argc, char** argv) {
 
-    int leggi_parametri_esterni = 1; //leggere parametri da CL
+    int leggi_parametri_esterni = 0; //leggere parametri da CL
     if (leggi_parametri_esterni) {
         if (argc == 0) {
             //letture da utente
@@ -795,11 +804,11 @@ int main(int argc, char** argv) {
     } else {
         //test
         puts("!override parametri input attivo");
-        n = 3100;
+        n = 600;
         tipo_dataset = 0; //gauss = 0, s = 1
         d = 2;
-        c = 31;
-        numero_generazioni = 50;
+        c = 15;
+        numero_generazioni = 100;
     }
 
     //PARAMETRI INIZIALI
