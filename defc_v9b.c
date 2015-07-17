@@ -326,6 +326,7 @@ void init(int n, int c, int d) {
             POP_NEW[pop_index] -> V_p[row] = malloc((d * sizeof (double)) + (1 * sizeof (double)));
         }
 
+        int rigaX;
         if (testLoadVIdeale && pop_index == 0) {//carica una V da file per testare la funzione obiettivo
             //SOLO PER TEST, leggo V da file esterno
             for (i = 0; i < c; i++) {
@@ -343,21 +344,20 @@ void init(int n, int c, int d) {
                     for (j = 0; j < d; j++) {
                         POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                     }
-                } else {
-                    //init V_p STANDARD
-                    int rigaX;
-                    for (i = 0; i < c; i++) {
-                        if (!random_init)
-                            rigaX = random_at_most(n - 1);
-                        for (j = 0; j < d; j++) {
-                            if (random_init)
-                                POP_NEW[pop_index] -> V_p[i][j] = drand48();
-                            else
-                                POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
-                        }
-                        //init del contatore di elementi nel cluster
-                        POP_NEW[pop_index]->V_p[i][d] = 0;
+                }
+            } else {
+                //init V_p STANDARD
+                for (i = 0; i < c; i++) {
+                    if (!random_init)
+                        rigaX = random_at_most(n - 1);
+                    for (j = 0; j < d; j++) {
+                        if (random_init)
+                            POP_NEW[pop_index] -> V_p[i][j] = drand48();
+                        else
+                            POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                     }
+                    //init del contatore di elementi nel cluster
+                    POP_NEW[pop_index]->V_p[i][d] = 0;
                 }
             }
         }
