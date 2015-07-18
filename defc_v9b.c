@@ -689,7 +689,7 @@ void lavora(int n, int c, int d) {
 
                 if (abilita_shuffle) {
                     double probShuffle = dbl_rnd_inRange(0.0, 1.0);
-                    if (probShuffle < 1.0) {
+                    if (probShuffle < 0.1) {
                         shuffleMatrice(POP_NOW[i_target]->V_p);
                         //ricalcola U
                         for (i = 0; i < c; i++) {
