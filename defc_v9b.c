@@ -567,9 +567,6 @@ void lavora(int n, int c, int d) {
             //SORT MATRICE MUTANTE (ORA DETTO TRIAL)
             sortMatrice(mutant->V_p);
 
-            //shake matrice mutante
-            shuffleMatrice(mutant->V_p);
-
             //calcolo U trial
             for (i = 0; i < c; i++) {
                 for (j = 0; j < n; j++) {
@@ -686,6 +683,34 @@ void lavora(int n, int c, int d) {
                         }
                     }
                 }//END INVECCHIAMENTO
+
+                //shake matrice target sopravvissuto alla selezione
+                //e ricalcolo della sua matrice U
+
+                if (abilita_shuffle) {
+                    double probShuffle = dbl_rnd_inRange(0.0, 1.0);
+                    if (probShuffle < 1.0) {
+                        shuffleMatrice(POP_NOW[i_target]->V_p);
+                        //ricalcola U
+                        for (i = 0; i < c; i++) {
+                            for (j = 0; j < n; j++) {
+                                double denom = 0.0;
+                                double dist_x_j__v_i = calcDistanza(X[j], POP_NOW[i_target] -> V_p[i]);
+
+                                int k;
+                                for (k = 0; k < c; k++) {
+                                    double dist_xj_vk = calcDistanza(X[j], POP_NOW[i_target] -> V_p[k]);
+                                    denom += pow((dist_x_j__v_i / dist_xj_vk), esponente_U);
+                                }
+                                POP_NOW[i_target] -> U_p[i][j] = 1.0 / denom;
+                                if (POP_NOW[i_target] -> U_p[i][j] < 0) {
+                                    printf("ERR: INIT POP:inizializzato U di un membro con negativo::");
+                                    exit(-1);
+                                }
+                            }
+                        }
+                    }
+                }
 
                 //il target passa alla nuova generazione, il TRIAL era stato scartato
                 POP_NEW[i_target] = POP_NOW[i_target];
@@ -818,16 +843,16 @@ int main(int argc, char** argv) {
     starting_age = numero_generazioni / 10; //timer iniziale
     abilita_invecchiamento = 1;
     abilita_reset = 0; //richiede invecchiamento
-    reset_threshold = 10;
+    reset_threshold = numero_generazioni / 10;
     abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
-    abilita_shuffle = 0; //non usare con partitioning
+    abilita_shuffle = 1; //mescola i centroidi di V, con bassa probabilità
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //carica da file una matrice V predeterminata e la assegna al primo della popolazione
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare 
     aggiungi_peso_sigma = 0; //da decidere
-    usa_xb_per_fitness = 0; //diverge
-    usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, diverge
+    usa_xb_per_fitness = 0; //DIVERGE
+    usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
     init_fcm = 0; //non implementato
     attiva_partitioned_init = 1; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
 
