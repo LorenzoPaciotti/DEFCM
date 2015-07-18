@@ -421,7 +421,8 @@ void init(int n, int c, int d) {
         POP_NEW[pop_index]->XB = xb;
         xb_vector[pop_index] = xb;
 
-        //solo con test abilitato
+
+        //testLoadVIdeale
         if (testLoadVIdeale && pop_index == 0) {
 
             printf("fitness ideale:\t%lf\n", POP_NEW[pop_index]->fitness);
@@ -777,9 +778,9 @@ void plot() {
 
 int main(int argc, char** argv) {
 
-    int leggi_parametri_esterni = 0; //leggere parametri da CL
+    int leggi_parametri_esterni = 1; //leggere parametri da CL
     if (leggi_parametri_esterni) {
-        if (argc == 0) {
+        if (argc < 5) {
             //letture da utente
             printf("tipo dataset: ");
             scanf("%d", &tipo_dataset);
@@ -791,7 +792,7 @@ int main(int argc, char** argv) {
             scanf("%d", &c);
             printf("numero di generazioni: ");
             scanf("%d", &numero_generazioni);
-        } else if (argc == 6) {
+        } else if (argc == 5) {
             tipo_dataset = atoi(argv[1]);
             n = atoi(argv[2]);
             d = atoi(argv[3]);
@@ -799,7 +800,7 @@ int main(int argc, char** argv) {
             numero_generazioni = atoi(argv[5]);
         } else {
             puts("SINTASSI: ./defc9b tipo_ds n d c num_gen");
-            exit(0);
+            exit(-1);
         }
     } else {
         //test
@@ -824,11 +825,11 @@ int main(int argc, char** argv) {
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //carica da file una matrice V predeterminata e la assegna al primo della popolazione
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare 
-    aggiungi_peso_sigma = 0;
+    aggiungi_peso_sigma = 0; //da decidere
     usa_xb_per_fitness = 0; //diverge
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, diverge
     init_fcm = 0; //non implementato
-    attiva_partitioned_init = 1;
+    attiva_partitioned_init = 1; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
 
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
@@ -836,7 +837,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/R15.data", "r");
+    out_X = fopen("dataset/gauss4.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9b.out", "w");
     //matrice output appartenenze
