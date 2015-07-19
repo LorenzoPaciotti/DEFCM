@@ -845,24 +845,24 @@ int main(int argc, char** argv) {
     abilita_reset = 0; //richiede invecchiamento
     reset_threshold = numero_generazioni / 10;
     abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
-    abilita_shuffle = 1; //mescola i centroidi di V, con bassa probabilità
+    abilita_shuffle = 0; //mescola i centroidi di V, con bassa probabilità (10)
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //carica da file una matrice V predeterminata e la assegna al primo della popolazione
-    random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare 
-    aggiungi_peso_sigma = 0; //da decidere
+    random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
     usa_xb_per_fitness = 0; //DIVERGE
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
-    init_fcm = 0; //non implementato
     attiva_partitioned_init = 1; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
-
+    
+    aggiungi_peso_sigma = 0; //da decidere
+    init_fcm = 0; //non implementato
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
     numero_generazioni_iniziale = numero_generazioni;
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/gauss4.data", "r");
+    out_X = fopen("dataset/gauss1.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9b.out", "w");
     //matrice output appartenenze
