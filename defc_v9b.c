@@ -137,9 +137,6 @@ unsigned int rand_int_in_interval(unsigned int min, unsigned int max) {
     const unsigned int buckets = RAND_MAX / range;
     const unsigned int limit = buckets * range;
 
-    /* Create equal size buckets all in a row, then fire randomly towards
-     * the buckets until you land in one of them. All buckets are equally
-     * likely. If you land off the end of the line of buckets, try again. */
     do {
         r = rand();
     } while (r >= limit);
@@ -231,13 +228,13 @@ double calcolaFitness(double **V, double **U, int debug) {
                 sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
 
                 //aggiornamento contatore elementi del cluster
-                if (U[j][i] > 0.8)
+                if (U[j][i] >= 0.9)
                     V[j][d]++;
 
                 if (aggiungi_peso_sigma) {
                     //da controllare
                     //aggiunta di un peso per via del numeri di elementi vicini al centroide
-                    sigma += V[i][d];
+                    sigma += V[j][d];
                 }
             }
         }
@@ -840,21 +837,21 @@ int main(int argc, char** argv) {
     //PARAMETRI INIZIALI
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
-    starting_age = numero_generazioni / 10; //timer iniziale
+    starting_age = numero_generazioni / 4; //timer iniziale
     abilita_invecchiamento = 1;
     abilita_reset = 0; //richiede invecchiamento
-    reset_threshold = numero_generazioni / 10;
+    reset_threshold = numero_generazioni / 2;
     abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
-    abilita_shuffle = 0; //mescola i centroidi di V, con bassa probabilità (10)
+    abilita_shuffle = 0; //mescola i centroidi di V, con bassa probabilità (10%)
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
-    testLoadVIdeale = 0; //carica da file una matrice V predeterminata e la assegna al primo della popolazione
+    testLoadVIdeale = 0; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
     usa_xb_per_fitness = 0; //DIVERGE
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
-    attiva_partitioned_init = 1; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
+    attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
+    aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti molto vicini ai centroidi (>90%)
     
-    aggiungi_peso_sigma = 0; //da decidere
     init_fcm = 0; //non implementato
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
