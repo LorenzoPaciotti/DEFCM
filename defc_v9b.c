@@ -869,7 +869,7 @@ int main(int argc, char** argv) {
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni / 4; //timer iniziale
-    abilita_invecchiamento = 1;
+    abilita_invecchiamento = 0;
     abilita_reset = 0; //richiede invecchiamento
     reset_threshold = numero_generazioni / 2;
     abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
