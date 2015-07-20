@@ -252,7 +252,7 @@ double calcolaFitness(double **V, double **U, int debug) {
                 if (aggiungi_peso_sigma) {
                     //aggiunta di un peso per via del numeri di elementi vicini al centroide
                     if (U[i][j] >= 0.9)
-                        sigma++;
+                        sigma = sigma + V[i][d];
                 }
             }
         }
@@ -863,7 +863,7 @@ int main(int argc, char** argv) {
     abilita_shuffle = 0; //mescola i centroidi di V, con bassa probabilità (10%)
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
-    testLoadVIdeale = 0; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
+    testLoadVIdeale = 1; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
     usa_xb_per_fitness = 0; //DIVERGE
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE

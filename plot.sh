@@ -1,6 +1,7 @@
 #!/usr/bin/gnuplot
  
-set terminal postscript eps enhanced color "Helvetica" 20
+#set terminal postscript eps enhanced color "Helvetica" 20
+set terminal X11
 
  
 # beginning of multiplot
