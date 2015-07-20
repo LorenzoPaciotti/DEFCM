@@ -34,7 +34,6 @@ int testLoadVIdeale; //test solo per dataset gauss 4
 int random_init; //inizializza V popolazione iniziale completamente in modo casuale
 int aggiungi_peso_sigma;
 int usa_sumsep;
-int init_fcm;
 int attiva_partitioned_init;
 int attiva_sigma_separate;
 
@@ -247,11 +246,10 @@ double calcolaFitness(double **V, double **U, int debug) {
                     //conteggio elementi del cluster
                     if (U[i][j] > 0.9)
                         V[i][d + 1]++;
-
                 }
                 if (aggiungi_peso_sigma && V[i][d + 1]>(n / c)) {
-                    //aggiunta di un peso per via del numeri di elementi vicini al centroide
-                    V[i][d] = V[i][d]*0.001;
+                    //aggiunta di un peso per via del numero di elementi vicini al centroide
+                    V[i][d] = V[i][d]*1.001;
                 }
             }
 
@@ -878,15 +876,13 @@ int main(int argc, char** argv) {
     abilita_shuffle = 0; //mescola i centroidi di V, con bassa probabilità (10%)
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
-    testLoadVIdeale = 1; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
+    testLoadVIdeale = 0; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
     usa_xb_per_fitness = 0; //DIVERGE
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
     attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti molto vicini ai centroidi (>90%)
     attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster
-
-    init_fcm = 0; //non implementato
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
     numero_generazioni_iniziale = numero_generazioni;
