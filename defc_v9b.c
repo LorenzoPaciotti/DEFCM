@@ -101,13 +101,6 @@ double calcDistanza(double a[d], double b[d]) {
     return sqrt(ris);
 }
 
-void copiaVettore(int dim, double input[dim], double output[dim]) {
-    int i;
-    for (i = 0; i < dim; i++) {
-        output[i] = input[i];
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 long random_at_most(long max) {
@@ -234,7 +227,7 @@ double calcolaFitness(double **V, double **U) {
                 }
                 if (aggiungi_peso_sigma && V[i][d + 1]>(n / c)) {
                     //aggiunta di un peso per via del numero di elementi vicini al centroide
-                    sigma = sigma * 1.001;
+                    sigma = sigma * 2;
                 }
             }
         } else {
@@ -249,7 +242,7 @@ double calcolaFitness(double **V, double **U) {
                 }
                 if (aggiungi_peso_sigma && V[i][d + 1]>(n / c)) {
                     //aggiunta di un peso per via del numero di elementi vicini al centroide
-                    V[i][d] = V[i][d]*1.001;
+                    V[i][d] = V[i][d] * 2;
                 }
             }
 
@@ -257,7 +250,6 @@ double calcolaFitness(double **V, double **U) {
             for (i = 0; i < c; i++) {
                 sigma += V[i][d];
             }
-
         }
 
 
