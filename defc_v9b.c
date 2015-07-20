@@ -222,7 +222,7 @@ double calcolaFitness(double **V, double **U, int debug) {
         return calcolaXB(V, U, 0);
     } else {
         //CALCOLO SIGMA
-        double sigma = 0.0;
+        /*double sigma = 0.0;
         for (i = 0; i < n; i++) {
             for (j = 0; j < c; j++) {
                 sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
@@ -235,6 +235,24 @@ double calcolaFitness(double **V, double **U, int debug) {
                     //da controllare
                     //aggiunta di un peso per via del numeri di elementi vicini al centroide
                     sigma += V[j][d];
+                }
+            }
+        }*/
+
+        //CALCOLO SIGMA
+        double sigma = 0.0;
+        for (i = 0; i < c; i++) {
+            for (j = 0; j < n; j++) {
+                sigma += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
+
+                //aggiornamento contatore elementi del cluster
+                if (U[i][j] >= 0.9)
+                    V[i][d]++;
+
+                if (aggiungi_peso_sigma) {
+                    //aggiunta di un peso per via del numeri di elementi vicini al centroide
+                    if (U[i][j] >= 0.9)
+                        sigma++;
                 }
             }
         }
@@ -851,7 +869,7 @@ int main(int argc, char** argv) {
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
     attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti molto vicini ai centroidi (>90%)
-    
+
     init_fcm = 0; //non implementato
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
@@ -913,6 +931,8 @@ int main(int argc, char** argv) {
         fprintf(out_csv, "reset:%d,", abilita_reset);
         fprintf(out_csv, "random_init:%d,", random_init);
         fprintf(out_csv, "shuffle:%d,", abilita_shuffle);
+        fprintf(out_csv, "partitioned init:%d,", attiva_partitioned_init);
+        fprintf(out_csv, "peso sigma:%d,", aggiungi_peso_sigma);
         fprintf(out_csv, "best_XB:%lf,", best_xb);
         fprintf(out_csv, "best_fit:%lf\n", best_fit);
         fclose(out_csv);
