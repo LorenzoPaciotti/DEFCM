@@ -36,6 +36,7 @@ int aggiungi_peso_sigma;
 int usa_sumsep;
 int init_fcm;
 int attiva_partitioned_init;
+int attiva_sigma_separate;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -221,40 +222,44 @@ double calcolaFitness(double **V, double **U, int debug) {
     if (usa_xb_per_fitness) {
         return calcolaXB(V, U, 0);
     } else {
-        //CALCOLO SIGMA
-        /*double sigma = 0.0;
-        for (i = 0; i < n; i++) {
-            for (j = 0; j < c; j++) {
-                sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
-
-                //aggiornamento contatore elementi del cluster
-                if (U[j][i] >= 0.9)
-                    V[j][d]++;
-
-                if (aggiungi_peso_sigma) {
-                    //da controllare
-                    //aggiunta di un peso per via del numeri di elementi vicini al centroide
-                    sigma += V[j][d];
-                }
-            }
-        }*/
-
-        //CALCOLO SIGMA
         double sigma = 0.0;
-        for (i = 0; i < c; i++) {
-            for (j = 0; j < n; j++) {
-                sigma += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
+        //CALCOLO SIGMA
+        if (!attiva_sigma_separate) {
+            for (i = 0; i < c; i++) {
+                for (j = 0; j < n; j++) {
+                    sigma += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
 
-                //aggiornamento contatore elementi del cluster
-                if (U[i][j] >= 0.9)
-                    V[i][d]++;
-
-                if (aggiungi_peso_sigma) {
-                    //aggiunta di un peso per via del numeri di elementi vicini al centroide
-                    if (U[i][j] >= 0.9)
-                        sigma = sigma * 1.01;
+                    //conteggio elementi del cluster
+                    if (U[i][j] > 0.9)
+                        V[i][d + 1]++;
+                }
+                if (aggiungi_peso_sigma && V[i][d + 1]>(n / c)) {
+                    //aggiunta di un peso per via del numero di elementi vicini al centroide
+                    sigma = sigma * 1.001;
                 }
             }
+        } else {
+            //calcolo le sigma separatamente
+            for (i = 0; i < c; i++) {
+                for (j = 0; j < n; j++) {
+                    V[i][d] += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
+
+                    //conteggio elementi del cluster
+                    if (U[i][j] > 0.9)
+                        V[i][d + 1]++;
+
+                }
+                if (aggiungi_peso_sigma && V[i][d + 1]>(n / c)) {
+                    //aggiunta di un peso per via del numeri di elementi vicini al centroide
+                    V[i][d] = V[i][d]*0.001;
+                }
+            }
+
+            //somma delle sigma separate
+            for (i = 0; i < c; i++) {
+                sigma += V[i][d];
+            }
+
         }
 
 
@@ -354,7 +359,7 @@ void init(int n, int c, int d) {
         //in posizione V_p[d] va messo numero di elementi del cluster
         POP_NEW[pop_index] -> V_p = malloc((c * sizeof (double*)));
         for (row = 0; row < c; row++) {
-            POP_NEW[pop_index] -> V_p[row] = malloc((d * sizeof (double)) + (1 * sizeof (double)));
+            POP_NEW[pop_index] -> V_p[row] = malloc((d * sizeof (double)) + (2 * sizeof (double)));
         }
 
         int rigaX;
@@ -365,7 +370,9 @@ void init(int n, int c, int d) {
                     if (!fscanf(in_V, "%lf", &POP_NEW[pop_index] -> V_p[i][j]))
                         break;
                 }
+                //servono per peso sigma e sigma separate
                 POP_NEW[pop_index]->V_p[i][d] = 0;
+                POP_NEW[pop_index]->V_p[i][d + 1] = 0;
             }
         } else {
             if (attiva_partitioned_init) {
@@ -381,6 +388,9 @@ void init(int n, int c, int d) {
                         POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                     }
                     conteggio_bin++;
+                    //servono per peso sigma e sigma separate
+                    POP_NEW[pop_index]->V_p[i][d] = 0;
+                    POP_NEW[pop_index]->V_p[i][d + 1] = 0;
                 }
             } else {
                 //init V_p STANDARD
@@ -393,8 +403,9 @@ void init(int n, int c, int d) {
                         else
                             POP_NEW[pop_index] -> V_p[i][j] = X[rigaX][j] + drand48();
                     }
-                    //init del contatore di elementi nel cluster
+                    //servono per peso sigma e sigma separate
                     POP_NEW[pop_index]->V_p[i][d] = 0;
+                    POP_NEW[pop_index]->V_p[i][d + 1] = 0;
                 }
             }
         }
@@ -519,7 +530,7 @@ void lavora(int n, int c, int d) {
             //alloc V_p del mutante
             mutant -> V_p = malloc(c * sizeof (double*));
             for (row = 0; row < c; row++) {
-                mutant -> V_p[row] = malloc((d * sizeof (double)) + (1 * sizeof (double))); //usato per conservare la dimensione del cluster
+                mutant -> V_p[row] = malloc((d * sizeof (double)) + (2 * sizeof (double))); //usato per conservare la dimensione del cluster
             }
 
             //alloc U_p mutante
@@ -557,6 +568,9 @@ void lavora(int n, int c, int d) {
                 for (j1 = 0; j1 < d; j1++) {//dimensione
                     mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
                 }
+                //servono per peso sigma e sigma separate
+                mutant->V_p[i1][d] = 0;
+                mutant->V_p[i1][d + 1] = 0;
             }
 
             //CROSSOVER CON IL VETTORE TARGET UNIFORME
@@ -619,7 +633,7 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //selezione può essere fatta su fitness o su XB
-            if (mutant->fitness < POP_NOW[i_target]->fitness || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
+            if (mutant->fitness < POP_NOW[i_target]->fitness) {// || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
@@ -660,6 +674,7 @@ void lavora(int n, int c, int d) {
                                 }
                                 //reset contatore membri del cluster
                                 POP_NOW[i_target] -> V_p[i][d] = 0;
+                                POP_NOW[i_target]->V_p[i][d + 1] = 0;
                             }
                             //SORT MATRICE V
                             sortMatrice(POP_NOW[i_target]->V_p);
@@ -869,6 +884,7 @@ int main(int argc, char** argv) {
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
     attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti molto vicini ai centroidi (>90%)
+    attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster
 
     init_fcm = 0; //non implementato
 
@@ -933,6 +949,7 @@ int main(int argc, char** argv) {
         fprintf(out_csv, "shuffle:%d,", abilita_shuffle);
         fprintf(out_csv, "partitioned init:%d,", attiva_partitioned_init);
         fprintf(out_csv, "peso sigma:%d,", aggiungi_peso_sigma);
+        fprintf(out_csv, "separazione sigma:%d,", attiva_sigma_separate);
         fprintf(out_csv, "best_XB:%lf,", best_xb);
         fprintf(out_csv, "best_fit:%lf\n", best_fit);
         fclose(out_csv);
