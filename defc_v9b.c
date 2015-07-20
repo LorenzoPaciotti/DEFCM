@@ -252,7 +252,7 @@ double calcolaFitness(double **V, double **U, int debug) {
                 if (aggiungi_peso_sigma) {
                     //aggiunta di un peso per via del numeri di elementi vicini al centroide
                     if (U[i][j] >= 0.9)
-                        sigma = sigma + V[i][d];
+                        sigma = sigma * 1.01;
                 }
             }
         }
