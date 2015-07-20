@@ -156,7 +156,7 @@ int rand_int(int n) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-double calcolaXB(double **V, double **U, int debug) {
+double calcolaXB(double **V, double **U) {
     /*
      XB funzione del rapporto fra la variazione totale sigma
      e la separazione minima fra i centroidi
@@ -217,9 +217,9 @@ double calcolaXB(double **V, double **U, int debug) {
     return sigma / (n * den);
 }
 
-double calcolaFitness(double **V, double **U, int debug) {
+double calcolaFitness(double **V, double **U) {
     if (usa_xb_per_fitness) {
-        return calcolaXB(V, U, 0);
+        return calcolaXB(V, U);
     } else {
         double sigma = 0.0;
         //CALCOLO SIGMA
@@ -437,18 +437,17 @@ void init(int n, int c, int d) {
         }
 
         //calcolo fitness
-        double fit = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+        double fit = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p);
         POP_NEW[pop_index]->fitness = fit;
         fitness_vector[pop_index] = fit;
         //calcolo XB
-        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p, 0);
+        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p);
         POP_NEW[pop_index]->XB = xb;
         xb_vector[pop_index] = xb;
 
 
         //testLoadVIdeale
         if (testLoadVIdeale && pop_index == 0) {
-
             printf("fitness ideale:\t%lf\n", POP_NEW[pop_index]->fitness);
             printf("XB ideale\t%lf\n", POP_NEW[pop_index]->XB);
         }
@@ -458,7 +457,7 @@ void init(int n, int c, int d) {
         POP_NEW[pop_index] -> age = starting_age;
 
         //impostazione f e CR
-        POP_NEW[pop_index]->f = dbl_rnd_inRange(0.1, 2.0);
+        POP_NEW[pop_index]->f = dbl_rnd_inRange(0.1, 1.0);
         POP_NEW[pop_index]->CR = dbl_rnd_inRange(0.0, 1.0);
     }
     //###END INIT POPOLAZIONE 0
@@ -560,8 +559,6 @@ void lavora(int n, int c, int d) {
 
 
             //MUTATION (TIPO 1 rand-rand-rand) singolo punto
-            //la f cambia da vettore centroide a vettore centroide
-            //fattore scala mutazione
             for (i1 = 0; i1 < c; i1++) {//centroide
                 for (j1 = 0; j1 < d; j1++) {//dimensione
                     mutant->V_p[i1][j1] = POP_NOW[indice_base]->V_p[i1][j1] + f * (POP_NOW[indice_1]->V_p[i1][j1] - POP_NOW[indice_2]->V_p[i1][j1]);
@@ -581,15 +578,6 @@ void lavora(int n, int c, int d) {
                     }
                 }
             }
-
-            //CROSSOVER SPLIT
-            /*for (i1 = 0; i1 < c; i1++) {//centroide
-                for (j1 = 0; j1 < d; j1++) {//coordinata centroide
-                    if (i1 >= floor((double) c / 2)) {//prendo i cromosomi dal target so oltre il punto di CO
-                        mutant->V_p[i1][j1] = POP_NOW[i_target]->V_p[i1][j1];
-                    }
-                }
-            }*/
 
             //SORT MATRICE MUTANTE (ORA DETTO TRIAL)
             sortMatrice(mutant->V_p);
@@ -621,10 +609,10 @@ void lavora(int n, int c, int d) {
             }
 
             //calcolo fitness trial   
-            mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p, 1);
+            mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p);
 
             //calcolo XB trial
-            mutant->XB = calcolaXB(mutant->V_p, mutant->U_p, 0);
+            mutant->XB = calcolaXB(mutant->V_p, mutant->U_p);
 
             //impostazione timer età trial
             mutant -> age = starting_age;
@@ -697,12 +685,12 @@ void lavora(int n, int c, int d) {
                             }
 
                             //calcolo fitness
-                            double fit = calcolaFitness(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
+                            double fit = calcolaFitness(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p);
                             POP_NOW[i_target]->fitness = fit;
                             fitness_vector[i_target] = fit;
 
                             //calcolo XB
-                            double xb = calcolaXB(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p, 0);
+                            double xb = calcolaXB(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p);
                             POP_NOW[i_target]->XB = xb;
                             xb_vector[i_target] = xb;
 
