@@ -849,7 +849,7 @@ int main(int argc, char** argv) {
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni / 4; //timer iniziale
-    abilita_invecchiamento = 0;
+    abilita_invecchiamento = 1;
     abilita_reset = 0; //richiede invecchiamento
     reset_threshold = numero_generazioni / 2;
     abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
@@ -857,12 +857,12 @@ int main(int argc, char** argv) {
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
-    random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
+    random_init = 1; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
     usa_xb_per_fitness = 0; //DIVERGE
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
     attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti molto vicini ai centroidi (>90%)
-    attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster
+    attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster, il peso sarà dato in modo separato
 
     puts("v9b: jDE, conteggio degli elementi di ogni cluster");
     numero_generazioni_iniziale = numero_generazioni;
