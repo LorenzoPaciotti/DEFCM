@@ -30,7 +30,7 @@ double random_normal() {
 
 int main() {
     FILE *out_X;
-    out_X = fopen("x.dat", "w");
+    out_X = fopen("gauss1.data", "w");
     int n, d;
     double mi_gauss, sigma_gauss;
     printf("numero di punti: ");
@@ -59,9 +59,9 @@ int main() {
         if (i == 150) {
             mi_gauss *= 2;
         }
-        if(i==200){
-			mi_gauss *= 2;
-		}
+        if (i == 200) {
+            mi_gauss *= 2;
+        }
 
 
     }

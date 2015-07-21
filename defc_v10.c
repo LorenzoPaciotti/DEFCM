@@ -17,8 +17,9 @@ int ultimo_conteggio_successi;
 int conteggio_successi_generazione_attuale;
 int conteggio_reset;
 int reset_threshold;
-int bestFitIndex;
+int bestSigmaIndex;
 int bestXBIndex;
+int bestMinSepIndex;
 double best_xb;
 double best_fit;
 int numero_generazioni, i, j, k, pop_index, numero_generazione_attuale, numero_generazioni_iniziale;
@@ -26,7 +27,7 @@ double esponente_U;
 int n, c, d; //numero di punti in input, numero di centroidi, numero di dimensioni
 int abilita_partitioning; //riordina gli array V per far accoppiare solo i centroidi della stessa zona dello spazio
 int abilita_invecchiamento; //invecchiamento e reinizializzazione
-int usa_xb_per_fitness; //usa XB invece di sigma
+int usa_xb_per_sigma; //usa XB invece di sigma
 int abilita_shuffle; //shuffle posizione centroidi
 int abilita_reset; //reset generale popolazione
 int attivaGnuPlot; //attiva e disattiva GnuPlot
@@ -48,7 +49,8 @@ double soglia_peso_sigma;
 typedef struct el_pop {
     double **V_p;
     double **U_p;
-    double fitness;
+    double min_sep;
+    double sigma;
     double XB;
     int age;
     //jDE
@@ -62,10 +64,11 @@ el_pop *POP_NEW[num_pop];
 //vettore popolazione attuale
 el_pop *POP_NOW[num_pop];
 
-//per confronto veloce delle fitness conosciute
-double fitness_vector[num_pop];
+//per confronto veloce delle sigma conosciute
+double sigma_vector[num_pop];
 
-//per confronti XB
+double min_sep_vector[num_pop];
+
 double xb_vector[num_pop];
 
 void stampaMatrice(int righe, int col, double **mat) {
@@ -239,7 +242,7 @@ double calcolaMinSep(double **V) {
         den = distsum;
     }
 
-    return den;
+    return n * den;
 }
 
 double calcolaXB(double **V, double **U) {
@@ -253,46 +256,7 @@ double calcolaXB(double **V, double **U) {
     double den = calcolaMinSep(V);
 
 
-    return sigma / (n * den);
-}
-
-double calcolaFitness(double **V, double **U) {
-    if (usa_xb_per_fitness)
-        return calcolaXB(V, U);
-    else
-        return calcolaSigma(V, U);
-}
-
-//usata per partizionare in sottopopolazioni
-
-void sortMatrice(double **V) {
-    if (abilita_partitioning) {
-        double temp;
-        int scambiare;
-        int alto, riga, colonna;
-
-        for (alto = c - 1; alto > 0; alto--) {
-            for (riga = 0; riga < alto; riga++) {
-                scambiare = 0;
-                for (colonna = 0; colonna < d; colonna++) {
-                    if (colonna == 0) {//ordinamento rispetto solo alla prima dimensione
-                        if (V[riga][colonna] > V[riga + 1][colonna]) {
-                            scambiare = 1;
-                            temp = V[riga][colonna];
-                            V[riga][colonna] = V[riga + 1][colonna];
-                            V[riga + 1][colonna] = temp;
-                        }
-                    } else {
-                        if (scambiare == 1) {//spostamento degli altri elementi del vettore da spostare
-                            temp = V[riga][colonna];
-                            V[riga][colonna] = V[riga + 1][colonna];
-                            V[riga + 1][colonna] = temp;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    return sigma / den;
 }
 
 //usato per lo shake della matrice V
@@ -319,22 +283,32 @@ void shuffleMatrice(double **V) {
     }
 }
 
-void aggiornaBestFitIndex() {
-    double bestFit = DBL_MAX;
+void aggiornaBestSigmaIndex() {
+    double best = DBL_MAX;
     for (i = 0; i < num_pop; i++) {
-        if (fitness_vector[i] < bestFit) {
-            bestFit = fitness_vector[i];
-            bestFitIndex = i;
+        if (sigma_vector[i] < best) {
+            best = sigma_vector[i];
+            bestSigmaIndex = i;
         }
     }
 }
 
 void aggiornaBestXBIndex() {
-    double temp = DBL_MAX;
+    double best = DBL_MAX;
     for (i = 0; i < num_pop; i++) {
-        if (xb_vector[i] < temp) {
-            temp = xb_vector[i];
+        if (xb_vector[i] < best) {
+            best = xb_vector[i];
             bestXBIndex = i;
+        }
+    }
+}
+
+void aggiornaBestMinSepIndex() {
+    double best = DBL_MAX;
+    for (i = 0; i < num_pop; i++) {
+        if (min_sep_vector[i] < best) {
+            best = min_sep_vector[i];
+            bestMinSepIndex = i;
         }
     }
 }
@@ -405,9 +379,6 @@ void init(int n, int c, int d) {
             }
         }
 
-        //riordino matrice
-        sortMatrice(POP_NEW[pop_index]->V_p);
-
         //alloc U_p
         POP_NEW[pop_index] -> U_p = malloc(c * sizeof (double*));
         for (row = 0; row < c; row++) {
@@ -433,19 +404,24 @@ void init(int n, int c, int d) {
             }
         }
 
-        //calcolo fitness
-        double fit = calcolaFitness(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p);
-        POP_NEW[pop_index]->fitness = fit;
-        fitness_vector[pop_index] = fit;
+        double tmp;
+        //calcolo sigma
+        tmp = calcolaSigma(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p);
+        POP_NEW[pop_index]->sigma = tmp;
+        sigma_vector[pop_index] = tmp;
         //calcolo XB
-        double xb = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p);
-        POP_NEW[pop_index]->XB = xb;
-        xb_vector[pop_index] = xb;
+        tmp = calcolaXB(POP_NEW[pop_index]->V_p, POP_NEW[pop_index]->U_p);
+        POP_NEW[pop_index]->XB = tmp;
+        xb_vector[pop_index] = tmp;
+        //calcolo minsep
+        tmp = calcolaMinSep(POP_NEW[pop_index]->V_p);
+        POP_NEW[pop_index]->min_sep = tmp;
+        min_sep_vector[pop_index] = tmp;
 
 
         //testLoadVIdeale
         if (testLoadVIdeale && pop_index == 0) {
-            printf("fitness ideale:\t%lf\n", POP_NEW[pop_index]->fitness);
+            printf("sigma ideale:\t%lf\n", POP_NEW[pop_index]->sigma);
             printf("XB ideale\t%lf\n", POP_NEW[pop_index]->XB);
         }
 
@@ -485,21 +461,22 @@ void lavora(int n, int c, int d) {
             }
         }
 
+        aggiornaBestSigmaIndex();
+        aggiornaBestMinSepIndex();
         aggiornaBestXBIndex();
-        aggiornaBestFitIndex();
 
         //DEBUG/////////////////////////
-        if (numero_generazione_attuale % 50 == 0 || numero_generazione_attuale == 1) {
+        if (numero_generazione_attuale % 50 == 0) {
             printf("\n#####DEBUG#####\n");
             double best_xb = POP_NOW[bestXBIndex]->XB;
-            double best_fit = POP_NOW[bestFitIndex]->fitness;
-            double best_xb_and_fit = POP_NOW[bestFitIndex]->XB;
-            printf("Generazione:%d      best_fit_index:%d       best_xb_index:%d\n", numero_generazione_attuale, bestFitIndex, bestXBIndex);
-            printf("best_XB_assoluto:%lf    best_fit:%lf    xb_of_best_fit:%lf\n", best_xb, best_fit, best_xb_and_fit);
+            double best_fit = POP_NOW[bestSigmaIndex]->sigma;
+            double best_xb_and_fit = POP_NOW[bestSigmaIndex]->XB;
+            printf("Generazione:%d      best_fit_index:%d       best_xb_index:%d\n", numero_generazione_attuale, bestSigmaIndex, bestXBIndex);
+            printf("best_XB_assoluto:%lf    best_fit:%lf    xb_of_best_sigma:%lf\n", best_xb, best_fit, best_xb_and_fit);
             fprintf(debug_log, "%d\n", numero_generazione_attuale);
             stampaMatriceSuFile(c, d, POP_NOW[bestXBIndex]->V_p, debug_log);
             fprintf(debug_log, "\n");
-            stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, debug_log);
+            stampaMatriceSuFile(c, d, POP_NOW[bestSigmaIndex]->V_p, debug_log);
             fprintf(debug_log, "\n");
             fprintf(debug_log, "\n");
         }
@@ -581,9 +558,6 @@ void lavora(int n, int c, int d) {
                 }
             }
 
-            //SORT MATRICE MUTANTE (ORA DETTO TRIAL)
-            sortMatrice(mutant->V_p);
-
             //calcolo U trial
             for (i = 0; i < c; i++) {
                 for (j = 0; j < n; j++) {
@@ -610,22 +584,26 @@ void lavora(int n, int c, int d) {
                 }
             }
 
-            //calcolo fitness trial   
-            mutant->fitness = calcolaFitness(mutant->V_p, mutant->U_p);
+            //calcolo sigma trial
+            mutant->sigma = calcolaSigma(mutant->V_p, mutant->U_p);
+
+            //calcolo min_sep trial
+            mutant->min_sep = calcolaMinSep(mutant->V_p);
 
             //calcolo XB trial
-            mutant->XB = calcolaXB(mutant->V_p, mutant->U_p);
+            mutant->XB = mutant->sigma / mutant->min_sep;
 
             //impostazione timer età trial
             mutant -> age = starting_age;
 
             //SELECTION
-            //selezione può essere fatta su fitness o su XB
-            if (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB) {// || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
+            //selezione può essere fatta su sigma o su XB
+            if (mutant->sigma < POP_NOW[i_target]->sigma || (mutant->sigma = POP_NOW[i_target]->sigma && mutant->min_sep > POP_NOW[i_target]->min_sep)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
-                fitness_vector[i_target] = mutant->fitness;
+                sigma_vector[i_target] = mutant->sigma;
                 xb_vector[i_target] = mutant->XB;
+                min_sep_vector[i_target] = mutant->min_sep;
                 //jDE - aggiornameto f e CR che hanno avuto successo
                 POP_NEW[i_target]->CR = CR;
                 POP_NEW[i_target]->f = f;
@@ -641,8 +619,8 @@ void lavora(int n, int c, int d) {
 
                 if (abilita_invecchiamento) {
                     //INVECCHIAMENTO del sopravvissuto
-                    aggiornaBestFitIndex();
-                    if (i_target != bestFitIndex) { //se non è il migliore invecchia
+                    aggiornaBestSigmaIndex();
+                    if (i_target != bestSigmaIndex) { //se non è il migliore invecchia
                         if (POP_NOW[i_target] -> age > 0)//non sono in modalità reset
                             POP_NOW[i_target] -> age--;
                         if (POP_NOW[i_target] -> age <= 0) {//morte
@@ -664,8 +642,6 @@ void lavora(int n, int c, int d) {
                                 POP_NOW[i_target] -> V_p[i][d] = 0;
                                 POP_NOW[i_target]->V_p[i][d + 1] = 0;
                             }
-                            //SORT MATRICE V
-                            sortMatrice(POP_NOW[i_target]->V_p);
 
                             //calcola U
                             for (i = 0; i < c; i++) {
@@ -686,15 +662,20 @@ void lavora(int n, int c, int d) {
                                 }
                             }
 
-                            //calcolo fitness
-                            double fit = calcolaFitness(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p);
-                            POP_NOW[i_target]->fitness = fit;
-                            fitness_vector[i_target] = fit;
+                            double tmp;
+                            //calcolo sigma
+                            tmp = calcolaSigma(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p);
+                            POP_NOW[i_target]->sigma = tmp;
+                            sigma_vector[i_target] = tmp;
+
+                            //calcolo min_sep
+                            tmp = calcolaMinSep(POP_NOW[i_target]->V_p);
+                            POP_NOW[i_target]->min_sep = tmp;
+                            min_sep_vector[i_target] = tmp;
 
                             //calcolo XB
-                            double xb = calcolaXB(POP_NOW[i_target]->V_p, POP_NOW[i_target]->U_p);
-                            POP_NOW[i_target]->XB = xb;
-                            xb_vector[i_target] = xb;
+                            POP_NOW[i_target]->XB = POP_NOW[i_target]->sigma / POP_NOW[i_target]->min_sep;
+                            xb_vector[i_target] = POP_NOW[i_target]->XB;
 
                             //impostazione età
                             POP_NOW[i_target] -> age = starting_age;
@@ -748,8 +729,8 @@ void lavora(int n, int c, int d) {
             if (conteggio_reset == reset_threshold) {
                 puts("#RESET GLOBALE#");
                 for (i = 0; i < num_pop; i++) {
-                    aggiornaBestFitIndex();
-                    if (i != bestFitIndex)
+                    aggiornaBestSigmaIndex();
+                    if (i != bestSigmaIndex)
                         POP_NOW[i] -> age = 0;
                 }
                 conteggio_reset = 0; //reset contatore
@@ -778,22 +759,22 @@ void lavora(int n, int c, int d) {
         }
     }
 
-    //computazione fitness della popolazione finale
-    aggiornaBestFitIndex();
+    //computazione sigma della popolazione finale
+    aggiornaBestSigmaIndex();
     aggiornaBestXBIndex();
 
-    best_xb = POP_NOW[bestFitIndex]->XB;
-    best_fit = POP_NOW[bestFitIndex]->fitness;
+    best_xb = POP_NOW[bestSigmaIndex]->XB;
+    best_fit = POP_NOW[bestSigmaIndex]->sigma;
     printf("\n**MIGLIOR XB FINALE: \t%lf\n", best_xb);
-    printf("\n**MIGLIOR FITNESS FINALE: \t%lf\n", best_fit);
-    printf("\n**f: \t%lf\n", POP_NOW[bestFitIndex]->f);
-    printf("\n**CR: \t%lf\n", POP_NOW[bestFitIndex]->CR);
+    printf("\n**MIGLIOR SIGMA FINALE: \t%lf\n", best_fit);
+    printf("\n**f: \t%lf\n", POP_NOW[bestSigmaIndex]->f);
+    printf("\n**CR: \t%lf\n", POP_NOW[bestSigmaIndex]->CR);
     puts("matrice del best XB:");
     stampaMatrice(c, d, POP_NOW[bestXBIndex]->V_p);
-    puts("matrice del best fitness:");
-    stampaMatrice(c, d, POP_NOW[bestFitIndex]->V_p);
-    stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, out_V);
-    stampaMatriceSuFile(c, n, POP_NOW[bestFitIndex]->U_p, out_U);
+    puts("matrice del best sigma:");
+    stampaMatrice(c, d, POP_NOW[bestSigmaIndex]->V_p);
+    stampaMatriceSuFile(c, d, POP_NOW[bestSigmaIndex]->V_p, out_V);
+    stampaMatriceSuFile(c, n, POP_NOW[bestSigmaIndex]->U_p, out_U);
     puts("###################################################################");
     puts("###################################################################");
 }
@@ -843,7 +824,7 @@ int main(int argc, char** argv) {
             c = atoi(argv[4]);
             numero_generazioni = atoi(argv[5]);
         } else {
-            puts("SINTASSI: ./defc9b tipo_ds n d c num_gen");
+            puts("SINTASSI: ./defc10 tipo_ds n d c num_gen");
             exit(-1);
         }
     } else {
@@ -869,8 +850,8 @@ int main(int argc, char** argv) {
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
-    usa_xb_per_fitness = 0; //DIVERGE
-    usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
+    usa_xb_per_sigma = 0; //DIVERGE
+    usa_sumsep = 0; //richiede usa xb per sigma, usa somma delle distanza al denominatore di XB, DIVERGE
     attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
     //per cluster sbilanciati
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
@@ -879,22 +860,22 @@ int main(int argc, char** argv) {
     soglia_conteggio = 0.9; //soglia di appartenenza di un punto per conteggiarlo come facente strettamente parte del cluster
     soglia_peso_sigma = n / c; //soglia (sul numero di punti nel cluster) oltre la quale si applica il peso sigma
 
-    puts("v9b");
+    puts("v10");
     numero_generazioni_iniziale = numero_generazioni;
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/R15.data", "r");
+    out_X = fopen("dataset/gauss1.data", "r");
     //matrice di output centroidi
-    out_V = fopen("v_defc9b.out", "w");
+    out_V = fopen("v_defc10.out", "w");
     //matrice output appartenenze
-    out_U = fopen("u_defc9b.out", "w");
+    out_U = fopen("u_defc10.out", "w");
     if (testLoadVIdeale) {
         //matrice V per test funzione obiettivo
         in_V = fopen("v_test.dat", "r");
         puts("TEST LOAD V IDEALE ATTIVO!");
     }
-    debug_log = fopen("debug/debug_defcv9b.debug", "w");
+    debug_log = fopen("debug/debug_defcv10.debug", "w");
 
     //allocazione X
     int row;
@@ -926,12 +907,12 @@ int main(int argc, char** argv) {
 
     //scrittura csv
     if (output_csv) {
-        out_csv = fopen("csv/output_defcv9b.csv", "a");
+        out_csv = fopen("csv/output_defcv10.csv", "a");
         fprintf(out_csv, "dataset:%d,", tipo_dataset);
         fprintf(out_csv, "n:%d,", n);
         fprintf(out_csv, "c:%d,", c);
         fprintf(out_csv, "d:%d,", d);
-        fprintf(out_csv, "num_fitness_eval:%d,", num_pop * numero_generazioni_iniziale);
+        fprintf(out_csv, "num_sigma_eval:%d,", num_pop * numero_generazioni_iniziale);
         fprintf(out_csv, "start_age:%d,", starting_age);
         fprintf(out_csv, "aging:%d,", abilita_invecchiamento);
         fprintf(out_csv, "reset:%d,", abilita_reset);

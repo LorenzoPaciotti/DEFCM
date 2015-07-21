@@ -7,7 +7,7 @@ set output "s1.eps"
 # beginning of multiplot
 set multiplot
 
-set key left
+unset key
 set grid
  
 # the first plot
@@ -23,7 +23,6 @@ unset grid
 #set terminal postscript eps enhanced color "Helvetica" 20
 #set output 'V_DEFCM.eps'
 plot "v_defc.dat" with p pt 11 ps 3 lc 0
-
 #set terminal postscript eps enhanced color "Helvetica" 20
 #set output 'V_FCM.eps'
 plot "v_fcm.dat" with p pt 15 ps 2 lc 15
