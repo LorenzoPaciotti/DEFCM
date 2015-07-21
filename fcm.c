@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     FILE *out_V, *out_X, *out_U;
     out_V = fopen("v_fcm.out", "w");
     out_U = fopen("u_fcm.out", "w");
-    out_X = fopen("dataset/D31.data", "r");
+    out_X = fopen("dataset/gauss1.data", "r");
     
     //letture da utente
     puts("numero di punti in input");

@@ -1,8 +1,4 @@
 all:
-	#gcc -ggdb -g -Wall -o defc2.x defc_v2.c -lm
-	#gcc -ggdb -g -Wall -o defc5.x defc_v5.c -lm
-	#gcc -ggdb -g -Wall -o defc7.x defc_v7.c -lm
-	#gcc -ggdb -g -Wall -o defc9.x defc_v9.c -lm
 	gcc -ggdb -g -Wall -o fcm.x fcm.c -lm
 	gcc -ggdb -g -Wall -o data_gen1.x data_generator.c -lm
 	gcc -ggdb -g -Wall -o data_gen2.x data_generator_2.c -lm

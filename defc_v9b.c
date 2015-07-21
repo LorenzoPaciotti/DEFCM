@@ -36,6 +36,9 @@ int aggiungi_peso_sigma;
 int usa_sumsep;
 int attiva_partitioned_init;
 int attiva_sigma_separate;
+double peso_sigma;
+double soglia_conteggio;
+double soglia_peso_sigma;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -149,6 +152,49 @@ int rand_int(int n) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+double calcolaSigma(double **V, double **U) {
+    double sigma = 0;
+    //CALCOLO SIGMA
+    if (!attiva_sigma_separate) {
+        for (i = 0; i < c; i++) {
+            V[i][d + 1] = 0; //reset contatore elementi
+            for (j = 0; j < n; j++) {
+                sigma += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
+
+                //conteggio elementi del cluster
+                if (U[i][j] > soglia_conteggio)
+                    V[i][d + 1]++;
+            }
+            if (aggiungi_peso_sigma && V[i][d + 1] > soglia_peso_sigma) {
+                //aggiunta di un peso per via del numero di elementi vicini al centroide
+                sigma = sigma * peso_sigma;
+            }
+        }
+    } else {
+        //calcolo le sigma separatamente
+        for (i = 0; i < c; i++) {
+            V[i][d + 1] = 0;
+            for (j = 0; j < n; j++) {
+                V[i][d] += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
+
+                //conteggio elementi del cluster
+                if (U[i][j] > soglia_conteggio)
+                    V[i][d + 1]++;
+            }
+            if (aggiungi_peso_sigma && V[i][d + 1] > soglia_peso_sigma) {
+                //aggiunta di un peso per via del numero di elementi vicini al centroide
+                V[i][d] = V[i][d] * peso_sigma;
+            }
+        }
+
+        //somma delle sigma separate
+        for (i = 0; i < c; i++) {
+            sigma += V[i][d];
+        }
+    }
+    return sigma;
+}
+
 double calcolaXB(double **V, double **U) {
     /*
      XB funzione del rapporto fra la variazione totale sigma
@@ -157,12 +203,12 @@ double calcolaXB(double **V, double **U) {
 
     int i, j;
     //CALCOLO SIGMA
-    double sigma = 0.0;
-    for (i = 0; i < n; i++) {
+    double sigma = calcolaSigma(V, U);
+    /*for (i = 0; i < n; i++) {
         for (j = 0; j < c; j++) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
-    }
+    }*/
 
     //CALCOLO MIN_SEP
     double den;
@@ -211,51 +257,10 @@ double calcolaXB(double **V, double **U) {
 }
 
 double calcolaFitness(double **V, double **U) {
-    if (usa_xb_per_fitness) {
+    if (usa_xb_per_fitness)
         return calcolaXB(V, U);
-    } else {
-        double sigma = 0.0;
-        //CALCOLO SIGMA
-        if (!attiva_sigma_separate) {
-            for (i = 0; i < c; i++) {
-                for (j = 0; j < n; j++) {
-                    sigma += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
-
-                    //conteggio elementi del cluster
-                    if (U[i][j] > 0.9)
-                        V[i][d + 1]++;
-                }
-                if (aggiungi_peso_sigma && V[i][d + 1]>(n / c)) {
-                    //aggiunta di un peso per via del numero di elementi vicini al centroide
-                    sigma = sigma * 2;
-                }
-            }
-        } else {
-            //calcolo le sigma separatamente
-            for (i = 0; i < c; i++) {
-                for (j = 0; j < n; j++) {
-                    V[i][d] += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
-
-                    //conteggio elementi del cluster
-                    if (U[i][j] > 0.9)
-                        V[i][d + 1]++;
-                }
-                if (aggiungi_peso_sigma && V[i][d + 1]>(n / c)) {
-                    //aggiunta di un peso per via del numero di elementi vicini al centroide
-                    V[i][d] = V[i][d] * 2;
-                }
-            }
-
-            //somma delle sigma separate
-            for (i = 0; i < c; i++) {
-                sigma += V[i][d];
-            }
-        }
-
-
-        return sigma;
-    }
-
+    else
+        return calcolaSigma(V, U);
 }
 
 //usata per partizionare in sottopopolazioni
@@ -481,11 +486,13 @@ void lavora(int n, int c, int d) {
         }
 
         //DEBUG/////////////////////////
-        if (numero_generazione_attuale % 50 == 0) {
-            puts("#####DEBUG#####");
+        if (numero_generazione_attuale % 50 == 0 || numero_generazione_attuale == 1) {
+            printf("\n#####DEBUG#####\n");
             double best_xb = POP_NOW[bestXBIndex]->XB;
             double best_fit = POP_NOW[bestFitIndex]->fitness;
-            printf("generazione:%d  best XB:%lf  best fit:%lf\n", numero_generazione_attuale, best_xb, best_fit);
+            double best_xb_and_fit = POP_NOW[bestFitIndex]->XB;
+            printf("Generazione:%d      best_fit_index:%d       best_xb_index:%d\n", numero_generazione_attuale, bestFitIndex, bestXBIndex);
+            printf("best_XB_assoluto:%lf    best_fit:%lf    xb_of_best_fit:%lf\n", best_xb, best_fit, best_xb_and_fit);
             fprintf(debug_log, "%d\n", numero_generazione_attuale);
             stampaMatriceSuFile(c, d, POP_NOW[bestXBIndex]->V_p, debug_log);
             fprintf(debug_log, "\n");
@@ -611,7 +618,7 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //selezione può essere fatta su fitness o su XB
-            if (mutant->fitness < POP_NOW[i_target]->fitness) {// || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
+            if (mutant->fitness < POP_NOW[i_target]->fitness || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
@@ -842,13 +849,13 @@ int main(int argc, char** argv) {
         tipo_dataset = 0; //gauss = 0, s = 1
         d = 2;
         c = 15;
-        numero_generazioni = 100;
+        numero_generazioni = 500;
     }
 
     //PARAMETRI INIZIALI
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
-    starting_age = numero_generazioni / 4; //timer iniziale
+    starting_age = numero_generazioni / 10; //timer iniziale
     abilita_invecchiamento = 1;
     abilita_reset = 0; //richiede invecchiamento
     reset_threshold = numero_generazioni / 2;
@@ -857,26 +864,31 @@ int main(int argc, char** argv) {
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
     testLoadVIdeale = 0; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
-    random_init = 1; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
+    random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
     usa_xb_per_fitness = 0; //DIVERGE
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
     attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
-    aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti molto vicini ai centroidi (>90%)
+    aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
     attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster, il peso sarà dato in modo separato
+    peso_sigma = 0.25; //n/(n+c)
+    soglia_conteggio = 0.9;
+    soglia_peso_sigma = n / c;
 
-    puts("v9b: jDE, conteggio degli elementi di ogni cluster");
+    puts("v9b");
     numero_generazioni_iniziale = numero_generazioni;
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/gauss1.data", "r");
+    out_X = fopen("dataset/gauss4.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9b.out", "w");
     //matrice output appartenenze
     out_U = fopen("u_defc9b.out", "w");
-    if (testLoadVIdeale)
+    if (testLoadVIdeale) {
         //matrice V per test funzione obiettivo
         in_V = fopen("v_test.dat", "r");
+        puts("TEST LOAD V IDEALE ATTIVO!");
+    }
     //out_LOG_RIS = fopen("log_ris", "a");
     debug_log = fopen("debug/debug_defcv9b.debug", "w");
 
@@ -900,7 +912,7 @@ int main(int argc, char** argv) {
         srand48(time(NULL));
     init(n, c, d);
     lavora(n, c, d);
-    //plot();
+    plot();
 
     fclose(out_U);
     fclose(out_V);
@@ -915,16 +927,16 @@ int main(int argc, char** argv) {
         fprintf(out_csv, "n:%d,", n);
         fprintf(out_csv, "c:%d,", c);
         fprintf(out_csv, "d:%d,", d);
-        fprintf(out_csv, "num_pop:%d,", num_pop);
-        fprintf(out_csv, "num_gen:%d,", numero_generazioni_iniziale);
+        fprintf(out_csv, "num_fitness_eval:%d,", num_pop * numero_generazioni_iniziale);
         fprintf(out_csv, "start_age:%d,", starting_age);
-        fprintf(out_csv, "partitioning:%d,", abilita_partitioning);
         fprintf(out_csv, "aging:%d,", abilita_invecchiamento);
         fprintf(out_csv, "reset:%d,", abilita_reset);
         fprintf(out_csv, "random_init:%d,", random_init);
         fprintf(out_csv, "shuffle:%d,", abilita_shuffle);
-        fprintf(out_csv, "partitioned init:%d,", attiva_partitioned_init);
-        fprintf(out_csv, "peso sigma:%d,", aggiungi_peso_sigma);
+        fprintf(out_csv, "utilizza peso sigma:%d,", aggiungi_peso_sigma);
+        fprintf(out_csv, "valore peso sigma:%lf,", peso_sigma);
+        fprintf(out_csv, "soglia peso sigma:%lf,", soglia_peso_sigma);
+        fprintf(out_csv, "soglia conteggio:%lf,", soglia_conteggio);
         fprintf(out_csv, "separazione sigma:%d,", attiva_sigma_separate);
         fprintf(out_csv, "best_XB:%lf,", best_xb);
         fprintf(out_csv, "best_fit:%lf\n", best_fit);
