@@ -5,7 +5,7 @@
 #include <float.h>
 #include <time.h>
 
-int c,n,d;
+int c, n, d;
 
 double m = 2.0; //fuzzification
 double epsilon = 0.000000000001; //minima distanza per arrestare
@@ -97,7 +97,7 @@ double calcolaXB(double **V, double **U, int debug) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
     }
-    return sigma/(n * min_sep);
+    return sigma / (n * min_sep);
 }
 
 void plot() {
@@ -125,8 +125,8 @@ int main(int argc, char** argv) {
     FILE *out_V, *out_X, *out_U;
     out_V = fopen("v_fcm.out", "w");
     out_U = fopen("u_fcm.out", "w");
-    out_X = fopen("dataset/gauss1.data", "r");
-    
+    out_X = fopen("dataset/aggregation.data", "r");
+
     //letture da utente
     puts("numero di punti in input");
     scanf("%d", &n);
@@ -134,9 +134,9 @@ int main(int argc, char** argv) {
     scanf("%d", &d);
     puts("numero di centroidi");
     scanf("%d", &c);
-    
+
     double distanze[c]; //vettore con le dist fra centroidi dopo l'aggiornamento
-        
+
     //allocazione X
     int row;
     X = malloc(n * sizeof (double*));
@@ -152,26 +152,26 @@ int main(int argc, char** argv) {
         }
     }
     fclose(out_X);
-    
+
     //alloc V
-        V = malloc(c * sizeof (double*));
-        for (row = 0; row < c; row++) {
-            V[row] = malloc(d * sizeof (double));
-        }
-    
+    V = malloc(c * sizeof (double*));
+    for (row = 0; row < c; row++) {
+        V[row] = malloc(d * sizeof (double));
+    }
+
     //INIT V
     srand48(rand());
     for (i = 0; i < c; i++)
         for (j = 0; j < d; j++)
             V[i][j] = 10 * drand48() - 5;
-    
+
     //alloc U
-        U = malloc(c * sizeof (double*));
-        for (row = 0; row < c; row++) {
-            U[row] = malloc(n * sizeof (double));
-        }
-    
-    
+    U = malloc(c * sizeof (double*));
+    for (row = 0; row < c; row++) {
+        U[row] = malloc(n * sizeof (double));
+    }
+
+
     printf("########END INIT##########\n\n");
     max = 0.0;
     do {
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
             }
             distanze[i] = pow(calcDistanza(V[i], old), 2.0);
         }
-        
+
     } while (maxDistCentroidi(distanze) > epsilon);
 
     puts("matrice V:");
@@ -220,8 +220,8 @@ int main(int argc, char** argv) {
     stampaMatriceSuFile(c, n, U, out_U);
     printf("MAXDISTCENTROIDI: %lf\n", maxDistCentroidi(distanze));
     puts("indice XB:");
-    double xb = calcolaXB(V,U,0);
-    printf("%lf\n",xb);
+    double xb = calcolaXB(V, U, 0);
+    printf("%lf\n", xb);
     plot();
     return (0);
 }

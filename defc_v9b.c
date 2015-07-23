@@ -157,7 +157,9 @@ double calcolaSigma(double **V, double **U) {
     //CALCOLO SIGMA
     if (!attiva_sigma_separate) {
         for (i = 0; i < c; i++) {
+
             V[i][d + 1] = 0; //reset contatore elementi
+
             for (j = 0; j < n; j++) {
                 sigma += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
 
@@ -165,7 +167,11 @@ double calcolaSigma(double **V, double **U) {
                 if (U[i][j] > soglia_conteggio)
                     V[i][d + 1]++;
             }
+
+
+
             if (aggiungi_peso_sigma && V[i][d + 1] > soglia_peso_sigma) {
+                peso_sigma = 1 - (V[i][d + 1] / n); //sperimentale
                 //aggiunta di un peso per via del numero di elementi vicini al centroide
                 sigma = sigma * peso_sigma;
             }
@@ -173,7 +179,9 @@ double calcolaSigma(double **V, double **U) {
     } else {
         //calcolo le sigma separatamente
         for (i = 0; i < c; i++) {
-            V[i][d + 1] = 0;
+
+            V[i][d + 1] = 0; //reset conteggio elementi cluster
+
             for (j = 0; j < n; j++) {
                 V[i][d] += pow(U[i][j], m) * pow(calcDistanza(V[i], X[j]), 2.0);
 
@@ -181,7 +189,9 @@ double calcolaSigma(double **V, double **U) {
                 if (U[i][j] > soglia_conteggio)
                     V[i][d + 1]++;
             }
+
             if (aggiungi_peso_sigma && V[i][d + 1] > soglia_peso_sigma) {
+                peso_sigma = 1 - (V[i][d + 1] / n); //1 - (V[i][d + 1] / n); //sperimentale
                 //aggiunta di un peso per via del numero di elementi vicini al centroide
                 V[i][d] = V[i][d] * peso_sigma;
             }
@@ -243,15 +253,15 @@ double calcolaMinSep(double **V) {
 }
 
 double calcolaXB(double **V, double **U) {
-
+    //double sigma;
     double sigma = calcolaSigma(V, U);
     /*for (i = 0; i < n; i++) {
         for (j = 0; j < c; j++) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
-    }*/
+    }
+     */
     double den = calcolaMinSep(V);
-
 
     return sigma / (n * den);
 }
@@ -489,7 +499,7 @@ void lavora(int n, int c, int d) {
         aggiornaBestFitIndex();
 
         //DEBUG/////////////////////////
-        if (numero_generazione_attuale % 50 == 0 || numero_generazione_attuale == 1) {
+        if (numero_generazione_attuale % 50 == 0) {
             printf("\n#####DEBUG#####\n");
             double best_xb = POP_NOW[bestXBIndex]->XB;
             double best_fit = POP_NOW[bestFitIndex]->fitness;
@@ -621,7 +631,7 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //selezione può essere fatta su fitness o su XB
-            if (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB) {// || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
+            if (mutant->fitness < POP_NOW[i_target]->fitness) {// && mutant->XB < POP_NOW[i_target]->XB) {// || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
@@ -824,7 +834,7 @@ int main(int argc, char** argv) {
 
     int leggi_parametri_esterni = 1; //leggere parametri da CL
     if (leggi_parametri_esterni) {
-        if (argc < 5) {
+        if (argc < 6) {
             //letture da utente
             printf("tipo dataset: ");
             scanf("%d", &tipo_dataset);
@@ -836,7 +846,7 @@ int main(int argc, char** argv) {
             scanf("%d", &c);
             printf("numero di generazioni: ");
             scanf("%d", &numero_generazioni);
-        } else if (argc == 5) {
+        } else if (argc == 6) {
             tipo_dataset = atoi(argv[1]);
             n = atoi(argv[2]);
             d = atoi(argv[3]);
@@ -860,7 +870,7 @@ int main(int argc, char** argv) {
     m = 2.0; //fuzzification factor
     esponente_U = 2.0 / (m - 1.0);
     starting_age = numero_generazioni / 10; //timer iniziale
-    abilita_invecchiamento = 1;
+    abilita_invecchiamento = 0;
     abilita_reset = 0; //richiede invecchiamento
     reset_threshold = numero_generazioni / 2;
     abilita_partitioning = 0; //riodina vettori delle V secondo la prima coordinata
@@ -872,11 +882,13 @@ int main(int argc, char** argv) {
     usa_xb_per_fitness = 0; //DIVERGE
     usa_sumsep = 0; //richiede usa xb per fitness, usa somma delle distanza al denominatore di XB, DIVERGE
     attiva_partitioned_init = 0; //divide equamente in bins la posizione iniziale dei centroidi all'inizializzazione
+
     //per cluster sbilanciati
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
     attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster, il peso sarà dato in modo separato
-    peso_sigma = 0.25; //diamo meno importanza ai cluster più grandi della media
-    soglia_conteggio = 0.9; //soglia di appartenenza di un punto per conteggiarlo come facente strettamente parte del cluster
+
+    //peso_sigma = 0.5; //"compattazione" dei cluster molto grandi, sopra alla soglia_peso_sigma come numero di elementi conteggiati secondo soglia_conteggio
+    soglia_conteggio = 0.90; //soglia di appartenenza di un punto per conteggiarlo come facente strettamente parte del cluster
     soglia_peso_sigma = n / c; //soglia (sul numero di punti nel cluster) oltre la quale si applica il peso sigma
 
     puts("v9b");
@@ -884,7 +896,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/R15.data", "r");
+    out_X = fopen("dataset/gauss5.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc9b.out", "w");
     //matrice output appartenenze
@@ -928,6 +940,13 @@ int main(int argc, char** argv) {
     if (output_csv) {
         out_csv = fopen("csv/output_defcv9b.csv", "a");
         fprintf(out_csv, "dataset:%d,", tipo_dataset);
+        fprintf(out_csv, "best_XB:%lf,", best_xb);
+        fprintf(out_csv, "best_fit:%lf,", best_fit);
+        fprintf(out_csv, "usa peso sigma:%d,", aggiungi_peso_sigma);
+        fprintf(out_csv, "val peso sigma:%lf,", peso_sigma);
+        fprintf(out_csv, "sog peso sigma:%lf,", soglia_peso_sigma);
+        fprintf(out_csv, "sog count:%lf,", soglia_conteggio);
+        fprintf(out_csv, "separa sigma:%d,", attiva_sigma_separate);
         fprintf(out_csv, "n:%d,", n);
         fprintf(out_csv, "c:%d,", c);
         fprintf(out_csv, "d:%d,", d);
@@ -936,14 +955,8 @@ int main(int argc, char** argv) {
         fprintf(out_csv, "aging:%d,", abilita_invecchiamento);
         fprintf(out_csv, "reset:%d,", abilita_reset);
         fprintf(out_csv, "random_init:%d,", random_init);
-        fprintf(out_csv, "shuffle:%d,", abilita_shuffle);
-        fprintf(out_csv, "utilizza peso sigma:%d,", aggiungi_peso_sigma);
-        fprintf(out_csv, "valore peso sigma:%lf,", peso_sigma);
-        fprintf(out_csv, "soglia peso sigma:%lf,", soglia_peso_sigma);
-        fprintf(out_csv, "soglia conteggio:%lf,", soglia_conteggio);
-        fprintf(out_csv, "separazione sigma:%d,", attiva_sigma_separate);
-        fprintf(out_csv, "best_XB:%lf,", best_xb);
-        fprintf(out_csv, "best_fit:%lf\n", best_fit);
+        fprintf(out_csv, "shuffle:%d\n", abilita_shuffle);
+
         fclose(out_csv);
     }
 

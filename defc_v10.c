@@ -598,7 +598,7 @@ void lavora(int n, int c, int d) {
 
             //SELECTION
             //selezione può essere fatta su sigma o su XB
-            if (mutant->sigma < POP_NOW[i_target]->sigma || (mutant->sigma = POP_NOW[i_target]->sigma && mutant->min_sep > POP_NOW[i_target]->min_sep)) {
+            if (mutant->sigma < POP_NOW[i_target]->sigma) {// || (mutant->sigma = POP_NOW[i_target]->sigma && mutant->min_sep > POP_NOW[i_target]->min_sep)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 sigma_vector[i_target] = mutant->sigma;
@@ -857,7 +857,7 @@ int main(int argc, char** argv) {
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
     attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster, il peso sarà dato in modo separato
     peso_sigma = 0.25; //diamo meno importanza ai cluster più grandi della media
-    soglia_conteggio = 0.9; //soglia di appartenenza di un punto per conteggiarlo come facente strettamente parte del cluster
+    soglia_conteggio = 0.95; //soglia di appartenenza di un punto per conteggiarlo come facente strettamente parte del cluster
     soglia_peso_sigma = n / c; //soglia (sul numero di punti nel cluster) oltre la quale si applica il peso sigma
 
     puts("v10");
