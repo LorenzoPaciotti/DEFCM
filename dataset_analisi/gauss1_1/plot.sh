@@ -1,8 +1,11 @@
 #!/usr/bin/gnuplot
- 
-set terminal postscript eps enhanced color "Helvetica" 20
-#set terminal x11
-set output "gauss1.eps"
+
+set terminal postscript enhanced color
+  
+#set terminal postscript eps enhanced color "Helvetica" 20 set terminal x11
+set output '| ps2pdf - plot.pdf'
+
+#set output "gauss1.eps"
 #set output 0
  
 # beginning of multiplot
