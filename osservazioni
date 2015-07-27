@@ -1,0 +1,26 @@
+problema principale: con cluster sbilanciati (oltre una certa soglia di sbilanciamento) i centroidi vengono concentrati dove ci sono
+più punti (min locale di FCM)
+
+problema 2: con cluster non sferici
+
+tentando di usare XB direttamente come funzione obiettivo i centroidi tendono ad allontanarsi infinitamente col passare
+delle generazioni
+
+cluster non globulari non riescono, problema dovuto a distanza euclidea e f. obiettivo errore al quadrato (==> cambiare metodo calcolo distanza?)
+
+implementato conteggio elementi di cluster (per fare il punto sotto), a ogni riga di V viene aggiunto un elemento che memorizza il
+numero di punti del cluster, inteso come quelli che hanno un grado di appartenenza fuzzy superiore a una certa soglia (non sembra buona idea,considerare cluster non globulari, vedi gauss 4)
+
+?? trovare un peso da dare a sigma per evitare centroidi vicini quando densità alta (tentativi fatti senza successo)
+
+dimensione della popolazione non influisce troppo, va bene nel range 30 ~ 100
+
+jDE funziona correttamente
+
+shuffle non funziona
+
+partitioning non funziona
+
+invecchiamento funziona anche con jDE
+
+serve nuova funzione obiettivoe e proporre calcolo delle distanze alternativo

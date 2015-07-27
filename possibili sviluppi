@@ -1,0 +1,10 @@
+testare su dataset non artificiali
+migliorare invecchiamento
+migliorare su cluster artificiali sbilanciati
+calcolo costi
+ulteriori test su cluster non globulari
+usare distanza fra matrici per verificare affidabilità su dimensioni superiori a 3 (quindi solo con dataset artificiali o dataset reali con matrice delle appartenenze data)
+impostazione automatica numero centroidi (vd. ADEFC)
+
+
+###############

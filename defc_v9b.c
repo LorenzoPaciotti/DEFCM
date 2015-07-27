@@ -39,6 +39,7 @@ int attiva_sigma_separate;
 double peso_sigma;
 double soglia_conteggio;
 double soglia_peso_sigma;
+int auto_peso_sigma;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -54,6 +55,10 @@ typedef struct el_pop {
     //jDE
     double f;
     double CR;
+    //pesoSigma
+    double soglia_conteggio;
+    double soglia_peso_sigma;
+    double peso_sigma;
 } el_pop;
 
 //vettore nuova popolazione
@@ -191,7 +196,8 @@ double calcolaSigma(double **V, double **U) {
             }
 
             if (aggiungi_peso_sigma && V[i][d + 1] > soglia_peso_sigma) {
-                peso_sigma = 1 - (V[i][d + 1] / n); //1 - (V[i][d + 1] / n); //sperimentale
+                if (auto_peso_sigma)
+                    peso_sigma = 1 - (V[i][d + 1] / n); //1 - (V[i][d + 1] / n); //sperimentale
                 //aggiunta di un peso per via del numero di elementi vicini al centroide
                 V[i][d] = V[i][d] * peso_sigma;
             }
@@ -630,8 +636,7 @@ void lavora(int n, int c, int d) {
             mutant -> age = starting_age;
 
             //SELECTION
-            //selezione può essere fatta su fitness o su XB
-            if (mutant->fitness < POP_NOW[i_target]->fitness) {// && mutant->XB < POP_NOW[i_target]->XB) {// || (mutant->XB < POP_NOW[i_target]->XB && mutant->fitness <= POP_NOW[i_target]->fitness)) {
+            if (mutant->fitness < POP_NOW[i_target]->fitness || (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
@@ -886,10 +891,11 @@ int main(int argc, char** argv) {
     //per cluster sbilanciati
     aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
     attiva_sigma_separate = 1; //(richiede peso sigma) calcola sigma come somma delle diverse sigma dei cluster, il peso sarà dato in modo separato
+    auto_peso_sigma = 1; //!!sovrascrive il valore di peso_sigma con valore calcolato automaticamente
 
-    //peso_sigma = 0.5; //"compattazione" dei cluster molto grandi, sopra alla soglia_peso_sigma come numero di elementi conteggiati secondo soglia_conteggio
-    soglia_conteggio = 0.90; //soglia di appartenenza di un punto per conteggiarlo come facente strettamente parte del cluster
-    soglia_peso_sigma = n / c; //soglia (sul numero di punti nel cluster) oltre la quale si applica il peso sigma
+    peso_sigma = 0.5; //"compattazione" dei cluster molto grandi, sopra alla soglia_peso_sigma come numero di elementi conteggiati secondo soglia_conteggio
+    soglia_conteggio = 0.9; //soglia di appartenenza di un punto per conteggiarlo come facente strettamente parte del cluster
+    soglia_peso_sigma = 7; //soglia (sul numero di punti nel cluster) oltre la quale si applica il peso sigma
 
     puts("v9b");
     numero_generazioni_iniziale = numero_generazioni;
