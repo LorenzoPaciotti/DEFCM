@@ -47,8 +47,8 @@ typedef struct el_pop {
     double f;
     double CR;
     //per peso sigma
-    double soglia_conteggio;
-    double soglia_peso_sigma;
+    double soglia_conteggio; //percentuale di appartenenza minima di un punto per conteggiarlo nel cluster
+    int soglia_peso_sigma; //numero minimo di punti fortemente legati per dover applicare peso sigma
     double peso_sigma;
 } el_pop;
 
@@ -148,7 +148,7 @@ int rand_int(int n) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-double calcolaSigma(double **V, double **U, double soglia_conteggio, double soglia_peso_sigma, double peso_sigma) {
+double calcolaSigma(double **V, double **U, double soglia_conteggio, int soglia_peso_sigma, double peso_sigma) {
     double sigma = 0;
     //calcolo le sigma separatamente
     for (i = 0; i < c; i++) {
@@ -203,7 +203,7 @@ double calcolaMinSep(double **V) {
     return den;
 }
 
-double calcolaXB(double **V, double **U, double soglia_conteggio, double soglia_peso_sigma, double peso_sigma) {
+double calcolaXB(double **V, double **U, double soglia_conteggio, int soglia_peso_sigma, double peso_sigma) {
     //double sigma;
     double sigma = calcolaSigma(V, U, soglia_conteggio, soglia_peso_sigma, peso_sigma);
     /*for (i = 0; i < n; i++) {
@@ -319,7 +319,7 @@ void init(int n, int c, int d) {
 
         //impostazione parametri peso sigma
         POP_NEW[pop_index]->soglia_conteggio = dbl_rnd_inRange(.51, .9);
-        POP_NEW[pop_index]->soglia_peso_sigma = dbl_rnd_inRange(0, n / c);
+        POP_NEW[pop_index]->soglia_peso_sigma = rand_int_in_interval(0,(int)floor(n/c));
         POP_NEW[pop_index]->peso_sigma = dbl_rnd_inRange(.1, 1);
 
 
@@ -493,7 +493,7 @@ void lavora(int n, int c, int d) {
 
             //impostazione parametri peso sigma
             mutant->soglia_conteggio = dbl_rnd_inRange(.51, .9);
-            mutant->soglia_peso_sigma = dbl_rnd_inRange(0, n / c);
+            mutant->soglia_peso_sigma = rand_int_in_interval(0, (int)floor(n / c));
             mutant->peso_sigma = dbl_rnd_inRange(.1, 1);
 
             //calcolo fitness trial
@@ -506,7 +506,8 @@ void lavora(int n, int c, int d) {
             mutant -> age = starting_age;
 
             //SELECTION
-            if (mutant->fitness < POP_NOW[i_target]->fitness || (mutant->fitness < POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB)) {
+            if (mutant->fitness < POP_NOW[i_target]->fitness || (mutant->fitness <= POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB)) {
+            //if (mutant->XB<POP_NOW[i_target]->XB){
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
@@ -730,7 +731,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/gauss1.data", "r");
+    out_X = fopen("dataset/aggregation.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc10.out", "w");
     //matrice output appartenenze
@@ -781,6 +782,7 @@ int main(int argc, char** argv) {
         //fprintf(out_csv, "sog peso sigma:%lf,", soglia_peso_sigma);
         //fprintf(out_csv, "sog count:%lf,", soglia_conteggio);
         //fprintf(out_csv, "separa sigma:%d,", attiva_sigma_separate);
+        fprintf(out_csv, "auto peso sigma:%d,", auto_peso_sigma);
         fprintf(out_csv, "n:%d,", n);
         fprintf(out_csv, "c:%d,", c);
         fprintf(out_csv, "d:%d,", d);

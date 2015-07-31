@@ -14,7 +14,9 @@ echo "run # $i"
 #./defc5 $text
 #echo "#DEFC v7"
 #time ./defc7 $text
-echo "#DEFC v9b"
-time ./defc9b.x $text
+#echo "#DEFC v9b"
+#time ./defc9b.x $text
+echo "###DEFC v10"
+time ./defc10.x $text
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 done

@@ -4,8 +4,8 @@ set terminal postscript enhanced color
 set output '| ps2pdf - gauss4.pdf'
 set multiplot
 set grid
-set xrange[-5:50]
-set yrange[-5:50]
+set xrange[-5:45]
+set yrange[0:35]
 unset key
 plot "x.dat" with p pt 1
 unset grid
