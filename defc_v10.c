@@ -31,6 +31,7 @@ int testLoadVIdeale; //test solo per dataset
 int random_init; //inizializza V popolazione iniziale completamente in modo casuale
 int aggiungi_peso_sigma;
 int auto_peso_sigma;
+double best_final_vanilla_xb;
 
 //numero di elementi della popolazione - fare parametrico
 #define num_pop 100 // 30, 50, 100
@@ -163,7 +164,8 @@ double calcolaSigma(double **V, double **U, double soglia_conteggio, int soglia_
 
         if (aggiungi_peso_sigma && V[i][d + 1] > soglia_peso_sigma) {
             if (auto_peso_sigma)
-                peso_sigma = 1 - (V[i][d + 1] / n);
+                peso_sigma = 1 - (V[i][d + 1] / n); //V[i][d + 1] / n;
+
             //aggiunta di un peso per via del numero di elementi vicini al centroide
             V[i][d] = V[i][d] * peso_sigma;
         }
@@ -204,17 +206,44 @@ double calcolaMinSep(double **V) {
 }
 
 double calcolaXB(double **V, double **U, double soglia_conteggio, int soglia_peso_sigma, double peso_sigma) {
-    //double sigma;
+
     double sigma = calcolaSigma(V, U, soglia_conteggio, soglia_peso_sigma, peso_sigma);
-    /*for (i = 0; i < n; i++) {
+
+    double den = calcolaMinSep(V);
+
+    return sigma / (n * den);
+}
+
+double calcolaVanillaXB(double **V, double **U){
+	//CALCOLO MIN_SEP
+    double min_sep = DBL_MAX;
+    int i, j;
+    double dist_tmp = 0;
+    j = 0;
+    for (i = 0; i < c; i++) {
+        if (j == i)
+            j++;
+        while (j < c) {
+            if (j == i)
+                j++;
+            if (j < c) {
+                dist_tmp = pow(calcDistanza(V[i], V[j]), 2.0);
+                if (dist_tmp < min_sep)
+                    min_sep = dist_tmp;
+                j++;
+            }
+        }
+        j = 0;
+    }
+
+    //CALCOLO SIGMA
+    double sigma = 0.0;
+    for (i = 0; i < n; i++) {
         for (j = 0; j < c; j++) {
             sigma += pow(U[j][i], m) * pow(calcDistanza(V[j], X[i]), 2.0);
         }
     }
-     */
-    double den = calcolaMinSep(V);
-
-    return sigma / (n * den);
+    return sigma / (n * min_sep);
 }
 
 void aggiornaBestFitIndex() {
@@ -506,8 +535,7 @@ void lavora(int n, int c, int d) {
             mutant -> age = starting_age;
 
             //SELECTION
-            if (mutant->fitness < POP_NOW[i_target]->fitness || (mutant->fitness <= POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB)) {
-            //if (mutant->XB<POP_NOW[i_target]->XB){
+            if (mutant->fitness < POP_NOW[i_target]->fitness){// || (mutant->fitness <= POP_NOW[i_target]->fitness && mutant->XB < POP_NOW[i_target]->XB)) {
                 //IL TRIAL RIMPIAZZA IL TARGET
                 POP_NEW[i_target] = mutant;
                 fitness_vector[i_target] = mutant->fitness;
@@ -638,10 +666,16 @@ void lavora(int n, int c, int d) {
 
     best_xb = POP_NOW[bestFitIndex]->XB;
     best_fit = POP_NOW[bestFitIndex]->fitness;
-    printf("\n**MIGLIOR XB FINALE: \t%lf\n", best_xb);
-    printf("\n**MIGLIOR FITNESS FINALE: \t%lf\n", best_fit);
+    best_final_vanilla_xb = calcolaVanillaXB(POP_NOW[bestFitIndex]->V_p,POP_NOW[bestFitIndex]->U_p);
+    printf("\n**MIGLIOR XB FINALE (VANILLA): \t%lf\n", best_vanilla_xb);
+    printf("\n**MIGLIOR XB FINALE (ADJUSTED): \t%lf\n", best_xb);
+    printf("\n**MIGLIOR FITNESS FINALE (ADJUSTED): \t%lf\n", best_fit);
     printf("\n**f: \t%lf\n", POP_NOW[bestFitIndex]->f);
     printf("\n**CR: \t%lf\n", POP_NOW[bestFitIndex]->CR);
+    printf("\n**soglia_peso_sigma: \t%d\n", POP_NOW[bestFitIndex]->soglia_peso_sigma);
+    printf("\n**soglia_conteggio: \t%lf\n", POP_NOW[bestFitIndex]->soglia_conteggio);
+    if(!auto_peso_sigma)
+    	printf("\n**peso_sigma (INTERNO): \t%lf\n", POP_NOW[bestFitIndex]->peso_sigma);
     puts("matrice del best XB:");
     stampaMatrice(c, d, POP_NOW[bestXBIndex]->V_p);
     puts("matrice del best fitness:");
@@ -731,7 +765,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/aggregation.data", "r");
+    out_X = fopen("dataset/gauss4.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc10.out", "w");
     //matrice output appartenenze
@@ -775,14 +809,10 @@ int main(int argc, char** argv) {
     if (output_csv) {
         out_csv = fopen("csv/output_defcv10.csv", "a");
         fprintf(out_csv, "dataset:%d,", tipo_dataset);
-        fprintf(out_csv, "best_XB:%lf,", best_xb);
+        fprintf(out_csv, "best_XB:%lf,", best_final_vanilla_xb);
+        fprintf(out_csv, "adj_best_XB:%lf,", best_xb);
         fprintf(out_csv, "best_fit:%lf,", best_fit);
-        //fprintf(out_csv, "usa peso sigma:%d,", aggiungi_peso_sigma);
-        //fprintf(out_csv, "val peso sigma:%lf,", peso_sigma);
-        //fprintf(out_csv, "sog peso sigma:%lf,", soglia_peso_sigma);
-        //fprintf(out_csv, "sog count:%lf,", soglia_conteggio);
-        //fprintf(out_csv, "separa sigma:%d,", attiva_sigma_separate);
-        fprintf(out_csv, "auto peso sigma:%d,", auto_peso_sigma);
+        fprintf(out_csv, "auto_peso_sigma:%d,", auto_peso_sigma);
         fprintf(out_csv, "n:%d,", n);
         fprintf(out_csv, "c:%d,", c);
         fprintf(out_csv, "d:%d,", d);
