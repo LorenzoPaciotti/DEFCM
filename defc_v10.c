@@ -667,7 +667,7 @@ void lavora(int n, int c, int d) {
     best_xb = POP_NOW[bestFitIndex]->XB;
     best_fit = POP_NOW[bestFitIndex]->fitness;
     best_final_vanilla_xb = calcolaVanillaXB(POP_NOW[bestFitIndex]->V_p,POP_NOW[bestFitIndex]->U_p);
-    printf("\n**MIGLIOR XB FINALE (VANILLA): \t%lf\n", best_vanilla_xb);
+    printf("\n**MIGLIOR XB FINALE (VANILLA): \t%lf\n", best_final_vanilla_xb);
     printf("\n**MIGLIOR XB FINALE (ADJUSTED): \t%lf\n", best_xb);
     printf("\n**MIGLIOR FITNESS FINALE (ADJUSTED): \t%lf\n", best_fit);
     printf("\n**f: \t%lf\n", POP_NOW[bestFitIndex]->f);

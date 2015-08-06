@@ -20,3 +20,5 @@ echo "###DEFC v10"
 time ./defc10.x $text
 echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 done
+#!/usr/bin/gnuplot -persistent
+plot 'x.dat' pointtype 3
