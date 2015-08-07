@@ -411,8 +411,6 @@ void lavora(int n, int c, int d) {
             printf("Generazione:%d      best_fit_index:%d       best_xb_index:%d\n", numero_generazione_attuale, bestFitIndex, bestXBIndex);
             printf("best_XB_assoluto:%lf    best_fit:%lf    xb_of_best_fit:%lf\n", best_xb, best_fit, best_xb_and_fit);
             fprintf(debug_log, "%d\n", numero_generazione_attuale);
-            stampaMatriceSuFile(c, d, POP_NOW[bestXBIndex]->V_p, debug_log);
-            fprintf(debug_log, "\n");
             stampaMatriceSuFile(c, d, POP_NOW[bestFitIndex]->V_p, debug_log);
             fprintf(debug_log, "\n");
             fprintf(debug_log, "\n");
@@ -757,7 +755,7 @@ int main(int argc, char** argv) {
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
 
     //per cluster sbilanciati
-    aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
+    aggiungi_peso_sigma = 0; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
     auto_peso_sigma = 1; //!!sovrascrive il valore di peso_sigma con valore calcolato automaticamente
 
     puts("v10");
@@ -765,7 +763,7 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/gauss4.data", "r");
+    out_X = fopen("dataset/R15.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc10.out", "w");
     //matrice output appartenenze
