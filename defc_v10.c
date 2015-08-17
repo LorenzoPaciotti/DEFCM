@@ -751,11 +751,11 @@ int main(int argc, char** argv) {
     reset_threshold = numero_generazioni / 2;
     attivaGnuPlot = 0;
     int output_csv = 1; //accende output su csv
-    testLoadVIdeale = 0; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
+    testLoadVIdeale = 1; //SOLO TEST, carica da file una matrice V predeterminata e la assegna al primo della popolazione
     random_init = 0; //se a 0 utilizza punti dell'input (con disturbo) per inizializzare
 
     //per cluster sbilanciati
-    aggiungi_peso_sigma = 0; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
+    aggiungi_peso_sigma = 1; //aumenta la sigma di una soluzione con il numero di punti appartenenti ai centroidi oltre la soglia indicata da soglia_conteggio
     auto_peso_sigma = 1; //!!sovrascrive il valore di peso_sigma con valore calcolato automaticamente
 
     puts("v10");
@@ -763,14 +763,14 @@ int main(int argc, char** argv) {
     conteggio_reset = 0;
     //stream file
     //matrice di input
-    out_X = fopen("dataset/R15.data", "r");
+    out_X = fopen("dataset/aggregation.data", "r");
     //matrice di output centroidi
     out_V = fopen("v_defc10.out", "w");
     //matrice output appartenenze
     out_U = fopen("u_defc10.out", "w");
     if (testLoadVIdeale) {
         //matrice V per test funzione obiettivo
-        in_V = fopen("v_test.dat", "r");
+        in_V = fopen("v_ideal.in", "r");
         puts("TEST LOAD V IDEALE ATTIVO!");
     }
     debug_log = fopen("debug/debug_defcv10.debug", "w");
